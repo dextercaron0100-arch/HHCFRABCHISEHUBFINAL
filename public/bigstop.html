@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BIGSTOP - HHC Franchise Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preload" href="Bigstop header.jpg" as="image" />
+  <link rel="preload" href="Bigstop WHAT WE OFFER.jpg" as="image" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="subpage bigstop-page">
+  <!-- Background audio -->
+  <audio id="bg-audio" src="MUSIC/BIGSTOP.mp3" preload="auto" loop></audio>
+  <button id="audioToggle" class="audio-toggle" type="button" aria-pressed="true">Pause Music</button>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav-brand">
+        <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="faqs.html" class="nav-link">FAQs</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact" class="btn-primary">Franchise Now <span>&rarr;</span></a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Urgency bar -->
+  <div class="timer-bar">
+    🔥 <strong>LIMITED TIME OFFER</strong> — Ends in:
+    <strong id="countdown">23:59:59</strong> &nbsp;|&nbsp;
+    Only a few slots remaining!
+  </div>
+
+  <main class="bigstop-layout">
+    <section class="hero-banner bigstop-hero-banner" id="hero">
+      <img src="Bigstop header.jpg" alt="BIGSTOP hero" class="hero-banner-img" loading="lazy" />
+      <div class="bigstop-hero-overlay">
+        <div class="container">
+          <div class="hero-content-wrapper">
+            <div class="bigstop-hero-panel reveal">
+              <div class="bigstop-growth-card">
+                <p class="bigstop-growth-kicker">BIGSTOP FRANCHISE</p>
+                <h1 class="bigstop-growth-title">Unlock growth with BIGSTOP</h1>
+                <p class="bigstop-growth-copy">Build a 6-in-1 convenience hub with daily essentials, quick bites, pharmacy support, and payment services for your community.</p>
+                <div class="bigstop-growth-actions">
+                  <a class="bigstop-growth-btn primary" href="bigstop-franchise-kit.html">Get started</a>
+                  <a class="bigstop-growth-btn secondary" href="index.html#contact">Talk to a human</a>
+                </div>
+              </div>
+            </div>
+            <div class="hero-video-thumb reveal" aria-label="HHC intro video">
+              <div class="hero-video-frame">
+                <video
+                  src="assets/videos/intro-hhc.mp4"
+                  autoplay
+                  loop
+                  playsinline
+                  muted
+                  controls
+                  preload="auto"
+                ></video>
+              </div>
+              <span class="hero-video-label">View the reel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-why section" id="why-bigstop">
+      <div class="container">
+        <div class="why-grid">
+          <button class="why-intro glass-tile" id="whyHeroCard" type="button">
+            <p class="section-kicker">Why Choose BIGSTOP?</p>
+            <h2 class="why-title">One Franchise, Multiple Income Streams</h2>
+            <p class="why-sub">Layer six proven earners in one footprint—food, pharmacy, bills pay, ATM, quick bites, and daily essentials—backed by nationwide support.</p>
+            <div class="why-tags">
+              <span class="pill">6-in-1 model</span>
+              <span class="pill">Nationwide rollout</span>
+              <span class="pill">Fast ROI</span>
+            </div>
+          </button>
+
+          <div class="why-cards">
+            <article class="why-card">
+              <div class="why-number">01</div>
+              <div class="why-body">
+                <h3>6-in-1 Business Model</h3>
+                <p>Convenience Store, Quick Bites, Herrera Pharmacy, Ramyun Station, Payment Center, and ATM Services in one destination.</p>
+              </div>
+            </article>
+
+            <article class="why-card">
+              <div class="why-number">02</div>
+              <div class="why-body">
+                <h3>Affordable Investment</h3>
+                <p>Total capital at ₱3.5M with a ₱350K franchise fee (includes FDA license and brand use).</p>
+              </div>
+            </article>
+
+            <article class="why-card">
+              <div class="why-number">03</div>
+              <div class="why-body">
+                <h3>Fast ROI</h3>
+                <p>Target return in 18–24 months with multi-stream daily revenue.</p>
+              </div>
+            </article>
+
+            <article class="why-card">
+              <div class="why-number">04</div>
+              <div class="why-body">
+                <h3>Nationwide Coverage</h3>
+                <p>Formats built for communities, commercial areas, and high-traffic sites across the country.</p>
+              </div>
+            </article>
+
+            <article class="why-card">
+              <div class="why-number">05</div>
+              <div class="why-body">
+                <h3>Strong Franchise Support</h3>
+                <p>Site evaluation, staff training, marketing playbooks, and ongoing operations coaching.</p>
+              </div>
+            </article>
+
+            <article class="why-card">
+              <div class="why-number">06</div>
+              <div class="why-body">
+                <h3>Community Impact</h3>
+                <p>Filipino-owned brand serving communities the Filipino way.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why modal -->
+    <div class="why-modal" id="whyModal" aria-hidden="true" role="dialog" aria-label="Bigstop poster">
+      <div class="why-modal-backdrop"></div>
+      <div class="why-modal-content">
+        <button class="why-modal-close" id="whyModalClose" aria-label="Close poster">&times;</button>
+        <img src="bigstop-poster.jpg" alt="BIGSTOP Convenience Store poster" id="whyModalImg" />
+      </div>
+    </div>
+
+    <section class="bigstop-reasons section">
+      <div class="container">
+        <div class="section-header bigstop-section-header">
+          <p class="section-kicker">Why Partner With Us</p>
+          <h2 class="section-title">4 Reasons Why BIGSTOP Is Built for Growth</h2>
+        </div>
+        <div class="bigstop-reasons-grid">
+          <article class="bigstop-reason-card reason-proven-quality tilt-card reveal" data-tilt="5">
+            <span class="bigstop-reason-number">1</span>
+            <h3>Proven Quality</h3>
+            <p>Validated store operations and merchandising standards that protect brand trust over time.</p>
+          </article>
+          <article class="bigstop-reason-card reason-fast-launch tilt-card reveal" data-tilt="5">
+            <span class="bigstop-reason-number">2</span>
+            <h3>Fast Launch</h3>
+            <p>End-to-end setup playbook covering site prep, store activation, and opening support.</p>
+          </article>
+          <article class="bigstop-reason-card reason-flexible-formats tilt-card reveal" data-tilt="5">
+            <span class="bigstop-reason-number">3</span>
+            <h3>Flexible Formats</h3>
+            <p>Store models that adapt to neighborhoods, transport hubs, and commercial districts.</p>
+          </article>
+          <article class="bigstop-reason-card reason-accessible-investment tilt-card reveal" data-tilt="5">
+            <span class="bigstop-reason-number">4</span>
+            <h3>Accessible Investment</h3>
+            <p>Package options that make expansion feasible across multiple city and provincial markets.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="bigstop-invest section" id="investment">
+      <div class="container invest-container stacked">
+        <div class="invest-header stacked">
+          <div>
+            <p class="section-kicker">Investment Details</p>
+            <h2 class="invest-title">Franchise Packages at a Glance</h2>
+            <p class="invest-sub">Scroll through each package module to compare capital, coverage, and rollout notes at a glance.</p>
+          </div>
+        </div>
+
+        <div class="package-section" id="franchise-fee">
+          <div class="section-bar">
+            <div>
+              <p class="package-eyebrow">Foundation</p>
+              <h3>Franchise Fee</h3>
+              <p class="package-sub">Everything bundled in the base fee to get your store ready for launch.</p>
+            </div>
+            <div class="bar-meta">
+              <span class="price-tag">&#8369;350,000</span>
+            </div>
+          </div>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <p class="summary-label">Royalty (first 3 months)</p>
+              <p class="summary-value">&#8369;0</p>
+            </div>
+            <div class="summary-card">
+              <p class="summary-label">Launch support</p>
+              <p class="summary-value">&#8369;5,000 FB ads boost</p>
+            </div>
+            <div class="summary-card">
+              <p class="summary-label">Training</p>
+              <p class="summary-value">Owner + staff included</p>
+            </div>
+          </div>
+          <div class="details-table" role="table" aria-label="Franchise fee coverage">
+            <div class="table-head" role="row">
+              <span role="columnheader">Coverage</span>
+              <span role="columnheader">Included</span>
+            </div>
+            <div class="table-row" role="row"><span role="cell">Brand & system rights</span><span role="cell">Use of BIGSTOP trademark, name, and system</span></div>
+            <div class="table-row" role="row"><span role="cell">Contract term</span><span role="cell">5 years</span></div>
+            <div class="table-row" role="row"><span role="cell">Operations kit</span><span role="cell">Franchise kit with manuals & guidelines</span></div>
+            <div class="table-row" role="row"><span role="cell">Services access</span><span role="cell">Full access to 6-in-1 services</span></div>
+            <div class="table-row" role="row"><span role="cell">Uniforms</span><span role="cell">5 sets</span></div>
+            <div class="table-row" role="row"><span role="cell">Training & opening</span><span role="cell">Staff and owner training plus store opening support</span></div>
+            <div class="table-row" role="row"><span role="cell">Layout & signage</span><span role="cell">Free layout and signage guide</span></div>
+          </div>
+          <div class="note-box">
+            <p>Marketing support worth &#8369;5,000 for FB ads is built in. Royalty fee starts only after the third month.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-package-6in1 section">
+      <div class="container invest-container stacked">
+        <div class="package-duo">
+          <div class="package-section" id="package-35m">
+            <div class="section-bar">
+              <div>
+                <p class="package-eyebrow">Franchise Details</p>
+                <h3>3.5M Package</h3>
+                <p class="package-sub">Expanded build-out with upgraded fixtures and ready-for-traffic layout.</p>
+              </div>
+              <div class="bar-meta">
+                <span class="price-tag">&#8369;3,500,000</span>
+                <span class="bar-pill emphasis">Premium package</span>
+              </div>
+            </div>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <p class="summary-label">Franchise Fee</p>
+                <p class="summary-value">&#8369;350,000</p>
+              </div>
+              <div class="summary-card">
+                <p class="summary-label">Terms of Franchise</p>
+                <p class="summary-value">5 years (renewable, promo rate)</p>
+              </div>
+              <div class="summary-card">
+                <p class="summary-label">Royalty Fee</p>
+                <p class="summary-value">6% net income</p>
+              </div>
+              <div class="summary-card">
+                <p class="summary-label">Coverage</p>
+                <p class="summary-value">Nationwide</p>
+              </div>
+              <div class="summary-card">
+                <p class="summary-label">Required Floor Area</p>
+                <p class="summary-value">100–150 sqm</p>
+              </div>
+            </div>
+            <div class="details-table wide-3" role="table" aria-label="3.5M package breakdown">
+              <div class="table-head" role="row">
+                <span role="columnheader">No.</span>
+                <span role="columnheader">Franchise</span>
+                <span role="columnheader">Amount / Terms</span>
+              </div>
+              <div class="table-row" role="row"><span role="cell">01</span><span role="cell">Franchise Fee</span><span role="cell">&#8369;350,000</span></div>
+              <div class="table-row" role="row"><span role="cell">02</span><span role="cell">Terms of Franchise</span><span role="cell">5 years (renewable, promo rate)</span></div>
+              <div class="table-row" role="row"><span role="cell">03</span><span role="cell">Royalty Fee</span><span role="cell">6% net income</span></div>
+              <div class="table-row" role="row"><span role="cell">04</span><span role="cell">Coverage</span><span role="cell">Nationwide</span></div>
+              <div class="table-row" role="row"><span role="cell">05</span><span role="cell">Required Floor Area</span><span role="cell">100â€“150 sqm</span></div>
+            </div>
+            <div class="note-box">
+              <p>Designed for high-capacity sites with ample foot traffic; includes allowances for premium fixtures, signage, and a ready-for-traffic layout.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-reminders section">
+      <div class="container invest-container stacked">
+        <div class="package-section reminders" id="reminders">
+          <div class="section-bar">
+            <div>
+              <p class="package-eyebrow">Support Programs</p>
+              <h3>Pre-opening &amp; Ongoing Support</h3>
+              <p class="package-sub">We ensure every franchisee is fully equipped and supported through:</p>
+            </div>
+            <div class="bar-meta">
+              <span class="bar-pill">Nationwide network</span>
+            </div>
+          </div>
+          <div class="support-grid">
+            <div class="support-column">
+              <p class="support-title">Pre-opening Assistance</p>
+              <ul class="support-list">
+                <li>Use of Bigstop trademark and business systems</li>
+                <li>Site evaluation and business registration guidance</li>
+                <li>Training for operations, POS, and customer service</li>
+                <li>Marketing support for soft and grand openings</li>
+                <li>Nationwide logistics and product delivery</li>
+              </ul>
+            </div>
+            <div class="support-column">
+              <p class="support-title">Continuing Support</p>
+              <ul class="support-list">
+                <li>Regular store monitoring and refresher training</li>
+                <li>Product innovation and supplier partnerships</li>
+                <li>National and local marketing campaigns</li>
+                <li>Dedicated operations and business support team</li>
+                <li>Refresher training</li>
+              </ul>
+            </div>
+          </div>
+          <div class="note-box">
+            <p>Dedicated operations, logistics, and marketing teams keep your store compliant, supplied, and ready to grow from day one.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-franchise-info section">
+      <div class="container">
+        <div class="section-header bigstop-section-header">
+          <p class="section-kicker">Franchise Information</p>
+          <h2 class="section-title">Your Store Configuration</h2>
+          <p class="section-subtitle">Drop in your site specifics and package notes so the team can finalize the numbers fast.</p>
+        </div>
+        <div class="franchise-info-grid">
+          <article class="franchise-info-card tilt-card reveal" data-tilt="5" data-tilt-glare>
+            <h3>Location Snapshot</h3>
+            <div class="franchise-fields">
+              <label class="franchise-field">
+                <span>Site</span>
+                <input type="text" name="site" placeholder="Enter site location" />
+              </label>
+              <label class="franchise-field">
+                <span>Floor Area</span>
+                <input type="text" name="floor-area" placeholder="e.g., 120 sqm" />
+              </label>
+              <label class="franchise-field">
+                <span>Foot Traffic</span>
+                <input type="text" name="foot-traffic" placeholder="e.g., 1,200/day" />
+              </label>
+            </div>
+          </article>
+          <article class="franchise-info-card tilt-card reveal" data-tilt="5" data-tilt-glare>
+            <h3>Package & Options</h3>
+            <div class="franchise-fields">
+              <label class="franchise-field">
+                <span>Format</span>
+                <input type="text" name="format" placeholder="e.g., 6-in-1 / Compact" />
+              </label>
+              <label class="franchise-field">
+                <span>Add-ons</span>
+                <input type="text" name="addons" placeholder="e.g., payment center, ATM" />
+              </label>
+              <label class="franchise-field">
+                <span>Target Opening</span>
+                <input type="text" name="target-opening" placeholder="e.g., July 2026" />
+              </label>
+            </div>
+          </article>
+          <article class="franchise-info-card tilt-card reveal" data-tilt="5" data-tilt-glare>
+            <h3>Capital Planning</h3>
+            <div class="franchise-fields">
+              <label class="franchise-field">
+                <span>Equity</span>
+                <input type="text" name="equity" placeholder="e.g., 1.8M" />
+              </label>
+              <label class="franchise-field">
+                <span>Financing</span>
+                <input type="text" name="financing" placeholder="e.g., bank loan 1.2M" />
+              </label>
+              <label class="franchise-field">
+                <span>Notes</span>
+                <textarea name="notes" rows="2" placeholder="Other considerations"></textarea>
+              </label>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-branches section">
+      <div class="container">
+        <div class="section-header bigstop-section-header">
+          <p class="section-kicker">Branch Rollout</p>
+          <h2 class="section-title">Where BIGSTOP Is Opening Next</h2>
+          <p class="section-subtitle">Priority territories for the 2026 expansion wave. Claim your slot before zones lock.</p>
+        </div>
+        <div class="bigstop-branches-coverflow reveal">
+          <button class="bigstop-branch-nav prev" type="button" aria-label="Show previous branch">
+            <span aria-hidden="true">&#8249;</span>
+          </button>
+          <div class="bigstop-branches-stage" aria-live="polite">
+            <div class="bigstop-branches-track">
+              <article class="bigstop-branch-card">
+                <img class="bigstop-branch-image" src="BRANCHES/BANLIC.png" alt="BIGSTOP Banlic branch" loading="lazy" />
+                <div class="branch-card-meta">
+                  <span class="branch-region-label">BANLIC</span>
+                  <span class="branch-status open">Open</span>
+                </div>
+                <p class="branch-name-caption">BANLIC Branch</p>
+              </article>
+              <article class="bigstop-branch-card">
+                <img class="bigstop-branch-image" src="BRANCHES/BATAAN.png" alt="BIGSTOP Bataan branch" loading="lazy" />
+                <div class="branch-card-meta">
+                  <span class="branch-region-label">BATAAN</span>
+                  <span class="branch-status open">Open</span>
+                </div>
+                <p class="branch-name-caption">BATAAN Branch</p>
+              </article>
+              <article class="bigstop-branch-card is-active">
+                <img class="bigstop-branch-image" src="BRANCHES/CROSSING.png" alt="BIGSTOP Crossing branch" loading="lazy" />
+                <div class="branch-card-meta">
+                  <span class="branch-region-label">CROSSING</span>
+                  <span class="branch-status open">Open</span>
+                </div>
+                <p class="branch-name-caption">CROSSING Branch</p>
+              </article>
+              <article class="bigstop-branch-card">
+                <img class="bigstop-branch-image" src="BRANCHES/PACIANO.png" alt="BIGSTOP Paciano branch" loading="lazy" />
+                <div class="branch-card-meta">
+                  <span class="branch-region-label">PACIANO</span>
+                  <span class="branch-status open">Open</span>
+                </div>
+                <p class="branch-name-caption">PACIANO Branch</p>
+              </article>
+              <article class="bigstop-branch-card">
+                <img class="bigstop-branch-image" src="BRANCHES/TUGUEGARAO.png" alt="BIGSTOP Tuguegarao branch" loading="lazy" />
+                <div class="branch-card-meta">
+                  <span class="branch-region-label">TUGUEGARAO</span>
+                  <span class="branch-status open">Open</span>
+                </div>
+                <p class="branch-name-caption">TUGUEGARAO Branch</p>
+              </article>
+            </div>
+          </div>
+          <button class="bigstop-branch-nav next" type="button" aria-label="Show next branch">
+            <span aria-hidden="true">&#8250;</span>
+          </button>
+        </div>
+        <div class="bigstop-branches-pagination" id="bigstopBranchesPagination" aria-label="Branch slider navigation"></div>
+        <div class="bigstop-branches-cta">
+          <a class="btn-outline" href="branches.html">View full branch map</a>
+          <a class="btn-primary" href="index.html#contact">Reserve my territory &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bigstop-contact section">
+      <div class="container">
+        <div class="bigstop-contact-shell">
+          <div class="bigstop-contact-grid">
+            <div class="bigstop-contact-copy">
+              <p class="section-kicker">Talk to the Team</p>
+              <h2>Discuss Your BIGSTOP Franchise Plan</h2>
+              <p>Share your preferred location and setup timeline. Our team will walk you through next steps and package options.</p>
+              <div class="contact-stack">
+                <div class="contact-tile">
+                  <div class="contact-tile-icon" aria-hidden="true">&#9993;</div>
+                  <div class="contact-tile-body">
+                    <span class="contact-tile-label">Email</span>
+                    <span class="contact-tile-value">salesbigstop@gmail.com</span>
+                    <span class="contact-tile-value">fhoperationsdept@gmail.com</span>
+                  </div>
+                </div>
+                <div class="contact-tile">
+                  <div class="contact-tile-icon" aria-hidden="true">&#128222;</div>
+                  <div class="contact-tile-body">
+                    <span class="contact-tile-label">Phone / Viber</span>
+                    <span class="contact-tile-value"><a href="tel:09566549829" style="color:inherit;text-decoration:none;">0956 654 9829</a></span>
+                    <span class="contact-tile-value subtle"><a href="tel:+639566549829" style="color:inherit;text-decoration:none;">+63 956 654 9829</a></span>
+                    <span class="contact-tile-value subtle"><a href="tel:09065032208" style="color:inherit;text-decoration:none;">Globe: 0906 503 2208 / 0956 654 9829</a></span>
+                  </div>
+                </div>
+                <div class="contact-tile">
+                  <div class="contact-tile-icon" aria-hidden="true">&#127970;</div>
+                  <div class="contact-tile-body">
+                    <span class="contact-tile-label">Office</span>
+                    <span class="contact-tile-value subtle">Herrera Prestige Bldg., Madison South Subd., Brgy. Batino, Calamba City, Laguna</span>
+                  </div>
+                </div>
+                <div class="contact-tile">
+                  <div class="contact-tile-icon" aria-hidden="true">&#128339;</div>
+                  <div class="contact-tile-body">
+                    <span class="contact-tile-label">Hours</span>
+                    <span class="contact-tile-value subtle">Mon–Fri, 9:00 AM – 6:00 PM</span>
+                  </div>
+                </div>
+              </div>
+              <a href="index.html#franchises" class="btn-outline">View All Franchises</a>
+            </div>
+            <form class="bigstop-form tilt-card reveal" data-tilt="4" data-tilt-glare action="index.html#contact" method="get">
+              <label for="bigstop-name" class="sr-only">Name</label>
+              <input id="bigstop-name" type="text" name="name" placeholder="Name" />
+              <label for="bigstop-phone" class="sr-only">Phone</label>
+              <input id="bigstop-phone" type="tel" name="phone" placeholder="Phone" />
+              <label for="bigstop-message" class="sr-only">Comment</label>
+              <textarea id="bigstop-message" name="message" rows="4" placeholder="Comment"></textarea>
+              <button type="submit">Send Inquiry</button>
+              <small>By sending this form, you agree to the processing of your personal data.</small>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <h3>HHC Franchise Hub</h3>
+        <p>Business for the Filipino</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#franchises">Franchises</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 HHC Franchise Hub Solutions Corp. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Background audio autoplay with play/pause toggle
+    (function initPageAudio() {
+      const audio = document.getElementById('bg-audio');
+      const toggle = document.getElementById('audioToggle');
+      if (!audio || !toggle) return;
+
+      const tryPlay = () => audio.play().catch(() => {});
+      const update = () => {
+        const playing = !audio.paused;
+        toggle.textContent = playing ? 'Pause Music' : 'Play Music';
+        toggle.setAttribute('aria-pressed', playing.toString());
+      };
+
+      // initial attempt
+      tryPlay();
+      update();
+
+      // resume if browser blocks autoplay
+      const resume = () => {
+        tryPlay();
+        update();
+        if (!audio.paused) {
+          ['click', 'touchstart', 'keydown'].forEach(evt =>
+            document.removeEventListener(evt, resume, true)
+          );
+        }
+      };
+      ['click', 'touchstart', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, resume, { capture: true, passive: true })
+      );
+
+      toggle.addEventListener('click', () => {
+        if (audio.paused) {
+          tryPlay();
+        } else {
+          audio.pause();
+        }
+        update();
+      });
+
+      audio.addEventListener('play', update);
+      audio.addEventListener('pause', update);
+    })();
+
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

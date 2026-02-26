@@ -1,0 +1,12 @@
+﻿@import "tailwindcss";
+
+html,
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+  padding: clamp(12px, 2vw, 24px);
+  box-sizing: border-box;
+}

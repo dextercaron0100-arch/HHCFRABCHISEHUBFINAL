@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Founder's Corner - HHC Franchise Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="founder-cinematic">
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav-brand">
+        <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link active">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact" class="btn-primary">
+          Franchise Now
+          <span>&rarr;</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- CINEMATIC HERO -->
+    <section class="founder-hero">
+      <div class="founder-hero-overlay"></div>
+      <div class="founder-hero-content">
+        <p class="founder-hero-kicker">FOUNDER'S CUT</p>
+        <h1 class="founder-hero-title">HERRERA BROTHERS</h1>
+        <p class="founder-hero-sub">Visionary behind HHC Franchise Hub</p>
+        <div class="founder-hero-cta">
+          <a class="btn-gold" href="#chapter-story">Play the story</a>
+          <a class="btn-outline" href="mailto:info@hhcfranchisehub.com">Email the founder</a>
+        </div>
+      </div>
+
+      <!-- Mini video player overlay -->
+      <button class="hero-player-card" type="button" id="openHeroVideo">
+        <div class="hero-player-thumb">
+          <video class="hero-player-preview" autoplay muted loop playsinline preload="metadata" aria-label="Founder reel preview">
+            <source src="Blesscent Marketing  Corporate Video by Nice Print Photography.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="hero-player-label">View the reel</div>
+      </button>
+
+    </section>
+
+    <!-- FEATURED PANELS -->
+    <section class="founder-panels">
+      <div class="container founder-panels-shell">
+        <article class="founder-panel" id="chapter-story">
+          <div class="panel-image" style="--panel-bg:url('bod2.jpg');"></div>
+          <div class="panel-copy">
+            <p class="panel-kicker">Chapter 01</p>
+            <h2>Story</h2>
+            <p>From bootstrapping the first kiosk to engineering a multi-format franchise portfolio, HHC was built on grit, supply-chain rigor, and a people-first training culture. Every playbook exists to shorten the distance between a dream and a profitable opening.</p>
+            <div class="panel-tags">
+              <span class="chip">Hands-on playbooks</span>
+              <span class="chip">Site discipline</span>
+              <span class="chip">Launch squads</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="founder-panel flipped" id="chapter-leadership">
+          <div class="panel-image panel-image-portrait-fit" style="--panel-bg:url('c74647ef-5249-4f77-858f-650189b806b5.jpg');"></div>
+          <div class="panel-copy">
+            <p class="panel-kicker">Chapter 02</p>
+            <h2>Leadership</h2>
+            <p>Boardroom calm meets street-level execution: governance paired with daily field intelligence—walking stores, stress-testing menus, and pressure-testing unit economics before they scale.</p>
+            <div class="panel-tags">
+              <span class="chip">Governance</span>
+              <span class="chip">Unit economics</span>
+              <span class="chip">Ops discipline</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="founder-panel" id="chapter-future">
+          <div class="panel-image" style="--panel-bg:url('history-2025.jpg');"></div>
+          <div class="panel-copy">
+            <p class="panel-kicker">Chapter 03</p>
+            <h2>Future</h2>
+            <p>Experience labs, sustainability mandates, and AI-assisted rollouts keep HHC founders ahead of the curve while staying rooted in service and community impact.</p>
+            <div class="panel-tags">
+              <span class="chip">CX Lab</span>
+              <span class="chip">Sustainability</span>
+              <span class="chip">AI Planning</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="founder-cta-strip">
+      <div class="container">
+        <div>
+          <p class="section-kicker">Join the next chapter</p>
+          <h3>Book a founder session tailored to your market.</h3>
+        </div>
+        <a class="btn-gold" href="mailto:info@hhcfranchisehub.com">Book now</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Inline video modal -->
+  <div class="video-modal" id="heroVideoModal" aria-hidden="true">
+    <div class="video-modal-backdrop"></div>
+    <div class="video-modal-content" role="dialog" aria-modal="true" aria-label="Founder reel player">
+      <div class="video-modal-topbar">
+        <p class="video-modal-title">Blesscent Marketing Corporate Video</p>
+        <button class="video-modal-close" id="closeHeroVideo" aria-label="Close video">x</button>
+      </div>
+      <div class="video-modal-frame">
+        <video id="heroVideo" preload="metadata" playsinline loop poster="history-2025.jpg">
+          <source src="Blesscent Marketing  Corporate Video by Nice Print Photography.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer clean-footer">
+    <div class="container clean-footer-inner">
+      <div class="clean-footer-brand">
+        <img src="logo.png" alt="HHC Franchise Hub" class="clean-footer-logo" />
+        <p class="clean-footer-tagline">Helping entrepreneurs launch food, wellness, and retail franchises.</p>
+      </div>
+      <div class="clean-footer-links">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">FAQs</a>
+      </div>
+      <div class="clean-footer-meta">
+        <p class="clean-footer-copy"><span id="yearSpan"></span> HHC Franchise Hub</p>
+        <div class="clean-footer-social">
+          <a href="https://api.whatsapp.com/send?phone=+112067101079" aria-label="Whatsapp">&#x1F7E2;</a>
+          <a href="https://www.facebook.com/" aria-label="Facebook">&#x1F4D8;</a>
+          <a href="https://www.instagram.com/" aria-label="Instagram">&#x1F4F8;</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('open');
+        navLinks.classList.toggle('open');
+      });
+    }
+    
+    // Set year
+    const yearSpan = document.getElementById('yearSpan');
+    if (yearSpan) {
+      yearSpan.textContent = new Date().getFullYear();
+    }
+
+    // Hero video modal
+    const openHeroVideo = document.getElementById('openHeroVideo');
+    const heroVideoModal = document.getElementById('heroVideoModal');
+    const closeHeroVideo = document.getElementById('closeHeroVideo');
+    const heroVideo = document.getElementById('heroVideo');
+    const heroPlayerPreview = document.querySelector('.hero-player-preview');
+
+    function closeModal() {
+      heroVideoModal.classList.remove('open');
+      heroVideoModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      if (heroVideo) {
+        heroVideo.pause();
+        heroVideo.currentTime = 0;
+      }
+    }
+
+    if (openHeroVideo && heroVideoModal && closeHeroVideo && heroVideo) {
+      if (heroPlayerPreview) {
+        heroPlayerPreview.play().catch(() => {});
+      }
+
+      openHeroVideo.addEventListener('click', () => {
+        heroVideoModal.classList.add('open');
+        heroVideoModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        closeHeroVideo.focus();
+        heroVideo.play().catch(() => {});
+      });
+      closeHeroVideo.addEventListener('click', closeModal);
+      heroVideoModal.addEventListener('click', (e) => {
+        if (e.target === heroVideoModal || e.target === heroVideoModal.querySelector('.video-modal-backdrop')) {
+          closeModal();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && heroVideoModal.classList.contains('open')) {
+          closeModal();
+        }
+      });
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

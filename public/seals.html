@@ -1,0 +1,769 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compliance & Credentials - HHC FRANCHISE HUB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --trust-page-bg: #eef2ef;
+      --trust-shell-bg: #f8fbf9;
+      --trust-card-bg: #ffffff;
+      --trust-text: #17211e;
+      --trust-text-soft: #4f5d58;
+      --trust-primary: #0f5a49;
+      --trust-primary-strong: #0c4337;
+      --trust-mint: #d5efe7;
+      --trust-border: #d2ddd8;
+      --trust-shadow: 0 22px 52px rgba(16, 45, 36, 0.12);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #f6f8f7 0%, var(--trust-page-bg) 100%);
+      color: var(--trust-text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .content-wrap {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .compliance-section {
+      padding: 48px 0 84px;
+    }
+
+    .compliance-shell {
+      background: var(--trust-shell-bg);
+      border: 1px solid var(--trust-border);
+      border-radius: 30px;
+      box-shadow: var(--trust-shadow);
+      padding: 40px;
+      display: grid;
+      gap: 36px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .compliance-shell::before {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 90, 73, 0.1) 0%, rgba(15, 90, 73, 0) 70%);
+      top: -170px;
+      right: -120px;
+      z-index: -1;
+    }
+
+    .trust-top {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .trust-intro {
+      background: var(--trust-card-bg);
+      border: 1px solid var(--trust-border);
+      border-radius: 24px;
+      padding: 36px;
+    }
+
+    .compliance-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 90, 73, 0.2);
+      background: var(--trust-mint);
+      color: var(--trust-primary);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .trust-intro h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin: 0 0 18px;
+      color: #121a18;
+      max-width: 18ch;
+    }
+
+    .trust-intro p {
+      margin: 0;
+      font-size: clamp(1rem, 1.2vw, 1.15rem);
+      line-height: 1.8;
+      color: var(--trust-text-soft);
+      max-width: 54ch;
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .proof-card {
+      background: var(--trust-card-bg);
+      border: 1px solid var(--trust-border);
+      border-radius: 20px;
+      padding: 22px 20px;
+      min-height: 124px;
+      display: grid;
+      gap: 8px;
+      align-content: center;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .proof-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(15, 90, 73, 0.35);
+      box-shadow: 0 12px 24px rgba(14, 52, 42, 0.13);
+    }
+
+    .proof-value {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #12211d;
+    }
+
+    .proof-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #4d615b;
+      font-weight: 600;
+    }
+
+    .proof-note {
+      font-size: 0.93rem;
+      line-height: 1.55;
+      color: var(--trust-text-soft);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-label-text {
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #5f716a;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .section-label-line {
+      flex: 1;
+      height: 1px;
+      background: var(--trust-border);
+    }
+
+    .credentials-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .credential-card {
+      background: var(--trust-card-bg);
+      border: 1px solid var(--trust-border);
+      border-radius: 18px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: start;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .credential-card:hover,
+    .credential-card:focus-within {
+      transform: translateY(-3px);
+      border-color: rgba(15, 90, 73, 0.35);
+      box-shadow: 0 14px 24px rgba(14, 52, 42, 0.12);
+    }
+
+    .credential-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #e1f3ee 0%, #d0ebe4 100%);
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(15, 90, 73, 0.15);
+      flex-shrink: 0;
+    }
+
+    .credential-icon svg {
+      width: 26px;
+      height: 26px;
+      stroke: var(--trust-primary);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .credential-content {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .credential-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .credential-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin: 0;
+      color: #15211d;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e7f5f0;
+      color: #0e604d;
+      border: 1px solid rgba(15, 90, 73, 0.25);
+      font-size: 0.73rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a57f;
+      box-shadow: 0 0 0 4px rgba(22, 165, 127, 0.16);
+    }
+
+    .credential-summary {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #3e4d48;
+    }
+
+    .credential-meta {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #5c7068;
+    }
+
+    .btn-trust:focus-visible {
+      outline: 2px solid #0f725d;
+      outline-offset: 2px;
+    }
+
+    .trust-panel {
+      margin-top: 6px;
+      border-radius: 24px;
+      border: 1px solid var(--trust-border);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      min-height: 278px;
+      background: var(--trust-card-bg);
+    }
+
+    .trust-panel-main {
+      padding: 36px;
+      background: linear-gradient(140deg, var(--trust-primary) 0%, var(--trust-primary-strong) 100%);
+      color: #ffffff;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+    }
+
+    .panel-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      opacity: 0.88;
+      margin: 0;
+    }
+
+    .trust-panel-main h2 {
+      margin: 0;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      max-width: 21ch;
+    }
+
+    .trust-panel-main p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: rgba(255, 255, 255, 0.88);
+      max-width: 52ch;
+    }
+
+    .btn-trust {
+      margin-top: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: fit-content;
+      text-decoration: none;
+      color: #0f5042;
+      background: #ffffff;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 800;
+      padding: 13px 18px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn-trust:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px rgba(10, 40, 33, 0.24);
+    }
+
+    .btn-trust svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-trust:hover svg {
+      transform: translateX(2px);
+    }
+
+    .trust-panel-benefits {
+      padding: 36px;
+      display: grid;
+      align-content: center;
+      gap: 16px;
+      background: #f9fcfa;
+    }
+
+    .trust-panel-benefits .panel-eyebrow {
+      color: #4f655f;
+    }
+
+    .benefit-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .benefit-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      color: #2f3f3a;
+      font-size: 0.96rem;
+      line-height: 1.65;
+    }
+
+    .benefit-list li::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid rgba(15, 90, 73, 0.2);
+      background:
+        radial-gradient(circle at center, #0f5a49 0 2.5px, transparent 3px),
+        #eaf6f1;
+      margin-top: 2px;
+    }
+
+    .seals-footer {
+      border-top: 1px solid var(--trust-border);
+      background: #ffffff;
+      padding: 22px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer-text {
+      font-size: 0.79rem;
+      color: #61726c;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .anim {
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.12s; }
+    .d3 { animation-delay: 0.2s; }
+    .d4 { animation-delay: 0.28s; }
+
+    @media (max-width: 1100px) {
+      .trust-top {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-intro h1 {
+        max-width: 16ch;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .content-wrap {
+        padding: 0 20px;
+      }
+
+      .compliance-shell {
+        border-radius: 24px;
+        padding: 24px;
+        gap: 28px;
+      }
+
+      .trust-intro {
+        border-radius: 18px;
+        padding: 24px;
+      }
+
+      .proof-grid {
+        gap: 12px;
+      }
+
+      .proof-card {
+        border-radius: 16px;
+        min-height: 114px;
+      }
+
+      .credential-card {
+        grid-template-columns: auto 1fr;
+      }
+
+      .trust-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-panel-main,
+      .trust-panel-benefits {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .compliance-section {
+        padding: 30px 0 56px;
+      }
+
+      .proof-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .proof-card {
+        min-height: 102px;
+        padding: 16px;
+      }
+
+      .proof-label {
+        font-size: 0.72rem;
+      }
+
+      .credential-card {
+        padding: 16px;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .credential-icon {
+        width: 50px;
+        height: 50px;
+      }
+
+      .credential-head {
+        align-items: flex-start;
+      }
+
+      .status-badge {
+        font-size: 0.68rem;
+        padding: 6px 10px;
+      }
+
+      .credential-summary {
+        font-size: 0.95rem;
+      }
+
+      .trust-panel-main h2 {
+        max-width: none;
+      }
+
+      .btn-trust {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav-brand">
+        <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link active">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact" class="btn-primary">
+          Franchise Now
+          <span>&rarr;</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="compliance-page">
+    <section class="compliance-section">
+      <div class="content-wrap">
+        <div class="compliance-shell">
+          <div class="trust-top anim d1">
+            <div class="trust-intro">
+              <span class="compliance-tag">Compliance & Credentials</span>
+              <h1>Verified Business Credentials Built for Franchise Confidence</h1>
+              <p>HHC Franchise Hub maintains active registrations and industry-backed memberships so potential franchise partners can evaluate our legitimacy with clear, verifiable proof.</p>
+            </div>
+            <div class="proof-grid">
+              <article class="proof-card">
+                <div class="proof-value">4</div>
+                <div class="proof-label">Active Credentials</div>
+                <p class="proof-note">Current legal, tax, and industry credentials in good standing.</p>
+              </article>
+              <article class="proof-card">
+                <div class="proof-value">100%</div>
+                <div class="proof-label">Compliance Coverage</div>
+                <p class="proof-note">Every brand operation follows documented compliance requirements.</p>
+              </article>
+              <article class="proof-card">
+                <div class="proof-value">Govt</div>
+                <div class="proof-label">Registered Entity</div>
+                <p class="proof-note">Registered with national agencies required for lawful operations.</p>
+              </article>
+              <article class="proof-card">
+                <div class="proof-value">PFA</div>
+                <div class="proof-label">Association Member</div>
+                <p class="proof-note">Aligned with franchise industry standards and best practices.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="section-label anim d2">
+            <span class="section-label-text">Credential Registry</span>
+            <div class="section-label-line"></div>
+          </div>
+
+          <div class="credentials-stack anim d3">
+            <article class="credential-card">
+              <div class="credential-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="credential-content">
+                <div class="credential-head">
+                  <h3 class="credential-title">IPO Registered</h3>
+                  <span class="status-badge">Verified | Active</span>
+                </div>
+                <p class="credential-summary">Trademark and brand assets are protected to support legitimate franchise operations.</p>
+                <p class="credential-meta">Issuing authority: Intellectual Property Office of the Philippines (IPOPHL)</p>
+              </div>
+            </article>
+
+            <article class="credential-card">
+              <div class="credential-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
+              </div>
+              <div class="credential-content">
+                <div class="credential-head">
+                  <h3 class="credential-title">SEC Registered</h3>
+                  <span class="status-badge">Verified | Active</span>
+                </div>
+                <p class="credential-summary">Structured as a legitimate corporate entity with accountable governance practices.</p>
+                <p class="credential-meta">Issuing authority: Securities and Exchange Commission (SEC)</p>
+              </div>
+            </article>
+
+            <article class="credential-card">
+              <div class="credential-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="credential-content">
+                <div class="credential-head">
+                  <h3 class="credential-title">PFA Member</h3>
+                  <span class="status-badge">In Good Standing</span>
+                </div>
+                <p class="credential-summary">Connected to the national franchise network and aligned with current industry standards.</p>
+                <p class="credential-meta">Issuing authority: Philippine Franchise Association (PFA)</p>
+              </div>
+            </article>
+
+            <article class="credential-card">
+              <div class="credential-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <div class="credential-content">
+                <div class="credential-head">
+                  <h3 class="credential-title">BIR Compliant</h3>
+                  <span class="status-badge">Verified | Compliant</span>
+                </div>
+                <p class="credential-summary">Tax documentation and statutory obligations are maintained for compliant franchise operations.</p>
+                <p class="credential-meta">Issuing authority: Bureau of Internal Revenue (BIR)</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="trust-panel anim d4">
+            <div class="trust-panel-main">
+              <p class="panel-eyebrow">Franchise Assurance</p>
+              <h2>Your Franchise Inquiry Starts with Verified Compliance</h2>
+              <p>Reviewing our credentials first helps you assess partnership risk, documentation quality, and operational legitimacy before making a commitment.</p>
+              <a href="index.html#contact" class="btn-trust">
+                Start a Verified Franchise Inquiry
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+            <div class="trust-panel-benefits">
+              <p class="panel-eyebrow">Why this protects franchisees</p>
+              <ul class="benefit-list">
+                <li>Government-recognized registrations reduce legal and operational uncertainty.</li>
+                <li>Corporate documentation supports transparency, accountability, and due diligence.</li>
+                <li>Industry membership signals adherence to recognized franchise standards.</li>
+                <li>Tax compliance improves documentation readiness for partner operations.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="seals-footer">
+    <span class="footer-text">&copy; 2025 HHC Franchise Hub. All rights reserved.</span>
+    <span class="footer-text">IPO | SEC | PFA | BIR | Certified and Compliant</span>
+  </footer>
+
+  <script>
+    // Nav toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('open');
+        navLinks.classList.toggle('open');
+      });
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+

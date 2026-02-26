@@ -1,0 +1,894 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQs – HHC Franchise Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b101b;
+      --white: #0f1728;
+      --ink: #f6f8ff;
+      --ink-mid: rgba(220, 232, 255, 0.82);
+      --ink-light: rgba(220, 232, 255, 0.6);
+      --accent: #f0a72d;
+      --accent-light: rgba(240, 167, 45, 0.16);
+      --border: rgba(255, 255, 255, 0.12);
+      --surface: rgba(255,255,255,0.03);
+      --surface-strong: rgba(17,26,44,0.92);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(55% 45% at 20% 20%, rgba(240, 167, 45, 0.08), transparent 52%),
+        radial-gradient(60% 55% at 80% 10%, rgba(76, 110, 255, 0.06), transparent 55%),
+        linear-gradient(180deg, #0b101b 0%, #060912 100%);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* LAYOUT */
+    .content-wrap {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    /* HERO BAND */
+    .faq-hero {
+      background: linear-gradient(140deg, rgba(15, 22, 38, 0.92), rgba(8, 13, 24, 0.96));
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      margin-top: 12px;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .faq-hero-inner {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: stretch;
+      gap: 32px;
+      padding: 64px 48px;
+    }
+    .faq-hero-left { border-right: 1px solid var(--border); padding-right: 36px; display: grid; gap: 18px; }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 5px 12px;
+      border-radius: 4px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(38px, 4.4vw, 58px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+    h1 em { font-style: normal; color: var(--accent); }
+    .faq-hero-desc {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(220, 232, 255, 0.82);
+      max-width: 420px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .hero-btn {
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(240,167,45,0.4);
+      background: linear-gradient(135deg, #f0a72d, #d8911a);
+      color: #0c100f;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.32);
+    }
+    .hero-btn.secondary {
+      background: transparent;
+      color: var(--ink);
+      border-color: rgba(240,167,45,0.35);
+    }
+    .faq-hero-right { padding-left: 12px; display: grid; gap: 14px; }
+    .hero-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .hero-info-card {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.32);
+      display: grid;
+      gap: 4px;
+    }
+    .hero-info-label {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+    .hero-info-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .hero-info-note { font-size: 12px; color: var(--ink-light); }
+    .contact-card-inline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(240,167,45,0.14);
+      border: 1px solid rgba(240,167,45,0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--ink);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.28);
+    }
+    .contact-card-inline a { color: var(--ink); font-weight: 700; text-decoration: none; }
+    .contact-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: #0f1728;
+      border: 1px solid rgba(240,167,45,0.45);
+      color: var(--ink);
+      font-weight: 600;
+    }
+    /* SECTION LABEL */
+    .section-label {
+      padding: 52px 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-label-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      white-space: nowrap;
+    }
+    .section-label-line { flex: 1; height: 1px; background: var(--border); }
+    /* FAQ LAYOUT */
+    .faq-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      margin: 40px 0 18px;
+    }
+    .faq-search {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+    }
+    .faq-search input {
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      font-size: 15px;
+      outline: none;
+    }
+    .faq-search button {
+      border: 1px solid rgba(240,167,45,0.6);
+      background: linear-gradient(135deg, #f0a72d, #d9911b);
+      color: #0c100f;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+    }
+    .faq-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .faq-tag {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--ink-mid);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .faq-tag.active {
+      border-color: rgba(240,167,45,0.7);
+      background: rgba(240,167,45,0.18);
+      color: var(--ink);
+    }
+    .faq-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 28px;
+      padding-bottom: 80px;
+      align-items: start;
+    }
+    .faq-nav {
+      position: sticky;
+      top: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .faq-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+    }
+    .faq-nav-item:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+    .faq-nav-item.active {
+      background: rgba(240,167,45,0.16);
+      color: var(--ink);
+      border-color: rgba(240,167,45,0.6);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+    .faq-nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .faq-nav-item.active .faq-nav-dot { opacity: 1; }
+    /* ACCORDION */
+    .faq-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(6px);
+    }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 32px;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .faq-q:hover { background: rgba(255, 255, 255, 0.05); }
+    .faq-q.open { background: var(--accent-light); }
+    .faq-q-left { display: flex; align-items: center; gap: 16px; }
+    .faq-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-light);
+      letter-spacing: 0.04em;
+      min-width: 24px;
+    }
+    .faq-q.open .faq-num { color: var(--accent); }
+    .faq-question {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+    .faq-q.open .faq-question { color: var(--accent); }
+    .faq-icon {
+      width: 28px; height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, transform 0.3s;
+    }
+    .faq-q.open .faq-icon {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: rotate(45deg);
+    }
+    .faq-icon svg { width: 12px; height: 12px; stroke: var(--ink-mid); fill: none; stroke-width: 2.5; stroke-linecap: round; }
+    .faq-q.open .faq-icon svg { stroke: #0c100f; }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.3s ease;
+    }
+    .faq-a.open { max-height: 420px; }
+    .faq-a-inner {
+      padding: 0 32px 24px 52px;
+      font-size: 15px;
+      color: rgba(220, 232, 255, 0.88);
+      line-height: 1.75;
+    }
+    .faq-a-inner strong { color: var(--ink); font-weight: 600; }
+    .faq-a-inner a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .faq-a-inner a:hover { text-decoration: underline; }
+    /* CATEGORY DIVIDER */
+    .faq-category-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 32px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-cat-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--ink-light);
+      white-space: nowrap;
+    }
+    .faq-cat-line { flex: 1; height: 1px; background: var(--border); }
+    /* CTA STRIP */
+    .cta-strip {
+      background: linear-gradient(135deg, #f0a72d, #c88312);
+      border-radius: 14px;
+      padding: 48px 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 80px;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35);
+    }
+    .cta-strip h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .cta-strip p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; max-width: 460px; }
+    .btn-white {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-white:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-white svg { width: 14px; height: 14px; transition: transform 0.2s; }
+    .btn-white:hover svg { transform: translateX(3px); }
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      background: #0a0f1a;
+      padding: 22px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--ink-mid);
+    }
+    .footer-text { font-size: 12px; color: var(--ink-mid); }
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim { opacity: 0; animation: fadeUp 0.55s ease forwards; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.15s; }
+    .d3 { animation-delay: 0.25s; }
+    .d4 { animation-delay: 0.35s; }
+    .d5 { animation-delay: 0.45s; }
+@media (max-width: 860px) {
+  nav, footer, .content-wrap { padding-left: 24px; padding-right: 24px; }
+  .faq-hero-inner { grid-template-columns: 1fr; padding: 44px 24px; }
+  .faq-hero-left { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 28px; margin-bottom: 0; }
+  .faq-hero-right { padding-left: 0; }
+  .faq-layout { grid-template-columns: 1fr; }
+  .faq-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+  .cta-strip { flex-direction: column; align-items: flex-start; padding: 36px 28px; }
+}
+  </style>
+  <!-- Lightweight override to simplify UI and apply new font -->
+  <style id="faq-overrides">
+    :root {
+      --bg: #f8f7f3;
+      --white: #ffffff;
+      --ink: #1b1d24;
+      --ink-mid: #3b3f4a;
+      --ink-light: #6d7280;
+      --accent: #f0a72d;
+      --accent-light: rgba(240, 167, 45, 0.14);
+      --border: #e5e7eb;
+    }
+    body { background: var(--bg); color: var(--ink); }
+    .content-wrap { max-width: 1080px; padding: 0 24px; }
+    h1, .hero-info-value, .faq-question, .faq-num { font-family: 'Manrope','Inter',sans-serif; }
+    .faq-hero {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.12);
+      margin-top: 18px;
+    }
+    .faq-hero-inner { padding: 44px 38px; gap: 28px; }
+    .faq-hero-left { border-right: 1px solid var(--border); padding-right: 26px; }
+    h1 { font-size: clamp(36px,4vw,52px); letter-spacing: -0.02em; }
+    .faq-hero-desc { color: var(--ink-light); line-height: 1.7; }
+    .hero-actions { margin-top: 6px; gap: 10px; }
+    .hero-btn { background: #f0a72d; border: 1px solid rgba(240,167,45,0.3); box-shadow: 0 10px 22px rgba(0,0,0,0.12); color: #0c100f; }
+    .hero-btn.secondary { background: #fff; color: var(--ink); }
+    .hero-info-card { background: #fff; border: 1px solid var(--border); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+    .hero-info-label { color: var(--ink-light); }
+    .contact-card-inline { background: #fff; border: 1px solid var(--border); box-shadow: 0 10px 22px rgba(0,0,0,0.08); }
+    .contact-chip { background: #f0a72d; color: #0c100f; border-color: rgba(240,167,45,0.35); }
+    .faq-controls { margin: 32px 0 14px; }
+    .faq-search { background: #fff; border: 1px solid var(--border); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .faq-search button { background: #f0a72d; color: #0c100f; }
+    .faq-tag { background: #fff; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(0,0,0,0.05); }
+    .faq-tag.active { background: rgba(240,167,45,0.16); border-color: rgba(240,167,45,0.6); }
+    .faq-accordion { background: #fff; border: 1px solid var(--border); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .faq-item { border-bottom: 1px solid #eef0f3; }
+    .faq-q { padding: 22px 28px; }
+    .faq-q:hover { background: #fafbfc; }
+    .faq-q.open { background: rgba(240,167,45,0.12); }
+    .faq-question { font-size: 15px; }
+    .faq-num { color: var(--ink-light); }
+    .faq-a-inner { color: #2a2f3a; line-height: 1.7; padding: 0 28px 18px 48px; }
+    .faq-category-row { background: #f7f7f5; border-bottom: 1px solid #eef0f3; }
+    .cta-strip { background: #fffaf2; border: 1px solid #f7e6c4; box-shadow: 0 12px 24px rgba(0,0,0,0.08); border-radius: 12px; padding: 40px; }
+    .cta-strip h2 { color: var(--ink); font-family: 'Manrope','Inter',sans-serif; }
+    .cta-strip p { color: var(--ink-mid); }
+    footer { background: var(--bg); color: var(--ink-mid); }
+    @media (max-width: 860px) {
+      .faq-hero-inner { padding: 32px 22px; }
+      .faq-layout { gap: 16px; }
+      .faq-q { padding: 18px 20px; }
+      .faq-a-inner { padding: 0 20px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav">
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#hero"><img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" /></a></li>
+        <li><a href="index.html#hero" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="faqs.html" class="nav-link">FAQs</a></li>
+        <li><a href="index.html#contact-email" class="nav-link">Contact</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact-email" class="btn-primary">
+          Franchise Now
+          <span>&rarr;</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO BAND -->
+  <div class="faq-hero anim d1">
+    <div class="content-wrap">
+      <div class="faq-hero-inner">
+        <div class="faq-hero-left">
+          <span class="tag">Franchise Information</span>
+          <h1>Frequently<br>Asked <em>Questions.</em></h1>
+          <p class="faq-hero-desc">Everything you need to know about franchising with BigStop — from fees and capital to support and operations.</p>
+          <div class="hero-actions">
+            <a class="hero-btn" href="tel:09065032208">Book a consultation</a>
+            <a class="hero-btn secondary" href="bigstop-franchise-kit.html">Download franchise kit</a>
+          </div>
+        </div>
+        <div class="faq-hero-right">
+          <div class="hero-info-grid">
+            <div class="hero-info-card">
+              <span class="hero-info-label">Questions answered</span>
+              <span class="hero-info-value">11</span>
+              <span class="hero-info-note">Covers fees, ops, support</span>
+            </div>
+            <div class="hero-info-card">
+              <span class="hero-info-label">Franchise fee</span>
+              <span class="hero-info-value">₱350K</span>
+              <span class="hero-info-note">Includes FDA & brand rights</span>
+            </div>
+            <div class="hero-info-card">
+              <span class="hero-info-label">Setup support</span>
+              <span class="hero-info-value">End-to-end</span>
+              <span class="hero-info-note">Site, training, launch, ops</span>
+            </div>
+          </div>
+          <div class="contact-card-inline">
+            <div>
+              <div class="hero-info-label">Franchise inquiries</div>
+              <div class="hero-info-value" style="font-size:18px;">0906 503 2208</div>
+            </div>
+            <a class="contact-chip" href="tel:09065032208">Call now →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-wrap">
+
+    <div class="faq-controls anim d2">
+      <div class="faq-search">
+        <input type="search" id="faqSearch" placeholder="Search questions..." aria-label="Search FAQs" />
+        <button type="button" id="faqSearchBtn">Search</button>
+      </div>
+      <div class="faq-tags">
+        <button class="faq-tag active" data-cat-btn="all">All</button>
+        <button class="faq-tag" data-cat-btn="overview">Overview</button>
+        <button class="faq-tag" data-cat-btn="fees">Fees &amp; Capital</button>
+        <button class="faq-tag" data-cat-btn="operations">Operations</button>
+        <button class="faq-tag" data-cat-btn="support">Support</button>
+        <button class="faq-tag" data-cat-btn="apply">How to Apply</button>
+      </div>
+    </div>
+
+    <div class="faq-layout anim d3">
+
+      <!-- LEFT NAV -->
+      <div class="faq-nav">
+        <button class="faq-nav-item active" data-cat-btn="all"><div class="faq-nav-dot"></div>All Topics</button>
+        <button class="faq-nav-item" data-cat-btn="overview"><div class="faq-nav-dot"></div>Overview</button>
+        <button class="faq-nav-item" data-cat-btn="fees"><div class="faq-nav-dot"></div>Fees &amp; Capital</button>
+        <button class="faq-nav-item" data-cat-btn="operations"><div class="faq-nav-dot"></div>Operations</button>
+        <button class="faq-nav-item" data-cat-btn="support"><div class="faq-nav-dot"></div>Support</button>
+        <button class="faq-nav-item" data-cat-btn="apply"><div class="faq-nav-dot"></div>How to Apply</button>
+      </div>
+
+      <!-- ACCORDION -->
+      <div class="faq-accordion" id="faqAccordion">
+
+        <div class="faq-category-row" data-cat="overview">
+          <span class="faq-cat-label">Overview</span>
+          <div class="faq-cat-line"></div>
+        </div>
+
+        <div class="faq-item" data-cat="overview">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">01</span>
+              <span class="faq-question">What is BigStop?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">BigStop is a <strong>community-based convenience store franchise</strong> designed to provide essential retail products and value-added services â€” including bills payment, e-loading, and digital payment solutions â€” all in one accessible location.</div>
+          </div>
+        </div>
+
+        <div class="faq-category-row" data-cat="fees">
+          <span class="faq-cat-label">Fees &amp; Capital</span>
+          <div class="faq-cat-line"></div>
+        </div>
+
+        <div class="faq-item" data-cat="fees">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">02</span>
+              <span class="faq-question">How much is the franchise fee?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">The franchise fee for BigStop is <strong>â‚±350,000</strong>.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fees">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">03</span>
+              <span class="faq-question">How much is the royalty fee?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">The royalty fee is <strong>6% of net sales</strong>, payable on a regular basis as outlined in the franchise agreement.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fees">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">04</span>
+              <span class="faq-question">How much is the total capital required?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">The total capital investment is <strong>up to â‚±3.5 million</strong>, depending on store size and location. Renovation and construction costs are <strong>not included</strong> in this estimate.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fees">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">05</span>
+              <span class="faq-question">Who shoulders renovation and construction costs?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">The <strong>franchisee is responsible</strong> for all renovation and construction expenses for the store.</div>
+          </div>
+        </div>
+
+        <div class="faq-category-row" data-cat="operations">
+          <span class="faq-cat-label">Operations</span>
+          <div class="faq-cat-line"></div>
+        </div>
+
+        <div class="faq-item" data-cat="operations">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">06</span>
+              <span class="faq-question">Does BigStop provide a POS system?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Yes. BigStop provides a <strong>cloud-based POS system</strong> that allows franchisees to monitor daily sales, inventory, and reports in real time.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="operations">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">07</span>
+              <span class="faq-question">Is a pharmacist required for Herrera Pharmacy?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">Yes. A <strong>licensed pharmacist is required</strong> to operate Herrera Pharmacy within BigStop, in accordance with regulatory standards.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="operations">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">08</span>
+              <span class="faq-question">Who processes the pharmacist's license and FDA requirements?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner"><strong>BigStop will assist and handle</strong> the processing of the pharmacist's license and all necessary FDA requirements on behalf of the franchisee.</div>
+          </div>
+        </div>
+
+        <div class="faq-category-row" data-cat="support">
+          <span class="faq-cat-label">Support</span>
+          <div class="faq-cat-line"></div>
+        </div>
+
+        <div class="faq-item" data-cat="support">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">09</span>
+              <span class="faq-question">What support does BigStop provide to franchisees?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">BigStop provides a comprehensive support package including: use of the <strong>registered brand name and logo</strong>, store layout and design assistance, operations manual, staff training, store opening support, marketing assistance, and ongoing operational guidance.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="support">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">10</span>
+              <span class="faq-question">Do I need prior business experience to franchise?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner"><strong>No prior business experience is required.</strong> BigStop provides comprehensive training and operational support to ensure proper store management from day one.</div>
+          </div>
+        </div>
+
+        <div class="faq-category-row" data-cat="apply">
+          <span class="faq-cat-label">How to Apply</span>
+          <div class="faq-cat-line"></div>
+        </div>
+
+        <div class="faq-item" data-cat="apply">
+          <button class="faq-q">
+            <div class="faq-q-left">
+              <span class="faq-num">11</span>
+              <span class="faq-question">How do I apply for a franchise?</span>
+            </div>
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner">For franchise inquiries, please contact us directly at <a href="tel:09065032208"><strong>0906 503 2208</strong></a>. Our team will guide you through the application process and answer any additional questions.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTA STRIP -->
+    <div class="cta-strip anim d4">
+      <div>
+        <h2>Ready to Franchise BigStop?</h2>
+        <p>Join a growing network of community-based convenience stores across the Philippines. Get in touch and our team will walk you through every step.</p>
+      </div>
+      <a href="tel:09065032208" class="btn-white">
+        Call 0906 503 2208
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+  </div>
+
+  <footer>
+    <span class="footer-text">Â© 2025 BigStop Corporate. All rights reserved.</span>
+    <span class="footer-text">Franchise Inquiries: 0906 503 2208</span>
+  </footer>
+
+  <script>
+    (function initFAQ() {
+      const root = document;
+      const navBtns = root.querySelectorAll('[data-cat-btn]');
+      const tagBtns = root.querySelectorAll('.faq-tag');
+      const items = root.querySelectorAll('.faq-item, .faq-category-row');
+      const qs = root.querySelectorAll('.faq-q');
+      const searchInput = document.getElementById('faqSearch');
+      const searchBtn = document.getElementById('faqSearchBtn');
+      let currentCat = 'all';
+      let searchTerm = '';
+
+      const closeAll = () => {
+        qs.forEach(q => {
+          q.classList.remove('open');
+          const a = q.parentElement.querySelector('.faq-a');
+          if (a) a.classList.remove('open');
+        });
+      };
+
+      qs.forEach(q => {
+        q.addEventListener('click', () => {
+          const open = q.classList.contains('open');
+          closeAll();
+          if (!open) {
+            q.classList.add('open');
+            const a = q.parentElement.querySelector('.faq-a');
+            if (a) a.classList.add('open');
+          }
+        });
+      });
+
+      const applyFilters = () => {
+        items.forEach(el => {
+          const catMatch = currentCat === 'all' || el.dataset.cat === currentCat;
+          const text = (el.textContent || '').toLowerCase();
+          const searchMatch = !searchTerm || text.includes(searchTerm);
+          el.style.display = catMatch && searchMatch ? '' : 'none';
+        });
+        closeAll();
+      };
+
+      const handleCat = (cat) => {
+        currentCat = cat;
+        navBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-cat-btn') === cat));
+        tagBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-cat-btn') === cat));
+        applyFilters();
+      };
+
+      navBtns.forEach(btn => btn.addEventListener('click', () => handleCat(btn.getAttribute('data-cat-btn'))));
+      tagBtns.forEach(btn => btn.addEventListener('click', () => handleCat(btn.getAttribute('data-cat-btn'))));
+
+      const handleSearch = () => {
+        searchTerm = (searchInput.value || '').trim().toLowerCase();
+        applyFilters();
+      };
+
+      if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+      if (searchInput) searchInput.addEventListener('input', handleSearch);
+    })();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+

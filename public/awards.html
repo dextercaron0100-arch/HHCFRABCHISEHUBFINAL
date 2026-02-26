@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Awards and Recognition - HHC FRANCHISE HUB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav-brand">
+        <img src="hhc-gold-logo.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link active">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact" class="btn-primary">
+          Franchise Now
+          <span>&rarr;</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- PAGE HERO -->
+    <section class="page-hero awards-hero">
+      <div class="container">
+        <p class="section-kicker">About Us</p>
+        <h1 class="page-hero-title">Awards & Recognition</h1>
+        <p class="page-hero-subtitle">Celebrating excellence in franchise leadership</p>
+      </div>
+    </section>
+
+    <!-- AWARDS CONTENT -->
+    <section class="section page-content awards-page">
+      <div class="container">
+        <div class="featured-award">
+          <h2 class="featured-award-title">2025 Legacy Icon Award</h2>
+          <p class="featured-award-subtitle">HHC Franchise Hub Solutions Corp. has been recognized for excellence in business leadership and franchise innovation.</p>
+
+          <div class="award-banner award-banner-3d" data-award-tilt>
+            <div class="award-depth-layer award-depth-back" aria-hidden="true"></div>
+            <div class="award-depth-layer award-depth-mid" aria-hidden="true"></div>
+            <div class="award-shine" aria-hidden="true"></div>
+            <img src="legacy-award.png.png" alt="HHC Franchise Hub Solutions Corp. 2025 Legacy Icon Award" class="award-banner-img" />
+            <div class="award-floating-badge badge-left" aria-hidden="true">Legacy</div>
+            <div class="award-floating-badge badge-right" aria-hidden="true">2025</div>
+          </div>
+        </div>
+
+        <div class="awards-description">
+          <h3>What This Award Means</h3>
+          <p>The 2025 Legacy Icon Award recognizes organizations that have demonstrated exceptional leadership, innovation, and commitment to excellence in their respective industries. This prestigious honor reflects HHC Franchise Hub's dedication to empowering Filipino entrepreneurs and creating lasting impact in the franchise sector.</p>
+        </div>
+
+        <div class="page-cta">
+          <a href="index.html#contact" class="btn-gold">Join Our Award-Winning Team</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-links">
+        <a href="#">Terms and Conditions</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">FAQs</a>
+      </div>
+      <div class="footer-copyright">
+        <span id="yearSpan"></span> HHC Franchise Hub. All Rights Reserved
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('open');
+        navLinks.classList.toggle('open');
+      });
+    }
+
+    // Set year
+    document.getElementById('yearSpan').textContent = new Date().getFullYear() + ' \u00A9';
+
+    // 3D tilt interaction for the featured award
+    const awardTiltCard = document.querySelector('[data-award-tilt]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (awardTiltCard && !reduceMotion) {
+      const maxTilt = 9;
+
+      const updateTilt = (clientX, clientY) => {
+        const rect = awardTiltCard.getBoundingClientRect();
+        const x = (clientX - rect.left) / rect.width;
+        const y = (clientY - rect.top) / rect.height;
+        const ry = (x - 0.5) * maxTilt * 2;
+        const rx = (0.5 - y) * maxTilt * 2;
+
+        awardTiltCard.style.setProperty('--award-rotate-x', `${rx.toFixed(2)}deg`);
+        awardTiltCard.style.setProperty('--award-rotate-y', `${ry.toFixed(2)}deg`);
+        awardTiltCard.style.setProperty('--shine-x', `${(x * 100).toFixed(1)}%`);
+        awardTiltCard.style.setProperty('--shine-y', `${(y * 100).toFixed(1)}%`);
+        awardTiltCard.style.setProperty('--shine-opacity', '0.42');
+      };
+
+      awardTiltCard.addEventListener('pointermove', (event) => {
+        updateTilt(event.clientX, event.clientY);
+      });
+
+      awardTiltCard.addEventListener('pointerleave', () => {
+        awardTiltCard.style.setProperty('--award-rotate-x', '3deg');
+        awardTiltCard.style.setProperty('--award-rotate-y', '-5deg');
+        awardTiltCard.style.setProperty('--shine-x', '50%');
+        awardTiltCard.style.setProperty('--shine-y', '35%');
+        awardTiltCard.style.setProperty('--shine-opacity', '0');
+      });
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
+
+

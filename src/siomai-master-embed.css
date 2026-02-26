@@ -1,0 +1,26 @@
+﻿@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+
+#master-franchise {
+  position: relative;
+}
+
+#masterCanvasMount {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+#masterCanvasMount > div {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+}
+
+/* Scope Canvas background accents to this section only (prevent full-page haze). */
+#masterCanvasMount > div > .pointer-events-none {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+}

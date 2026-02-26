@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BIGSTOP Franchise Kit - HHC Franchise Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="subpage kit-page">
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="nav-brand">
+        <img src="logo.png.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="history.html" class="dropdown-link">History</a></li>
+            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
+        <a href="index.html#contact" class="btn-primary">Franchise Now <span>&rarr;</span></a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero kit-hero">
+      <div class="container">
+        <p class="section-kicker">BIGSTOP</p>
+        <h1 class="page-hero-title">Franchise Kit Request</h1>
+        <p class="page-hero-subtitle">Send your details and we will email the complete BIGSTOP franchise kit.</p>
+      </div>
+    </section>
+
+    <section class="section page-content">
+      <div class="container kit-grid">
+        <article class="content-card kit-info">
+          <h2>What You Will Receive</h2>
+          <ul class="kit-list">
+            <li>BIGSTOP business model overview</li>
+            <li>Investment and package options</li>
+            <li>Site and location requirements</li>
+            <li>Operations and training support guide</li>
+            <li>Step-by-step franchise application flow</li>
+          </ul>
+          <p class="kit-note">Need immediate support? Email us at <a href="mailto:info@hhcfranchisehub.com">info@hhcfranchisehub.com</a>.</p>
+        </article>
+
+        <form class="content-card kit-form" action="https://formspree.io/f/mjgevzpj" method="POST">
+          <h2>Request Your Kit</h2>
+          <input type="hidden" name="franchise_interest" value="BIGSTOP" />
+
+          <label for="kit-name">Full Name</label>
+          <input id="kit-name" name="name" type="text" required />
+
+          <label for="kit-email">Email Address</label>
+          <input id="kit-email" name="email" type="email" required />
+
+          <label for="kit-phone">Phone Number</label>
+          <input id="kit-phone" name="phone" type="tel" required />
+
+          <label for="kit-location">Preferred Location</label>
+          <input id="kit-location" name="location" type="text" />
+
+          <label for="kit-message">Message</label>
+          <textarea id="kit-message" name="message" rows="4" placeholder="Share your target opening timeline or questions."></textarea>
+
+          <button type="submit" class="btn-primary">Send Request <span>&rarr;</span></button>
+          <a href="bigstop.html" class="btn-outline kit-back-link">Back to BIGSTOP Page</a>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <h3>HHC Franchise Hub</h3>
+        <p>Business for the Filipino</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#franchises">Franchises</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 HHC Franchise Hub Solutions Corp. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
