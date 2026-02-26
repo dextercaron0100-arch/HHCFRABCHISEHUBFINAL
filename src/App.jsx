@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import homeContent from './home-content.html?raw'
 
 function App() {
@@ -76,7 +77,10 @@ function App() {
   }, [])
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: homeContent }} />
+    <>
+      <div dangerouslySetInnerHTML={{ __html: homeContent }} />
+      <Analytics />
+    </>
   )
 }
 
