@@ -100,7 +100,7 @@
 
         <div class="bigstop-proof-grid">
           <div class="bigstop-proof-media">
-            <img src="BOSS SIOAMI SECTION/Boss Siomai MENU.jpg" alt="Boss Siomai menu and combo offer display" />
+            <img src="/Boss%20Siomai%20MENU.jpg" alt="Boss Siomai menu and combo offer display" />
           </div>
           <div class="bigstop-proof-side">
             <div class="bigstop-proof-media bigstop-proof-media-mini">
@@ -341,33 +341,12 @@
       </div>
     </div>
 
-    <section class="siomai-master-embed section" id="master-franchise">
-  <div class="container">
-    <div id="masterCanvasMount" class="siomai-canvas-mount" aria-label="Boss Siomai Master Franchise Canvas"></div>
-  </div>
-</section>
+    <section class="siomai-master-embed" id="master-franchise">
+      <div id="masterCanvasMount" class="siomai-canvas-mount" aria-label="Boss Siomai Master Franchise Canvas"></div>
+    </section>
 
-    <section class="bigstop-contact section">
-      <div class="container">
-        <div class="bigstop-contact-grid">
-          <div class="bigstop-contact-copy">
-            <p class="section-kicker">Talk to the Team</p>
-            <h2>Discuss Your Boss Siomai Franchise Plan</h2>
-            <p>Send your target location and budget range. We will help you match the right stall package and rollout plan.</p>
-            <a href="index.html#franchises" class="btn-outline">View All Franchises</a>
-          </div>
-          <form class="bigstop-form" action="index.html#contact-email" method="get">
-            <label for="siomai-name" class="sr-only">Name</label>
-            <input id="siomai-name" type="text" name="name" placeholder="Name" />
-            <label for="siomai-phone" class="sr-only">Phone</label>
-            <input id="siomai-phone" type="tel" name="phone" placeholder="Phone" />
-            <label for="siomai-message" class="sr-only">Comment</label>
-            <textarea id="siomai-message" name="message" rows="4" placeholder="Comment"></textarea>
-            <button type="submit">Send Inquiry</button>
-            <small>By sending this form, you agree to the processing of your personal data.</small>
-          </form>
-        </div>
-      </div>
+    <section class="siomai-inquiry-react" id="siomai-inquiry">
+      <div id="siomaiInquiryMount" aria-label="Boss Siomai Inquiry Preview"></div>
     </section>
   </main>
 
@@ -392,6 +371,7 @@
 
   <!-- Floating CTA -->
   <script type="module" src="/src/siomai-master-embed-main.jsx"></script>
+  <script type="module" src="/src/siomai-inquiry-main.jsx"></script>
   <script src="script.js"></script>
   <script>
     // Background audio autoplay with play/pause toggle
@@ -435,6 +415,7 @@
       audio.addEventListener('play', update);
       audio.addEventListener('pause', update);
     })();
+
   </script>
 </body>
 </html>

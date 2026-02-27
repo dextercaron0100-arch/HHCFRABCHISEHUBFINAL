@@ -3,18 +3,29 @@
 
 #master-franchise {
   position: relative;
+  margin: 0;
+  padding: 0 !important;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 #masterCanvasMount {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  width: 100%;
   min-height: 100vh;
 }
 
 #masterCanvasMount > div {
   position: relative;
   isolation: isolate;
+  width: 100%;
   min-height: 100%;
 }
 

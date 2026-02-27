@@ -221,25 +221,6 @@ export default function BossSiomaiMasterFranchisePage() {
 
         <motion.div
           aria-hidden
-          className="absolute left-[7%] top-24 h-16 w-16 rounded-2xl border border-white/60 bg-white/30 shadow-xl backdrop-blur-md"
-          style={{ transformStyle: "preserve-3d" }}
-          animate={{ y: [0, -16, 0], rotateX: [58, 68, 58], rotateY: [-32, -14, -32], rotateZ: [0, 12, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <div className="absolute inset-2 rounded-xl border border-white/50 bg-gradient-to-br from-orange-200/60 to-transparent" style={{ transform: "translateZ(10px)" }} />
-        </motion.div>
-        <motion.div
-          aria-hidden
-          className="absolute right-[12%] top-28 h-20 w-20 rounded-2xl border border-white/60 bg-white/25 shadow-xl backdrop-blur-md"
-          style={{ transformStyle: "preserve-3d" }}
-          animate={{ y: [0, 14, 0], rotateX: [62, 52, 62], rotateY: [28, 12, 28], rotateZ: [0, -10, 0] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        >
-          <div className="absolute inset-2 rounded-xl border border-white/50 bg-gradient-to-br from-indigo-200/60 to-transparent" style={{ transform: "translateZ(10px)" }} />
-        </motion.div>
-
-        <motion.div
-          aria-hidden
           animate={{ x: [0, 20, 0], y: [0, 14, 0], scale: [1, 1.06, 1] }}
           transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-24 -left-16 h-72 w-72 rounded-full bg-orange-400/25 blur-3xl"
@@ -256,8 +237,6 @@ export default function BossSiomaiMasterFranchisePage() {
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
           className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-pink-400/15 blur-3xl"
         />
-
-        <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] [background-size:44px_44px]" />
 
         {[...Array(10)].map((_, i) => (
           <motion.div
@@ -276,18 +255,8 @@ export default function BossSiomaiMasterFranchisePage() {
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-white/60 bg-white/65 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-red-500 text-white shadow">
-              <Store className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-black leading-tight text-slate-900">BOSS SIOMAI</p>
-              <p className="text-xs leading-tight text-slate-500">Master Franchise Opportunity</p>
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-2 md:flex">
+        <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-3 sm:px-6 lg:px-8">
+          <nav className="flex flex-wrap items-center justify-center gap-2" aria-label="Section navigation">
             {[
               ["Overview", "#overview"],
               ["Rights", "#rights"],
@@ -331,7 +300,7 @@ export default function BossSiomaiMasterFranchisePage() {
               <BadgeDollarSign className="h-4 w-4" /> Investment & Revenue Model
             </div>
             <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-              Master Franchise Web Page
+              Master Franchise
               <span className="block bg-gradient-to-r from-blue-600 to-red-500 bg-clip-text text-transparent">
                 for Boss Siomai 🚀
               </span>
@@ -687,9 +656,6 @@ export default function BossSiomaiMasterFranchisePage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div>
             <p className="text-sm font-black text-slate-900">Boss Siomai Master Franchise Page</p>
-            <p className="text-xs text-slate-500">
-              UI concept built from your provided slides. Values shown follow the sample computations in your materials.
-            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <a href="#overview" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Top</a>
