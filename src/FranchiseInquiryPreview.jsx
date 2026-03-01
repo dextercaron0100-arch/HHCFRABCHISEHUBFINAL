@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const inquiryApiUrl =
-  import.meta.env.VITE_INQUIRY_API_URL || "http://localhost:5000/api/inquiry";
+  import.meta.env.VITE_INQUIRY_API_URL || "/api/inquiry";
 
 export default function FranchiseInquiryPreview() {
   const [sending, setSending] = useState(false);

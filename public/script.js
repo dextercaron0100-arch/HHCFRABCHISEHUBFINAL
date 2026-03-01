@@ -203,17 +203,111 @@ if (navToggle && navLinks) {
   });
 }
 
-// Reveal on scroll
-const reveals = document.querySelectorAll('.reveal');
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('revealed');
-    }
-  });
-}, { threshold: 0.15 });
+// Direction-aware reveal + parallax scroll effects
+(function initScrollEffects() {
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reveals = Array.from(document.querySelectorAll('.reveal'));
+  const parallaxTargets = Array.from(
+    document.querySelectorAll('[data-scroll-parallax], .hero-slider-wrapper, .founder-hero-overlay, .hero-banner-img')
+  );
 
-reveals.forEach(el => revealObserver.observe(el));
+  if (!reveals.length && !parallaxTargets.length) return;
+
+  let scrollDirection = 'down';
+  let lastScrollY = window.scrollY;
+  let scrollRaf = 0;
+  const pendingRevealFrames = new Map();
+
+  const clearPendingFrame = (el) => {
+    const rafId = pendingRevealFrames.get(el);
+    if (!rafId) return;
+    cancelAnimationFrame(rafId);
+    pendingRevealFrames.delete(el);
+  };
+
+  const scheduleShow = (el) => {
+    clearPendingFrame(el);
+
+    // Commit hidden state first so direction change is visible on re-entry.
+    el.classList.remove('show', 'revealed');
+    const rafId = requestAnimationFrame(() => {
+      el.classList.add('show');
+      pendingRevealFrames.delete(el);
+    });
+    pendingRevealFrames.set(el, rafId);
+  };
+
+  const resetParallax = () => {
+    parallaxTargets.forEach((target) => {
+      target.style.transform = '';
+    });
+  };
+
+  if (reducedMotionQuery.matches) {
+    reveals.forEach((el) => {
+      el.classList.add('show');
+    });
+    resetParallax();
+    return;
+  }
+
+  reveals.forEach((el) => {
+    el.dataset.enterDir = 'down';
+  });
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const el = entry.target;
+
+        if (entry.isIntersecting) {
+          el.dataset.enterDir = scrollDirection;
+          scheduleShow(el);
+        } else {
+          clearPendingFrame(el);
+          el.classList.remove('show', 'revealed');
+        }
+      });
+    },
+    {
+      threshold: 0.18,
+      rootMargin: '0px 0px -6% 0px',
+    }
+  );
+
+  reveals.forEach((el) => revealObserver.observe(el));
+
+  const applyParallax = (scrollY) => {
+    parallaxTargets.forEach((target) => {
+      const speed = Number.isFinite(Number(target.dataset.scrollParallax))
+        ? Number(target.dataset.scrollParallax)
+        : 0.25;
+      target.style.transform = `translate3d(0, ${scrollY * speed}px, 0)`;
+    });
+  };
+
+  const processScroll = () => {
+    scrollRaf = 0;
+
+    const y = window.scrollY;
+    const delta = y - lastScrollY;
+    if (Math.abs(delta) > 1.5) {
+      scrollDirection = delta > 0 ? 'down' : 'up';
+      document.documentElement.dataset.scrollDir = scrollDirection;
+    }
+    lastScrollY = y;
+
+    applyParallax(y);
+  };
+
+  const onScroll = () => {
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(processScroll);
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  processScroll();
+})();
 
 // Animate stats
 const statNumbers = document.querySelectorAll('.stat-number');
@@ -257,47 +351,161 @@ if (statsSection) {
   statsObserver.observe(statsSection);
 }
 
-// Contact form with AJAX submission
-const contactForm = document.getElementById('contactForm');
-if (contactForm) {
-  contactForm.addEventListener('submit', async (e) => {
+// Inquiry forms (home contact + franchise kits) via backend API
+const defaultInquiryEndpoint = window.HHF_INQUIRY_API_URL || '/api/inquiry';
+const inquiryForms = document.querySelectorAll('form#contactForm, form.kit-form, form[data-api-url]');
+
+inquiryForms.forEach((form) => {
+  if (form.dataset.inquiryBound === 'true') return;
+  form.dataset.inquiryBound = 'true';
+
+  const endpoint = form.dataset.apiUrl || defaultInquiryEndpoint;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const statusEl = form.querySelector('#contactStatus');
+  const defaultBtnLabel = submitBtn ? submitBtn.textContent : 'Send';
+
+  const setStatus = (message, isError = false) => {
+    if (!statusEl) return;
+    statusEl.style.display = 'block';
+    statusEl.style.color = isError ? '#f97316' : '#22c55e';
+    statusEl.textContent = message;
+  };
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitBtn');
-    const formSuccess = document.getElementById('formSuccess');
-    const formNote = document.getElementById('formNote');
-    
-    // Disable button and show loading
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = 'Sending... <span>⏳</span>';
-    
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+    }
+    if (statusEl) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+    }
+
+    const payload = Object.fromEntries(new FormData(form).entries());
+
+    if (!payload.comment && payload.message) {
+      payload.comment = payload.message;
+    }
+    if (!payload.source) {
+      payload.source = form.dataset.source || 'Website Form';
+    }
+
     try {
-      const response = await fetch(contactForm.action, {
+      const response = await fetch(endpoint, {
         method: 'POST',
-        body: new FormData(contactForm),
-        headers: {
-          'Accept': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-      
-      if (response.ok) {
-        // Success
-        contactForm.reset();
-        formNote.style.display = 'none';
-        formSuccess.style.display = 'block';
-        submitBtn.innerHTML = 'Sent! <span>✓</span>';
-        submitBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Form submission failed.');
+      }
+
+      form.reset();
+      const leadInfo = data.leadId ? ` Reference: ${data.leadId}.` : '';
+      const autoReplyInfo = data.autoReplySent
+        ? ' A confirmation email was sent to your email address.'
+        : '';
+      const successMessage = `Inquiry sent successfully.${leadInfo}${autoReplyInfo}`;
+
+      if (statusEl) {
+        setStatus(successMessage, false);
       } else {
-        throw new Error('Form submission failed');
+        alert(successMessage);
       }
     } catch (error) {
-      // Error
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Submit inquiry <span>📨</span>';
-      alert('Oops! Something went wrong. Please try again.');
+      const message = error.message || 'Something went wrong. Please try again.';
+      if (statusEl) {
+        setStatus(message, true);
+      } else {
+        alert(message);
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = defaultBtnLabel;
+      }
     }
   });
-}
+});
+
+// Awards section certificate modal (home page)
+(function initAwardsHomeModal() {
+  const modal = document.getElementById('awHomeModal');
+  const openButtons = Array.from(document.querySelectorAll('[data-aw-open]'));
+  if (!modal || !openButtons.length) return;
+
+  const image = document.getElementById('awHomeModalImage');
+  const title = document.getElementById('awHomeModalTitle');
+  const indexText = document.getElementById('awHomeModalIndex');
+  const closeBtn = document.getElementById('awHomeModalClose');
+  const prevBtn = document.getElementById('awHomePrev');
+  const nextBtn = document.getElementById('awHomeNext');
+  const openOriginal = document.getElementById('awHomeModalOpen');
+
+  const items = openButtons.map((btn, idx) => ({
+    src: btn.getAttribute('data-aw-src') || btn.querySelector('img')?.getAttribute('src') || '',
+    alt: btn.getAttribute('data-aw-alt') || `Certificate ${idx + 1}`,
+    label: btn.getAttribute('data-aw-label') || `Certificate ${idx + 1}`
+  }));
+
+  let currentIndex = 0;
+
+  const render = () => {
+    const item = items[currentIndex];
+    if (!item || !image) return;
+
+    image.src = item.src;
+    image.alt = item.alt;
+    if (title) title.textContent = item.label;
+    if (indexText) indexText.textContent = `${currentIndex + 1} / ${items.length}`;
+    if (openOriginal) openOriginal.href = item.src;
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex === items.length - 1;
+  };
+
+  const openAt = (index) => {
+    currentIndex = Math.max(0, Math.min(index, items.length - 1));
+    render();
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    closeBtn?.focus();
+  };
+
+  const close = () => {
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+  };
+
+  const move = (delta) => {
+    const nextIndex = Math.max(0, Math.min(currentIndex + delta, items.length - 1));
+    if (nextIndex === currentIndex) return;
+    currentIndex = nextIndex;
+    render();
+  };
+
+  openButtons.forEach((btn, idx) => {
+    btn.addEventListener('click', () => openAt(idx));
+  });
+
+  closeBtn?.addEventListener('click', close);
+  prevBtn?.addEventListener('click', () => move(-1));
+  nextBtn?.addEventListener('click', () => move(1));
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) close();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (modal.hidden) return;
+    if (event.key === 'Escape') close();
+    if (event.key === 'ArrowLeft') move(-1);
+    if (event.key === 'ArrowRight') move(1);
+  });
+})();
 
 // About Section Tabs
 const aboutTabBtns = document.querySelectorAll('.about-tab-btn');
@@ -454,6 +662,116 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => franchiseCarousel.init());
 } else {
   franchiseCarousel.init();
+}
+
+// Franchise V2 carousel
+const franchiseCarouselV2 = {
+  root: null,
+  tabs: [],
+  tracks: [],
+  prevBtn: null,
+  nextBtn: null,
+  desc: null,
+
+  init() {
+    this.root = document.querySelector('.franchise-v2-section');
+    if (!this.root) return;
+
+    this.tabs = Array.from(this.root.querySelectorAll('.franchise-v2-tab'));
+    this.tracks = Array.from(this.root.querySelectorAll('.franchise-v2-track'));
+    this.prevBtn = this.root.querySelector('.franchise-v2-arrow.prev');
+    this.nextBtn = this.root.querySelector('.franchise-v2-arrow.next');
+    this.desc = this.root.querySelector('.franchise-v2-tab-desc');
+
+    if (!this.tabs.length || !this.tracks.length) return;
+
+    this.bindEvents();
+    const activeTab = this.tabs.find(tab => tab.classList.contains('active')) || this.tabs[0];
+    this.setActiveTab(activeTab.dataset.tab);
+    this.updateArrowState();
+    window.addEventListener('resize', () => this.updateArrowState());
+  },
+
+  bindEvents() {
+    this.tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        this.setActiveTab(tab.dataset.tab);
+      });
+    });
+
+    this.tracks.forEach((track) => {
+      track.addEventListener('scroll', () => this.updateArrowState(), { passive: true });
+      track.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          this.scrollByPage(-1);
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          this.scrollByPage(1);
+        }
+      });
+    });
+
+    if (this.prevBtn) {
+      this.prevBtn.addEventListener('click', () => this.scrollByPage(-1));
+    }
+
+    if (this.nextBtn) {
+      this.nextBtn.addEventListener('click', () => this.scrollByPage(1));
+    }
+  },
+
+  getActiveTrack() {
+    return this.tracks.find(track => track.classList.contains('active')) || null;
+  },
+
+  setActiveTab(tabId) {
+    this.tabs.forEach((tab) => {
+      const selected = tab.dataset.tab === tabId;
+      tab.classList.toggle('active', selected);
+      tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+    });
+
+    this.tracks.forEach((track) => {
+      const selected = track.dataset.category === tabId;
+      track.classList.toggle('active', selected);
+      if (selected) {
+        track.scrollTo({ left: 0, behavior: 'auto' });
+      }
+    });
+
+    const selectedTab = this.tabs.find(tab => tab.dataset.tab === tabId);
+    if (selectedTab && this.desc) {
+      this.desc.textContent = selectedTab.dataset.desc || '';
+    }
+
+    this.updateArrowState();
+  },
+
+  scrollByPage(direction) {
+    const track = this.getActiveTrack();
+    if (!track) return;
+
+    const delta = Math.max(240, track.clientWidth * 0.9) * direction;
+    track.scrollBy({ left: delta, behavior: 'smooth' });
+  },
+
+  updateArrowState() {
+    const track = this.getActiveTrack();
+    if (!track || !this.prevBtn || !this.nextBtn) return;
+
+    const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+    const scrollLeft = Math.max(0, Math.min(track.scrollLeft, maxScroll));
+
+    this.prevBtn.disabled = scrollLeft <= 2;
+    this.nextBtn.disabled = (maxScroll - scrollLeft) <= 2;
+  },
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => franchiseCarouselV2.init());
+} else {
+  franchiseCarouselV2.init();
 }
 
 // Branch coverflow carousel (BIGSTOP branches section)

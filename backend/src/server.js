@@ -86,7 +86,19 @@ const createTransporter = () => {
   });
 };
 
-const buildAdminInquiryEmail = ({ leadId, submittedAt, name, phone, email, comment, source }) => {
+const buildAdminInquiryEmail = ({
+  leadId,
+  submittedAt,
+  name,
+  phone,
+  email,
+  comment,
+  source,
+  franchiseInterest,
+  location,
+  experience,
+  budget,
+}) => {
   const safeLeadId = escapeHtml(leadId);
   const safeSubmittedAt = escapeHtml(submittedAt);
   const safeName = escapeHtml(name);
@@ -94,6 +106,42 @@ const buildAdminInquiryEmail = ({ leadId, submittedAt, name, phone, email, comme
   const safeEmail = escapeHtml(email || "N/A");
   const safeComment = escapeHtml(comment).replace(/\n/g, "<br/>");
   const safeSource = escapeHtml(source || "Website Form");
+  const safeFranchiseInterest = escapeHtml(franchiseInterest || "");
+  const safeLocation = escapeHtml(location || "");
+  const safeExperience = escapeHtml(experience || "");
+  const safeBudget = escapeHtml(budget || "");
+  const leadDetailRows = [
+    franchiseInterest
+      ? `
+              <tr>
+                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Franchise</td>
+                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeFranchiseInterest}</td>
+              </tr>`
+      : "",
+    location
+      ? `
+              <tr>
+                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Location</td>
+                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeLocation}</td>
+              </tr>`
+      : "",
+    experience
+      ? `
+              <tr>
+                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Experience</td>
+                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeExperience}</td>
+              </tr>`
+      : "",
+    budget
+      ? `
+              <tr>
+                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Budget</td>
+                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeBudget}</td>
+              </tr>`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("");
 
   const subject = `[${businessName}] New Franchise Inquiry - ${name}`;
 
@@ -131,6 +179,7 @@ const buildAdminInquiryEmail = ({ leadId, submittedAt, name, phone, email, comme
                 <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Source</td>
                 <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeSource}</td>
               </tr>
+              ${leadDetailRows}
             </table>
             <div style="margin-top:16px;padding:14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:10px;">
               <p style="margin:0 0 8px;font-size:13px;color:#334155;text-transform:uppercase;letter-spacing:.06em;"><strong>Comment</strong></p>
@@ -150,10 +199,16 @@ const buildAdminInquiryEmail = ({ leadId, submittedAt, name, phone, email, comme
     `Phone: ${phone}`,
     `Email: ${email || "N/A"}`,
     `Source: ${source || "Website Form"}`,
+    franchiseInterest ? `Franchise: ${franchiseInterest}` : "",
+    location ? `Location: ${location}` : "",
+    experience ? `Experience: ${experience}` : "",
+    budget ? `Budget: ${budget}` : "",
     "",
     "Comment:",
     comment,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   return { subject, html, text };
 };
@@ -284,11 +339,35 @@ app.get("/api/health", (_req, res) => {
 
 app.post("/api/inquiry", async (req, res) => {
   try {
-    const { name, phone, email, comment, message } = req.body || {};
+    const {
+      name,
+      phone,
+      email,
+      comment,
+      message,
+      franchise_interest,
+      location,
+      experience,
+      budget,
+      source,
+    } = req.body || {};
     const normalizedName = normalize(name);
     const normalizedPhone = normalize(phone);
     const normalizedEmail = normalize(email);
-    const normalizedComment = normalize(comment || message);
+    const normalizedFranchiseInterest = normalize(franchise_interest);
+    const normalizedLocation = normalize(location);
+    const normalizedExperience = normalize(experience);
+    const normalizedBudget = normalize(budget);
+    const normalizedMessage = normalize(comment || message);
+    const normalizedComment = [
+      normalizedMessage,
+      normalizedFranchiseInterest ? `Franchise interest: ${normalizedFranchiseInterest}` : "",
+      normalizedLocation ? `Preferred location: ${normalizedLocation}` : "",
+      normalizedExperience ? `Business experience: ${normalizedExperience}` : "",
+      normalizedBudget ? `Budget range: ${normalizedBudget}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     if (!normalizedName || !normalizedPhone || !normalizedComment) {
       res.status(400).json({
@@ -305,7 +384,8 @@ app.post("/api/inquiry", async (req, res) => {
 
     const leadId = makeLeadId();
     const submittedAt = formatSubmittedAt();
-    const source = normalize(req.headers.origin || req.headers.referer || "Website Form");
+    const normalizedSource =
+      normalize(source) || normalize(req.headers.origin || req.headers.referer || "Website Form");
     const now = new Date().toISOString();
 
     await db.run(
@@ -320,7 +400,7 @@ app.post("/api/inquiry", async (req, res) => {
       normalizedPhone,
       normalizedEmail || null,
       normalizedComment,
-      source,
+      normalizedSource,
       now,
       now
     );
@@ -333,7 +413,11 @@ app.post("/api/inquiry", async (req, res) => {
       phone: normalizedPhone,
       email: normalizedEmail,
       comment: normalizedComment,
-      source,
+      source: normalizedSource,
+      franchiseInterest: normalizedFranchiseInterest,
+      location: normalizedLocation,
+      experience: normalizedExperience,
+      budget: normalizedBudget,
     });
 
     const adminMailOptions = {

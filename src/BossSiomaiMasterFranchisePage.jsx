@@ -15,6 +15,9 @@ import {
   Sparkles,
   Building2,
   Users,
+  MessageCircle,
+  Facebook,
+  Instagram,
 } from "lucide-react";
 
 const cartIncome = {
@@ -646,21 +649,62 @@ export default function BossSiomaiMasterFranchisePage() {
         </div>
       </Section>
 
-      <footer className="relative overflow-hidden border-t border-white/70 bg-white/80 backdrop-blur">
+      <footer className="relative overflow-hidden border-t border-white/10 bg-gradient-to-b from-[#101433] via-[#0c112c] to-[#090d22] text-white shadow-2xl">
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/80 to-transparent"
-          animate={{ opacity: [0.2, 1, 0.2], scaleX: [0.92, 1, 0.92] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          animate={{ x: ["-120%", "120%"] }}
+          transition={{ duration: 5.5, repeat: Infinity, ease: "linear" }}
         />
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div>
-            <p className="text-sm font-black text-slate-900">Boss Siomai Master Franchise Page</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <a href="#overview" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Top</a>
-            <a href="#cart-income" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Income</a>
-            <a href="#distribution" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Distribution</a>
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -left-6 top-2 h-20 w-20 rounded-full bg-cyan-400/10 blur-2xl"
+          animate={{ x: [-8, 8, -8], y: [0, -3, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute right-6 top-2 h-16 w-16 rounded-full bg-indigo-400/10 blur-2xl"
+          animate={{ y: [0, -6, 0], scale: [1, 1.03, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:px-6 md:grid-cols-[1fr_auto_1fr] md:items-center lg:px-8">
+          <nav className="order-2 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm md:order-1 md:justify-start">
+            <a href="#" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">Terms & Conditions</a>
+            <a href="#" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">Privacy Policy</a>
+            <a href="faqs.html" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">FAQs</a>
+          </nav>
+          <p className="order-1 text-center text-xs font-medium tracking-wide text-white/80 sm:text-sm md:order-2">
+            &copy; 2026 <span className="text-white">HHC Franchise Hub</span>. All Rights Reserved.
+          </p>
+          <div className="order-3 flex items-center justify-center gap-2 md:justify-end">
+            <a
+              href="https://api.whatsapp.com/send?phone=+639065032208"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-green-400/50 hover:bg-green-500/20"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </a>
+            <a
+              href="https://www.facebook.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-blue-400/50 hover:bg-blue-500/20"
+            >
+              <Facebook className="h-4 w-4" />
+            </a>
+            <a
+              href="https://www.instagram.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-pink-400/50 hover:bg-pink-500/20"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </footer>

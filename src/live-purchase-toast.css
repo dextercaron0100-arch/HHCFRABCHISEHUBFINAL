@@ -1,0 +1,225 @@
+.live-purchase-toast {
+  position: fixed;
+  z-index: 50;
+  width: 330px;
+  max-width: calc(100vw - 2rem);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.97) 100%);
+  box-shadow: 0 18px 45px -22px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(10px);
+  transition: opacity 500ms ease, transform 500ms ease;
+  overflow: hidden;
+}
+
+.live-purchase-toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 45%, #94a3b8 100%);
+}
+
+.live-purchase-toast.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.live-purchase-toast.is-hidden-top {
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.live-purchase-toast.is-hidden-bottom {
+  transform: translateY(12px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.live-purchase-toast.toast-pos-bottom-left {
+  bottom: 1rem;
+  left: 1rem;
+}
+
+.live-purchase-toast.toast-pos-bottom-right {
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.live-purchase-toast.toast-pos-top-left {
+  top: 1rem;
+  left: 1rem;
+}
+
+.live-purchase-toast.toast-pos-top-right {
+  top: 1rem;
+  right: 1rem;
+}
+
+.live-purchase-toast-inner {
+  padding: 16px;
+}
+
+.live-purchase-toast.compact .live-purchase-toast-inner {
+  padding: 12px;
+}
+
+.live-purchase-toast-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.live-purchase-toast-avatar {
+  position: relative;
+  display: flex;
+  height: 40px;
+  width: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.4);
+}
+
+.live-purchase-toast-check {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.live-purchase-toast-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.live-purchase-toast-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.live-purchase-toast-product {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #334155;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-purchase-toast-meta {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.live-purchase-toast-badge {
+  margin-top: 2px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  background: #ffffff;
+  padding: 4px 8px;
+  color: #334155;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.live-purchase-toast-progress {
+  margin-top: 12px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(203, 213, 225, 0.8);
+}
+
+.live-purchase-toast-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #94a3b8 0%, #64748b 100%);
+}
+
+.live-purchase-toast-progress-fill.animate {
+  width: 100%;
+  animation: toastbar 4.2s linear forwards;
+}
+
+.live-purchase-toast-progress-fill.static {
+  width: 50%;
+}
+
+@keyframes toastbar {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+@media (max-width: 639px) {
+  .live-purchase-toast.mobile-full {
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto;
+    max-width: none;
+  }
+
+  .live-purchase-toast-badge {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .live-purchase-toast.toast-pos-bottom-left,
+  .live-purchase-toast.toast-pos-bottom-right {
+    bottom: 1.25rem;
+  }
+
+  .live-purchase-toast.toast-pos-top-left,
+  .live-purchase-toast.toast-pos-top-right {
+    top: 1.25rem;
+  }
+
+  .live-purchase-toast.toast-pos-bottom-left,
+  .live-purchase-toast.toast-pos-top-left {
+    left: 1.25rem;
+  }
+
+  .live-purchase-toast.toast-pos-bottom-right,
+  .live-purchase-toast.toast-pos-top-right {
+    right: 1.25rem;
+  }
+
+  .live-purchase-toast-title {
+    font-size: 14px;
+  }
+
+  .live-purchase-toast-product {
+    font-size: 14px;
+  }
+
+  .live-purchase-toast-meta {
+    font-size: 12px;
+  }
+}
