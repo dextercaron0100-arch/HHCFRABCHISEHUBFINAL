@@ -15,9 +15,6 @@ import {
   Sparkles,
   Building2,
   Users,
-  MessageCircle,
-  Facebook,
-  Instagram,
 } from "lucide-react";
 
 const cartIncome = {
@@ -600,15 +597,15 @@ export default function BossSiomaiMasterFranchisePage() {
                 },
               ].map(({ title, value, icon: Icon, tone }) => {
                 const toneMap = {
-                  red: "bg-red-50 text-red-700 ring-red-100",
-                  blue: "bg-blue-50 text-blue-700 ring-blue-100",
-                  amber: "bg-amber-50 text-amber-700 ring-amber-100",
-                  emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+                  red: "border-[#f7caca] bg-[#fff3f3] text-[#dc4f4f]",
+                  blue: "border-[#cfe0ff] bg-[#f3f8ff] text-[#3b82f6]",
+                  amber: "border-[#f4dcaf] bg-[#fff8ea] text-[#d97706]",
+                  emerald: "border-[#cbead9] bg-[#eefaf3] text-[#22a864]",
                 };
                 return (
                   <div key={title} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className={`grid h-12 w-12 place-items-center rounded-xl ring-1 ${toneMap[tone]}`}>
-                      <Icon className="h-5 w-5" />
+                    <div className={`grid h-12 w-12 place-items-center rounded-2xl border ${toneMap[tone]}`}>
+                      <Icon className="h-[18px] w-[18px]" strokeWidth={2.1} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-slate-900">{title}</p>
@@ -649,65 +646,6 @@ export default function BossSiomaiMasterFranchisePage() {
         </div>
       </Section>
 
-      <footer className="relative overflow-hidden border-t border-white/10 bg-gradient-to-b from-[#101433] via-[#0c112c] to-[#090d22] text-white shadow-2xl">
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-          animate={{ x: ["-120%", "120%"] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute -left-6 top-2 h-20 w-20 rounded-full bg-cyan-400/10 blur-2xl"
-          animate={{ x: [-8, 8, -8], y: [0, -3, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute right-6 top-2 h-16 w-16 rounded-full bg-indigo-400/10 blur-2xl"
-          animate={{ y: [0, -6, 0], scale: [1, 1.03, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-5 sm:px-6 md:grid-cols-[1fr_auto_1fr] md:items-center lg:px-8">
-          <nav className="order-2 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm md:order-1 md:justify-start">
-            <a href="#" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">Terms & Conditions</a>
-            <a href="#" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">Privacy Policy</a>
-            <a href="faqs.html" className="rounded-full px-2 py-1 text-blue-100/90 transition hover:bg-white/5 hover:text-white">FAQs</a>
-          </nav>
-          <p className="order-1 text-center text-xs font-medium tracking-wide text-white/80 sm:text-sm md:order-2">
-            &copy; 2026 <span className="text-white">HHC Franchise Hub</span>. All Rights Reserved.
-          </p>
-          <div className="order-3 flex items-center justify-center gap-2 md:justify-end">
-            <a
-              href="https://api.whatsapp.com/send?phone=+639065032208"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-green-400/50 hover:bg-green-500/20"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </a>
-            <a
-              href="https://www.facebook.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-blue-400/50 hover:bg-blue-500/20"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href="https://www.instagram.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition hover:-translate-y-0.5 hover:border-pink-400/50 hover:bg-pink-500/20"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

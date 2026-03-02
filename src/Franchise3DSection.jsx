@@ -561,7 +561,7 @@ export default function Franchise3DSection() {
 
   return (
     <section className="section fr3d-section" id="franchises">
-      <div className="fr3d-ambient" aria-hidden="true" />
+      <div className="fr3d-ambient" data-scroll-parallax="0.12" aria-hidden="true" />
       <div className="container fr3d-wrap">
         <motion.header
           initial={{ opacity: 0, y: 16 }}

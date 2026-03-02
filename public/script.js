@@ -206,17 +206,22 @@ if (navToggle && navLinks) {
 // Direction-aware reveal + parallax scroll effects
 (function initScrollEffects() {
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const reveals = Array.from(document.querySelectorAll('.reveal'));
-  const parallaxTargets = Array.from(
-    document.querySelectorAll('[data-scroll-parallax], .hero-slider-wrapper, .founder-hero-overlay, .hero-banner-img')
-  );
-
-  if (!reveals.length && !parallaxTargets.length) return;
+  const parallaxSelector =
+    '[data-scroll-parallax], .hero-slider-wrapper, .founder-hero-overlay, .hero-banner-img, .fr3d-ambient';
+  const observedReveals = new Set();
+  const parallaxTargets = new Set();
 
   let scrollDirection = 'down';
   let lastScrollY = window.scrollY;
   let scrollRaf = 0;
   const pendingRevealFrames = new Map();
+  let revealObserver = null;
+  let mutationObserver = null;
+
+  const addParallaxTarget = (el) => {
+    if (!el || parallaxTargets.has(el)) return;
+    parallaxTargets.add(el);
+  };
 
   const clearPendingFrame = (el) => {
     const rafId = pendingRevealFrames.get(el);
@@ -237,25 +242,41 @@ if (navToggle && navLinks) {
     pendingRevealFrames.set(el, rafId);
   };
 
-  const resetParallax = () => {
+  const addRevealTarget = (el) => {
+    if (!el || observedReveals.has(el) || !revealObserver) return;
+    el.dataset.enterDir = 'down';
+    revealObserver.observe(el);
+    observedReveals.add(el);
+  };
+
+  const collectTargets = (node) => {
+    if (!node || node.nodeType !== 1) return;
+
+    if (node.matches('.reveal')) addRevealTarget(node);
+    if (node.matches(parallaxSelector)) addParallaxTarget(node);
+
+    node.querySelectorAll('.reveal').forEach((el) => addRevealTarget(el));
+    node.querySelectorAll(parallaxSelector).forEach((el) => addParallaxTarget(el));
+  };
+
+  const resetParallax = (clearTransforms = true) => {
     parallaxTargets.forEach((target) => {
-      target.style.transform = '';
+      if (!document.contains(target)) {
+        parallaxTargets.delete(target);
+        return;
+      }
+      if (clearTransforms) target.style.transform = '';
     });
   };
 
   if (reducedMotionQuery.matches) {
-    reveals.forEach((el) => {
-      el.classList.add('show');
-    });
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('show'));
+    document.querySelectorAll(parallaxSelector).forEach((el) => addParallaxTarget(el));
     resetParallax();
     return;
   }
 
-  reveals.forEach((el) => {
-    el.dataset.enterDir = 'down';
-  });
-
-  const revealObserver = new IntersectionObserver(
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         const el = entry.target;
@@ -275,10 +296,23 @@ if (navToggle && navLinks) {
     }
   );
 
-  reveals.forEach((el) => revealObserver.observe(el));
+  collectTargets(document.body || document.documentElement);
+
+  mutationObserver = new MutationObserver((records) => {
+    records.forEach((record) => {
+      record.addedNodes.forEach((addedNode) => collectTargets(addedNode));
+    });
+  });
+  if (document.body) {
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
   const applyParallax = (scrollY) => {
     parallaxTargets.forEach((target) => {
+      if (!document.contains(target)) {
+        parallaxTargets.delete(target);
+        return;
+      }
       const speed = Number.isFinite(Number(target.dataset.scrollParallax))
         ? Number(target.dataset.scrollParallax)
         : 0.25;
@@ -361,8 +395,9 @@ inquiryForms.forEach((form) => {
 
   const endpoint = form.dataset.apiUrl || defaultInquiryEndpoint;
   const submitBtn = form.querySelector('button[type="submit"]');
-  const statusEl = form.querySelector('#contactStatus');
+  const statusEl = form.querySelector('#contactStatus, [data-form-status]');
   const defaultBtnLabel = submitBtn ? submitBtn.textContent : 'Send';
+  const defaultBtnHtml = submitBtn ? submitBtn.innerHTML : defaultBtnLabel;
 
   const setStatus = (message, isError = false) => {
     if (!statusEl) return;
@@ -426,7 +461,7 @@ inquiryForms.forEach((form) => {
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = defaultBtnLabel;
+        submitBtn.innerHTML = defaultBtnHtml;
       }
     }
   });
@@ -1167,6 +1202,119 @@ prefersReducedMotion.addEventListener('change', (event) => {
   const previews = document.querySelectorAll('.package-preview');
   const filterButtons = document.querySelectorAll('[data-package-filter]');
   const cards = document.querySelectorAll('.siomai-package-card');
+  const claimButtons = document.querySelectorAll('.package-claim');
+  const applyModal = document.getElementById('siomaiApplyModal');
+  const applyCloseControls = applyModal ? applyModal.querySelectorAll('[data-apply-close]') : [];
+  const applyPanel = applyModal ? applyModal.querySelector('.siomai-apply-panel') : null;
+  const applyTitle = document.getElementById('siomaiApplyTitle');
+  const claimForm = document.getElementById('siomaiClaimForm');
+  const claimInterestInput = claimForm ? claimForm.querySelector('input[name="franchise_interest"]') : null;
+  const claimMessage = claimForm ? claimForm.querySelector('textarea[name="message"]') : null;
+  const investmentFee = document.getElementById('siomaiApplyFee');
+  const investmentTotal = document.getElementById('siomaiApplyTotal');
+  const investmentTerm = document.getElementById('siomaiApplyTerm');
+  const investmentRoyalty = document.getElementById('siomaiApplyRoyalty');
+  const serviceList = document.getElementById('siomaiApplyServices');
+
+  const packageDetails = {
+    'Food Cart Package': {
+      title: 'Boss Siomai',
+      fee: 'PHP 39,999',
+      total: 'PHP 39,999',
+      term: '5 years',
+      royalty: '10% net income',
+      services: ['Siomai Menu Line', 'Supply Chain Access', 'Store Setup Support', 'Crew Training'],
+    },
+    'Bike Cart Package': {
+      title: 'Boss Siomai',
+      fee: 'PHP 65,000',
+      total: 'PHP 65,000',
+      term: '5 years',
+      royalty: '10% net income',
+      services: ['Mobile Cart Setup', 'Supply Chain Access', 'Route Launch Guidance', 'Crew Training'],
+    },
+    'Kiosk Package': {
+      title: 'Boss Siomai',
+      fee: 'PHP 99,000',
+      total: 'PHP 99,000',
+      term: '5 years',
+      royalty: '10% net income',
+      services: ['Full Kiosk Setup', 'Supply Chain Access', 'Store Setup Support', 'Crew Training'],
+    },
+    'Reseller Package': {
+      title: 'Boss Siomai',
+      fee: 'PHP 4,999',
+      total: 'PHP 4,999',
+      term: 'Flexible',
+      royalty: 'No royalty fee',
+      services: ['Frozen Product Supply', 'Starter Sales Materials', 'Orientation Support', 'Reorder Assistance'],
+    },
+  };
+
+  const setClaimPackage = (packageName) => {
+    const selected = (packageName || '').trim() || 'Food Cart Package';
+    const detail = packageDetails[selected] || packageDetails['Food Cart Package'];
+
+    if (claimInterestInput) {
+      const interestValue = `Boss Siomai - ${selected}`;
+      claimInterestInput.value = interestValue;
+      claimInterestInput.defaultValue = interestValue;
+    }
+    if (applyTitle) {
+      applyTitle.textContent = `${detail.title} Franchise Details`;
+    }
+    if (investmentFee) {
+      investmentFee.textContent = detail.fee;
+    }
+    if (investmentTotal) {
+      investmentTotal.textContent = detail.total;
+    }
+    if (investmentTerm) {
+      investmentTerm.textContent = detail.term;
+    }
+    if (investmentRoyalty) {
+      investmentRoyalty.textContent = detail.royalty;
+    }
+    if (serviceList) {
+      serviceList.innerHTML = '';
+      detail.services.forEach((service) => {
+        const li = document.createElement('li');
+        const dot = document.createElement('span');
+        dot.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('span');
+        text.textContent = service;
+        li.append(dot, text);
+        serviceList.appendChild(li);
+      });
+    }
+    if (claimMessage && !claimMessage.value.trim()) {
+      claimMessage.value = `Hi, I want to claim the ${selected}. Please share the requirements and next steps.`;
+    }
+  };
+
+  const openApplyModal = (packageName) => {
+    if (!applyModal) return;
+    setClaimPackage(packageName);
+    applyModal.classList.add('open');
+    applyModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  };
+
+  const closeApplyModal = (event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!applyModal) return;
+    applyModal.classList.remove('open');
+    applyModal.setAttribute('aria-hidden', 'true');
+
+    const hasOpenModal = document.querySelector('.video-modal.open, .package-modal.open, .why-modal.open, .siomai-apply-modal.open');
+    if (!hasOpenModal) {
+      document.body.classList.remove('modal-open');
+    }
+  };
 
   if (modal && modalImg) {
     const open = (src) => {
@@ -1208,6 +1356,38 @@ prefersReducedMotion.addEventListener('change', (event) => {
       });
     });
   }
+
+  if (claimButtons.length) {
+    claimButtons.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openApplyModal(btn.dataset.claimPackage);
+      });
+    });
+  }
+
+  if (applyPanel) {
+    applyPanel.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+  }
+
+  if (applyCloseControls.length) {
+    applyCloseControls.forEach((el) => {
+      el.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      el.addEventListener('click', closeApplyModal);
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && applyModal && applyModal.classList.contains('open')) {
+      closeApplyModal();
+    }
+  });
 })();
 
 // Daily countdown timer for urgency bar

@@ -1,18 +1,30 @@
 import { useState } from "react";
 
-const inquiryApiUrl =
-  import.meta.env.VITE_INQUIRY_API_URL || "/api/inquiry";
+const inquiryApiUrl = import.meta.env.VITE_INQUIRY_API_URL || "/api/inquiry";
 
-export default function FranchiseInquiryPreview() {
+export default function InquirySectionPreview() {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
+  const [error, setError] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSending(true);
     setStatus("");
+    setError(false);
 
-    const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+    const formData = new FormData(event.currentTarget);
+    const payload = Object.fromEntries(formData.entries());
+
+    if (!payload.comment && payload.message) {
+      payload.comment = payload.message;
+    }
+    const launchTimeline = (payload.target_launch || "").toString().trim();
+    if (launchTimeline) {
+      payload.comment = `${payload.comment || ""}\nTarget launch: ${launchTimeline}`.trim();
+    }
+    payload.source = "Boss Siomai Inquiry Section";
+    payload.franchise_interest = "Boss Siomai";
 
     try {
       const response = await fetch(inquiryApiUrl, {
@@ -32,141 +44,178 @@ export default function FranchiseInquiryPreview() {
         : "";
       setStatus(`Inquiry sent successfully.${leadText}${autoReplyText}`);
       event.currentTarget.reset();
-    } catch (error) {
-      setStatus(error.message || "Something went wrong while sending your inquiry.");
+    } catch (err) {
+      setError(true);
+      setStatus(err.message || "Something went wrong while sending your inquiry.");
     } finally {
       setSending(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] p-6 md:p-10 flex items-center justify-center">
-      <section className="relative w-full max-w-6xl overflow-hidden rounded-3xl border border-amber-300/20 bg-gradient-to-br from-[#2b0703] via-[#1f0603] to-[#3a0b05] p-5 md:p-8 shadow-2xl">
-        <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-orange-400/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-amber-300/20 blur-3xl" />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 md:p-10">
+      <section className="w-full max-w-6xl rounded-3xl bg-white shadow-2xl overflow-hidden">
+        <div className="grid lg:grid-cols-[1.05fr_1fr]">
+          <div className="relative p-8 md:p-12 lg:p-14 bg-slate-900 text-white">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.14),transparent_45%)]" />
+            <div className="relative">
+              <p className="text-xs font-semibold tracking-[0.22em] uppercase text-amber-400">
+                Talk to the team
+              </p>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-10">
-          <div className="pt-1">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-300">
-              Talk to the Team
-            </p>
+              <h2 className="mt-4 text-3xl md:text-4xl font-bold leading-tight tracking-tight">
+                Plan Your <span className="text-amber-400">Boss Siomai</span>
+                <br className="hidden sm:block" /> Franchise Setup
+              </h2>
 
-            <h2 className="max-w-[15ch] text-3xl font-bold leading-tight text-[#f8f3eb] md:text-4xl">
-              Discuss Your <span className="text-amber-300">Boss Siomai</span> Franchise Plan
-            </h2>
+              <p className="mt-5 max-w-xl text-sm md:text-base leading-7 text-slate-300">
+                Share your target location, budget range, and launch timeline. Our
+                team will recommend the best package and rollout plan for your area.
+              </p>
 
-            <p className="mt-4 max-w-[48ch] text-sm leading-7 text-[#d4c4b4] md:text-base">
-              Share your preferred location, budget range, and target launch date. Our team
-              will help you choose the right stall package and rollout plan for your area.
-            </p>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {[
+                  ["Package Matching", "Get the right setup for your budget and goals."],
+                  ["Location Review", "Assess visibility, foot traffic, and fit."],
+                  ["Budget Guidance", "Compare startup cost and estimated payback."],
+                  ["Fast Response", "Expect a reply within 1 business day."],
+                ].map(([title, desc]) => (
+                  <div
+                    key={title}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                  >
+                    <p className="text-sm font-semibold text-white">{title}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-300">{desc}</p>
+                  </div>
+                ))}
+              </div>
 
-            <div className="mt-5 flex flex-wrap gap-2.5">
-              {["Package Matching", "Location Assessment", "Budget Planning"].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-amber-200/15 bg-white/5 px-3 py-2 text-xs md:text-sm text-[#f3e8db] backdrop-blur"
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a
+                  href="index.html#franchises"
+                  className="rounded-xl bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 shadow hover:brightness-95 transition"
                 >
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a
-                href="index.html#franchises"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-b from-amber-300 to-amber-500 px-4 text-sm font-semibold text-[#23160f] shadow-lg shadow-black/20 transition hover:-translate-y-0.5"
-              >
-                View All Franchises
-              </a>
-              <a
-                href="#package"
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-amber-300/35 bg-white/5 px-4 text-sm font-semibold text-[#f8f3eb] transition hover:bg-white/10"
-              >
-                Compare Packages
-              </a>
+                  View Packages
+                </a>
+                <a
+                  href="#master-franchise"
+                  className="rounded-xl border border-white/20 bg-transparent px-5 py-3 text-sm font-semibold text-white hover:bg-white/5 transition"
+                >
+                  Compare Options
+                </a>
+              </div>
             </div>
           </div>
 
-          <div>
-            <div className="rounded-2xl border border-amber-300/25 bg-white/[0.03] p-4 md:p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-[#f8f3eb]">Send an Inquiry</h3>
-                <p className="mt-1 text-sm text-[#d4c4b4]">We usually reply within 1 business day.</p>
+          <div className="p-8 md:p-10 lg:p-12 bg-white">
+            <div className="mx-auto max-w-xl">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+                  Send an Inquiry
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  We usually reply within 1 business day.
+                </p>
               </div>
 
-              <form className="space-y-3" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="inquiry-name" className="mb-1.5 block text-xs font-medium text-[#f3e8db]">
-                      Name
-                    </label>
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Name">
                     <input
-                      id="inquiry-name"
-                      name="name"
                       type="text"
-                      required
+                      name="name"
                       placeholder="Juan Dela Cruz"
-                      className="h-11 w-full rounded-xl border border-transparent bg-[#efe6d8] px-3 text-sm text-[#3a2418] outline-none ring-0 placeholder:text-[#8f7c6e] focus:border-amber-300 focus:shadow-[0_0_0_3px_rgba(247,197,106,0.18)]"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="inquiry-phone" className="mb-1.5 block text-xs font-medium text-[#f3e8db]">
-                      Phone
-                    </label>
-                    <input
-                      id="inquiry-phone"
-                      name="phone"
-                      type="tel"
+                      className={inputClass}
                       required
-                      placeholder="+63 9XX XXX XXXX"
-                      className="h-11 w-full rounded-xl border border-transparent bg-[#efe6d8] px-3 text-sm text-[#3a2418] outline-none ring-0 placeholder:text-[#8f7c6e] focus:border-amber-300 focus:shadow-[0_0_0_3px_rgba(247,197,106,0.18)]"
                     />
-                  </div>
+                  </Field>
+
+                  <Field label="Phone">
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="+63 9XX XXX XXXX"
+                      className={inputClass}
+                      required
+                    />
+                  </Field>
                 </div>
 
-                <div>
-                  <label htmlFor="inquiry-email" className="mb-1.5 block text-xs font-medium text-[#f3e8db]">
-                    Email (optional)
-                  </label>
+                <Field label="Email (optional)">
                   <input
-                    id="inquiry-email"
-                    name="email"
                     type="email"
+                    name="email"
                     placeholder="you@email.com"
-                    className="h-11 w-full rounded-xl border border-transparent bg-[#efe6d8] px-3 text-sm text-[#3a2418] outline-none ring-0 placeholder:text-[#8f7c6e] focus:border-amber-300 focus:shadow-[0_0_0_3px_rgba(247,197,106,0.18)]"
+                    className={inputClass}
                   />
+                </Field>
+
+                <Field label="Preferred Location">
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="e.g., Caloocan / Quezon City"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Budget Range">
+                    <select className={inputClass} name="budget" defaultValue="">
+                      <option value="" disabled>
+                        Select budget
+                      </option>
+                      <option>₱4,999 (Reseller Package)</option>
+                      <option>₱39,999 (Food Cart Package)</option>
+                      <option>₱65,000 (Bike Cart Package)</option>
+                      <option>₱99,000 (Kiosk Package)</option>
+                      <option>₱100,000+ (Multiple Units / Expansion)</option>
+                    </select>
+                  </Field>
+
+                  <Field label="Target Launch">
+                    <select className={inputClass} name="target_launch" defaultValue="">
+                      <option value="" disabled>
+                        Select timeline
+                      </option>
+                      <option>Within 30 days</option>
+                      <option>1–3 months</option>
+                      <option>3–6 months</option>
+                    </select>
+                  </Field>
                 </div>
 
-                <div>
-                  <label htmlFor="inquiry-comment" className="mb-1.5 block text-xs font-medium text-[#f3e8db]">
-                    Comment
-                  </label>
+                <Field label="Comment">
                   <textarea
-                    id="inquiry-comment"
-                    name="comment"
                     rows={5}
+                    name="comment"
+                    placeholder="Tell us your target city, budget, and preferred package..."
+                    className={`${inputClass} resize-none`}
                     required
-                    placeholder="Tell us your target city, budget range, and preferred package..."
-                    className="w-full rounded-xl border border-transparent bg-[#efe6d8] px-3 py-2.5 text-sm text-[#3a2418] outline-none ring-0 placeholder:text-[#8f7c6e] focus:border-amber-300 focus:shadow-[0_0_0_3px_rgba(247,197,106,0.18)]"
                   />
-                </div>
+                </Field>
 
                 <button
                   type="submit"
                   disabled={sending}
-                  className="mt-1 h-12 w-full rounded-full border border-amber-300/50 bg-gradient-to-b from-[#8f2a08] to-[#6f1d06] text-sm font-semibold text-[#fff7eb] transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="w-full rounded-xl bg-slate-900 px-5 py-3.5 text-sm font-semibold text-white shadow-lg hover:bg-slate-800 transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {sending ? "Sending..." : "Send Inquiry"}
                 </button>
 
-                {status && (
-                  <p className="px-1 text-center text-[11px] leading-4 text-[#f1e0cd]">
+                {status ? (
+                  <p
+                    className={`text-center text-xs leading-5 ${
+                      error ? "text-red-600" : "text-emerald-600"
+                    }`}
+                  >
                     {status}
                   </p>
-                )}
+                ) : null}
 
-                <p className="px-1 text-center text-[11px] leading-4 text-[#f1e0cd]/80">
-                  By sending this form, you agree to the processing of your personal data.
+                <p className="text-center text-xs leading-5 text-slate-500">
+                  By sending this form, you agree to the processing of your personal
+                  data.
                 </p>
               </form>
             </div>
@@ -176,3 +225,15 @@ export default function FranchiseInquiryPreview() {
     </div>
   );
 }
+
+function Field({ label, children }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium text-slate-700">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+const inputClass =
+  "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100";
