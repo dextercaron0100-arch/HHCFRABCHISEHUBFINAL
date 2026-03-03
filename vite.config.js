@@ -23,6 +23,7 @@ export default defineConfig({
       input: {
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         bossSiomai: fileURLToPath(new URL('./boss-siomai.html', import.meta.url)),
+        history: fileURLToPath(new URL('./history.html', import.meta.url)),
       },
     },
   },
