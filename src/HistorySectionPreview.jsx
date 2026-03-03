@@ -485,6 +485,25 @@ function SiteFooter() {
 
           <p className="footer-copy">&copy; 2026 HHC Franchise Hub. All Rights Reserved.</p>
 
+          <div className="footer-qr">
+            <a
+              href="https://callingcard.vercel.app/"
+              className="footer-qr-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open digital calling card"
+            >
+              <img
+                src="/callingcard-qr.png"
+                alt="QR code to HHC calling card"
+                className="footer-qr-img"
+                loading="lazy"
+                decoding="async"
+              />
+              <span>Scan for Calling Card</span>
+            </a>
+          </div>
+
           <div className="footer-socials" aria-label="Social media icons">
             <a
               href="https://api.whatsapp.com/send?phone=+639065032208"
