@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   CalendarDays,
@@ -139,26 +139,26 @@ const milestones = [
 ];
 
 const stats = [
-  { label: "Years of Growth", value: "10+" },
-  { label: "Branches Opened", value: "40+" },
-  { label: "Franchise Partners", value: "25+" },
-  { label: "Happy Customers", value: "100K+" },
+  { label: "Years Since Launch", value: "10+" },
+  { label: "Franchise Brands", value: "7" },
+  { label: "Core Business Categories", value: "3" },
+  { label: "Expansion Focus", value: "Nationwide" },
 ];
 
 const heroGallery = [
   {
-    src: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
-    alt: "Modern office interior",
+    src: "/HISTORY%20PNGS/d09d6615-f108-4962-85cb-c57f3be72560%20-%20Copy.jpg",
+    alt: "Herrera team seated in office lounge",
     className: "col-span-2 row-span-2",
   },
   {
-    src: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
-    alt: "Team collaboration",
+    src: "/HISTORY%20PNGS/791af5e3-5de8-45cf-9c14-ebfd12465d75%20-%20Copy.jpg",
+    alt: "Herrera executive portrait beside car",
     className: "col-span-1 row-span-1",
   },
   {
-    src: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1200&q=80",
-    alt: "Customer service interaction",
+    src: "/HISTORY%20PNGS/31c4b705-9a00-4047-a8c2-17e5f701ec53%20-%20Copy.jpg",
+    alt: "Herrera leadership team standing portrait",
     className: "col-span-1 row-span-1",
   },
 ];
@@ -210,12 +210,12 @@ const pillars = [
 ];
 
 const achievementBadges = [
-  "Standardized branch setup",
-  "Training-first culture",
-  "Scalable franchise model",
-  "Customer loyalty focus",
-  "Process-driven growth",
-  "Community-oriented brand",
+  "7 growing franchise brands",
+  "Food, Retail, and Wellness portfolio",
+  "Structured onboarding and training",
+  "Operations and marketing support",
+  "System-driven franchise growth",
+  "Community-focused entrepreneurship",
 ];
 
 const roadmap = [
@@ -266,6 +266,80 @@ function Button({ variant, className = "", children, ...props }) {
     >
       {children}
     </button>
+  );
+}
+
+function SiteHeader() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  return (
+    <header className="history-site-header">
+      <div className="history-nav-wrap">
+        <a
+          href="index.html#hero"
+          className="history-nav-brand"
+          aria-label="HHC Franchise Hub Home"
+          onClick={closeMobileMenu}
+        >
+          <img src="/logo.png" alt="HHC Franchise Hub" className="history-nav-logo" />
+        </a>
+
+        <ul className={`history-nav-links ${mobileMenuOpen ? "open" : ""}`}>
+          <li>
+            <a href="index.html#hero" className="history-nav-link" onClick={closeMobileMenu}>
+              Home
+            </a>
+          </li>
+          <li>
+            <a href="history.html" className="history-nav-link" onClick={closeMobileMenu}>
+              History
+            </a>
+          </li>
+          <li>
+            <a href="index.html#franchises" className="history-nav-link" onClick={closeMobileMenu}>
+              Franchises
+            </a>
+          </li>
+          <li>
+            <a href="branches.html" className="history-nav-link" onClick={closeMobileMenu}>Store Locations</a>
+          </li>
+          <li>
+            <a href="faqs.html" className="history-nav-link" onClick={closeMobileMenu}>
+              FAQs
+            </a>
+          </li>
+          <li>
+            <a href="index.html#contact-email" className="history-nav-link" onClick={closeMobileMenu}>
+              Contact
+            </a>
+          </li>
+        </ul>
+
+        <div className="history-nav-cta">
+          <a href="index.html#franchises" className="history-btn-outline" onClick={closeMobileMenu}>
+            View Opportunities
+          </a>
+          <a href="index.html#contact-email" className="history-btn-primary" onClick={closeMobileMenu}>
+            Franchise Now
+            <span aria-hidden="true">-&gt;</span>
+          </a>
+          <button
+            className={`history-nav-toggle ${mobileMenuOpen ? "open" : ""}`}
+            type="button"
+            aria-expanded={mobileMenuOpen}
+            aria-label="Toggle navigation"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -547,8 +621,10 @@ function SiteFooter() {
 
 export default function HistorySectionPreview() {
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#020611]">
-      <div className="relative isolate px-3 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+    <div className="history-page min-h-screen overflow-x-clip bg-[#020611]">
+      <SiteHeader />
+      <div className="history-page-shell">
+        <div className="relative isolate px-3 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_24%,rgba(37,99,235,0.40),transparent_34%),radial-gradient(circle_at_52%_6%,rgba(59,130,246,0.16),transparent_42%),radial-gradient(circle_at_92%_18%,rgba(251,191,36,0.10),transparent_30%),radial-gradient(circle_at_50%_120%,rgba(29,78,216,0.18),transparent_46%),linear-gradient(180deg,#01040d_0%,#030a18_44%,#020612_100%)]" />
         <div
@@ -602,23 +678,23 @@ export default function HistorySectionPreview() {
               </div>
 
               <h2 className="mt-4 text-2xl leading-tight font-semibold tracking-tight text-white sm:text-3xl lg:text-4xl">
-                The story behind our brand&apos;s growth and credibility
+                How HHC Franchise Hub grew into a trusted multi-brand network
               </h2>
 
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                From a small beginning to a scalable business model, our history
-                reflects consistent execution, customer trust, and a commitment to
-                long-term excellence. Adding real photos makes your story more
-                believable and visually engaging for visitors.
+                From our early operations in 2016 to a growing franchise
+                portfolio, HHC Franchise Hub has stayed focused on quality
+                systems, partner support, and long-term business success for
+                Filipino entrepreneurs.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button className="rounded-xl px-5">Explore Opportunities</Button>
+                <Button className="rounded-xl px-5">View Franchise Opportunities</Button>
                 <Button
                   variant="outline"
                   className="rounded-xl border-white/20 bg-white/5 px-5 text-white hover:bg-white/10 hover:text-white"
                 >
-                  View Milestones
+                  Explore Milestones
                 </Button>
               </div>
 
@@ -678,13 +754,12 @@ export default function HistorySectionPreview() {
 
               <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_8px_30px_rgba(2,6,23,0.25)] backdrop-blur-md sm:p-5">
                 <div className="text-sm font-semibold text-white">
-                  Why this works for UX
+                  Built on real leadership and real milestones
                 </div>
                 <p className="mt-2 text-sm leading-7 text-slate-200">
-                  Photos create trust and help visitors quickly connect your
-                  milestones with real progress. Replace the sample images with
-                  your actual branch, team, and award photos for a stronger brand
-                  story.
+                  These photos reflect the people behind HHC Franchise Hub and
+                  our day-to-day commitment to operational excellence, partner
+                  growth, and credible long-term expansion.
                 </p>
               </div>
             </div>
@@ -875,7 +950,8 @@ export default function HistorySectionPreview() {
         </div>
         </section>
       </div>
-      <SiteFooter />
+        <SiteFooter />
+      </div>
     </div>
   );
 }

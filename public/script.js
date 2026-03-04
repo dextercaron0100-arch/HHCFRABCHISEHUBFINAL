@@ -186,7 +186,9 @@ const heroSlider = {
   
   // Restart slider when tab becomes visible again
   document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && heroSlider.slides && heroSlider.slides.length > 0) {
+    if (document.hidden) {
+      heroSlider.stopAutoSlide();
+    } else if (heroSlider.slides && heroSlider.slides.length > 0) {
       heroSlider.startAutoSlide();
     }
   });
@@ -206,21 +208,39 @@ if (navToggle && navLinks) {
 // Direction-aware reveal + parallax scroll effects
 (function initScrollEffects() {
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveDataEnabled = Boolean(connection && connection.saveData);
+  const lowPowerDevice =
+    (Number.isFinite(navigator.hardwareConcurrency) && navigator.hardwareConcurrency <= 4) ||
+    (Number.isFinite(navigator.deviceMemory) && navigator.deviceMemory <= 4);
   const parallaxSelector =
     '[data-scroll-parallax], .hero-slider-wrapper, .founder-hero-overlay, .hero-banner-img, .fr3d-ambient';
+  const enableParallax = !reducedMotionQuery.matches && !saveDataEnabled && !lowPowerDevice;
   const observedReveals = new Set();
   const parallaxTargets = new Set();
+  const activeParallaxTargets = new Set();
+  const parallaxSpeedByTarget = new WeakMap();
+  const parallaxOffsetByTarget = new WeakMap();
 
   let scrollDirection = 'down';
   let lastScrollY = window.scrollY;
+  let lastParallaxScrollY = window.scrollY;
   let scrollRaf = 0;
   const pendingRevealFrames = new Map();
   let revealObserver = null;
+  let parallaxObserver = null;
   let mutationObserver = null;
 
   const addParallaxTarget = (el) => {
     if (!el || parallaxTargets.has(el)) return;
     parallaxTargets.add(el);
+    const configuredSpeed = Number(el.dataset.scrollParallax);
+    parallaxSpeedByTarget.set(el, Number.isFinite(configuredSpeed) ? configuredSpeed : 0.25);
+    if (parallaxObserver) {
+      parallaxObserver.observe(el);
+    } else {
+      activeParallaxTargets.add(el);
+    }
   };
 
   const clearPendingFrame = (el) => {
@@ -231,12 +251,14 @@ if (navToggle && navLinks) {
   };
 
   const scheduleShow = (el) => {
+    if (!el || el.classList.contains('show') || el.classList.contains('revealed')) return;
     clearPendingFrame(el);
 
-    // Commit hidden state first so direction change is visible on re-entry.
-    el.classList.remove('show', 'revealed');
     const rafId = requestAnimationFrame(() => {
-      el.classList.add('show');
+      el.classList.add('show', 'revealed');
+      if (revealObserver) {
+        revealObserver.unobserve(el);
+      }
       pendingRevealFrames.delete(el);
     });
     pendingRevealFrames.set(el, rafId);
@@ -253,70 +275,104 @@ if (navToggle && navLinks) {
     if (!node || node.nodeType !== 1) return;
 
     if (node.matches('.reveal')) addRevealTarget(node);
-    if (node.matches(parallaxSelector)) addParallaxTarget(node);
+    if (enableParallax && node.matches(parallaxSelector)) addParallaxTarget(node);
 
     node.querySelectorAll('.reveal').forEach((el) => addRevealTarget(el));
-    node.querySelectorAll(parallaxSelector).forEach((el) => addParallaxTarget(el));
+    if (enableParallax) {
+      node.querySelectorAll(parallaxSelector).forEach((el) => addParallaxTarget(el));
+    }
   };
 
   const resetParallax = (clearTransforms = true) => {
     parallaxTargets.forEach((target) => {
       if (!document.contains(target)) {
         parallaxTargets.delete(target);
+        activeParallaxTargets.delete(target);
+        parallaxOffsetByTarget.delete(target);
         return;
       }
-      if (clearTransforms) target.style.transform = '';
+      if (clearTransforms) {
+        target.style.transform = '';
+        parallaxOffsetByTarget.delete(target);
+      }
     });
   };
 
   if (reducedMotionQuery.matches) {
-    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('show'));
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('show', 'revealed'));
     document.querySelectorAll(parallaxSelector).forEach((el) => addParallaxTarget(el));
     resetParallax();
     return;
   }
 
-  revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const el = entry.target;
-
-        if (entry.isIntersecting) {
+  if ('IntersectionObserver' in window) {
+    revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
           el.dataset.enterDir = scrollDirection;
           scheduleShow(el);
-        } else {
-          clearPendingFrame(el);
-          el.classList.remove('show', 'revealed');
+        });
+      },
+      {
+        threshold: 0.18,
+        rootMargin: '0px 0px -6% 0px',
+      }
+    );
+
+    if (enableParallax) {
+      parallaxObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const target = entry.target;
+            if (entry.isIntersecting) {
+              activeParallaxTargets.add(target);
+            } else {
+              activeParallaxTargets.delete(target);
+              target.style.transform = '';
+              parallaxOffsetByTarget.delete(target);
+            }
+          });
+        },
+        {
+          threshold: 0,
+          rootMargin: '40% 0px 40% 0px',
         }
-      });
-    },
-    {
-      threshold: 0.18,
-      rootMargin: '0px 0px -6% 0px',
+      );
     }
-  );
+  } else {
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('show', 'revealed'));
+  }
 
   collectTargets(document.body || document.documentElement);
 
-  mutationObserver = new MutationObserver((records) => {
-    records.forEach((record) => {
-      record.addedNodes.forEach((addedNode) => collectTargets(addedNode));
+  if (document.body && (revealObserver || enableParallax)) {
+    mutationObserver = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((addedNode) => collectTargets(addedNode));
+      });
     });
-  });
-  if (document.body) {
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
 
   const applyParallax = (scrollY) => {
-    parallaxTargets.forEach((target) => {
+    if (!enableParallax || !activeParallaxTargets.size) return;
+    if (Math.abs(scrollY - lastParallaxScrollY) < 0.5) return;
+    lastParallaxScrollY = scrollY;
+
+    activeParallaxTargets.forEach((target) => {
       if (!document.contains(target)) {
         parallaxTargets.delete(target);
+        activeParallaxTargets.delete(target);
+        parallaxOffsetByTarget.delete(target);
         return;
       }
-      const speed = Number.isFinite(Number(target.dataset.scrollParallax))
-        ? Number(target.dataset.scrollParallax)
-        : 0.25;
-      target.style.transform = `translate3d(0, ${scrollY * speed}px, 0)`;
+      const speed = parallaxSpeedByTarget.get(target) ?? 0.25;
+      const offset = Math.round(scrollY * speed * 100) / 100;
+      if (parallaxOffsetByTarget.get(target) === offset) return;
+      target.style.transform = `translate3d(0, ${offset}px, 0)`;
+      parallaxOffsetByTarget.set(target, offset);
     });
   };
 
@@ -339,8 +395,10 @@ if (navToggle && navLinks) {
     scrollRaf = requestAnimationFrame(processScroll);
   };
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  processScroll();
+  if (revealObserver || enableParallax) {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    processScroll();
+  }
 })();
 
 // Animate stats
@@ -484,7 +542,8 @@ inquiryForms.forEach((form) => {
   const items = openButtons.map((btn, idx) => ({
     src: btn.getAttribute('data-aw-src') || btn.querySelector('img')?.getAttribute('src') || '',
     alt: btn.getAttribute('data-aw-alt') || `Certificate ${idx + 1}`,
-    label: btn.getAttribute('data-aw-label') || `Certificate ${idx + 1}`
+    label: btn.getAttribute('data-aw-label') || `Certificate ${idx + 1}`,
+    bg: btn.getAttribute('data-aw-bg') || ''
   }));
 
   let currentIndex = 0;
@@ -495,6 +554,7 @@ inquiryForms.forEach((form) => {
 
     image.src = item.src;
     image.alt = item.alt;
+    image.classList.toggle('aw-home-modal-image-light', item.bg === 'light');
     if (title) title.textContent = item.label;
     if (indexText) indexText.textContent = `${currentIndex + 1} / ${items.length}`;
     if (openOriginal) openOriginal.href = item.src;
@@ -938,6 +998,13 @@ const branchCoverflow = {
 
     this.root.addEventListener('mouseenter', () => this.stopAuto());
     this.root.addEventListener('mouseleave', () => this.startAuto());
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.stopAuto();
+      } else {
+        this.startAuto();
+      }
+    });
 
     if (this.stage) {
       this.stage.addEventListener('touchstart', (event) => {
@@ -988,6 +1055,7 @@ if (document.readyState === 'loading') {
 // 3D tilt cards + parallax ambience
 // --------------------
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let parallaxLayersInitialized = false;
 
 function initTiltCards() {
   if (prefersReducedMotion.matches) return;
@@ -1027,36 +1095,72 @@ function initTiltCards() {
 }
 
 function initParallaxLayers() {
-  if (prefersReducedMotion.matches) return;
+  if (prefersReducedMotion.matches || parallaxLayersInitialized) return;
   const layers = Array.from(document.querySelectorAll('[data-parallax]'));
   if (!layers.length) return;
+  parallaxLayersInitialized = true;
 
   let targetX = 0;
   let targetY = 0;
   let currentX = 0;
   let currentY = 0;
-  const damp = 0.08;
+  let rafId = 0;
+  const damp = 0.1;
+  const settleThreshold = 0.0018;
+  const lastLayerOffset = new WeakMap();
 
-  window.addEventListener('pointermove', (event) => {
+  const requestFrame = () => {
+    if (rafId || document.hidden) return;
+    rafId = requestAnimationFrame(animate);
+  };
+
+  const onPointerMove = (event) => {
     targetX = (event.clientX / window.innerWidth) - 0.5;
     targetY = (event.clientY / window.innerHeight) - 0.5;
-  });
+    requestFrame();
+  };
+
+  const onPointerLeave = () => {
+    targetX = 0;
+    targetY = 0;
+    requestFrame();
+  };
 
   const animate = () => {
+    rafId = 0;
     currentX += (targetX - currentX) * damp;
     currentY += (targetY - currentY) * damp;
+
+    const deltaX = Math.abs(targetX - currentX);
+    const deltaY = Math.abs(targetY - currentY);
 
     layers.forEach(layer => {
       const depth = Number(layer.dataset.parallax) || 10;
       const translateX = currentX * depth;
       const translateY = currentY * depth;
-      layer.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+      const nextTransform = `translate3d(${translateX.toFixed(2)}px, ${translateY.toFixed(2)}px, 0)`;
+      if (lastLayerOffset.get(layer) === nextTransform) return;
+      layer.style.transform = nextTransform;
+      lastLayerOffset.set(layer, nextTransform);
     });
 
-    requestAnimationFrame(animate);
+    if (deltaX > settleThreshold || deltaY > settleThreshold) {
+      requestFrame();
+    }
   };
 
-  animate();
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+      return;
+    }
+    if (!document.hidden) requestFrame();
+  });
+
+  requestFrame();
 }
 
 const runInteractiveUpgrades = () => {

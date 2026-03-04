@@ -1,304 +1,826 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Our Branches - HHC Franchise Hub</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Store Locator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-yellow: #F5C300;
+    --brand-yellow-light: #FFF8D6;
+    --brand-yellow-mid: #FDEEA0;
+    --brand-blue: #0A4FA6;
+    --brand-blue-light: #1A6FD4;
+    --text-dark: #0D1B2A;
+    --text-mid: #4A5568;
+    --text-light: #8A95A3;
+    --border: #E2E8F0;
+    --bg: #F7F9FC;
+    --white: #FFFFFF;
+    --radius: 14px;
+    --shadow-sm: 0 2px 8px rgba(10,79,166,0.07);
+    --shadow-md: 0 6px 24px rgba(10,79,166,0.12);
+    --shadow-lg: 0 16px 48px rgba(10,79,166,0.16);
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+
+  .page-header {
+    max-width: 1160px;
+    margin: 0 auto 36px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .page-title-block h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+  }
+
+  .page-title-block p {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 400;
+    letter-spacing: 0.2px;
+  }
+
+  .store-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--brand-yellow);
+    color: var(--text-dark);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 40px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    box-shadow: 0 2px 12px rgba(245,195,0,0.35);
+  }
+
+  .store-count-badge .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand-blue);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .locator-wrapper {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    min-height: 680px;
+    border: 1px solid var(--border);
+  }
+
+  .left-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .search-section {
+    padding: 28px 24px 20px;
+    background: linear-gradient(145deg, #0A4FA6 0%, #1A6FD4 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .search-section::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(245,195,0,0.12);
+    pointer-events: none;
+  }
+
+  .search-section::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -30px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    pointer-events: none;
+  }
+
+  .search-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 12px;
+  }
+
+  .search-box {
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-box svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    pointer-events: none;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 13px 14px 13px 44px;
+    border-radius: 10px;
+    border: none;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    outline: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: box-shadow var(--transition);
+  }
+
+  .search-box input::placeholder { color: var(--text-light); }
+
+  .search-box input:focus {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 0 3px rgba(245,195,0,0.5);
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.25);
+    transition: background var(--transition);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--white);
+    transition: transform var(--transition);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch input:checked ~ .toggle-track { background: var(--brand-yellow); }
+  .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); background: var(--text-dark); }
+
+  .filter-bar {
+    padding: 16px 24px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pill {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+
+  .pill:hover, .pill.active {
+    background: var(--brand-blue);
+    border-color: var(--brand-blue);
+    color: var(--white);
+  }
+
+  .pill.active { box-shadow: 0 2px 10px rgba(10,79,166,0.3); }
+
+  .list-header {
+    padding: 18px 24px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .list-header-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-light);
+  }
+
+  .list-header-count {
+    font-size: 12px;
+    color: var(--brand-blue);
+    font-weight: 600;
+  }
+
+  .store-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .store-list::-webkit-scrollbar { width: 4px; }
+  .store-list::-webkit-scrollbar-track { background: transparent; }
+  .store-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .store-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .store-card:nth-child(1) { animation-delay: 0.05s; }
+  .store-card:nth-child(2) { animation-delay: 0.1s; }
+  .store-card:nth-child(3) { animation-delay: 0.15s; }
+  .store-card:nth-child(4) { animation-delay: 0.2s; }
+  .store-card:nth-child(5) { animation-delay: 0.25s; }
+
+  .store-card:hover {
+    border-color: var(--brand-blue);
+    box-shadow: var(--shadow-md);
+    transform: translateX(3px);
+  }
+
+  .store-card.active {
+    border-color: var(--brand-blue);
+    background: linear-gradient(135deg, rgba(10,79,166,0.04) 0%, rgba(26,111,212,0.02) 100%);
+    box-shadow: var(--shadow-md);
+  }
+
+  .store-card.active .store-name { color: var(--brand-blue); }
+
+  .store-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--brand-yellow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(245,195,0,0.4);
+  }
+
+  .store-info { flex: 1; min-width: 0; }
+
+  .store-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: 0.1px;
+    margin-bottom: 5px;
+    line-height: 1.3;
+  }
+
+  .store-address {
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  .store-tags {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .tag-open { background: #DCFCE7; color: #166534; }
+  .tag-brand { background: #DBEAFE; color: #1D4ED8; }
+  .tag-city { background: var(--brand-yellow-light); color: #7A5200; }
+  .tag-new { background: #EEF2FF; color: var(--brand-blue); }
+
+  .card-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    flex-shrink: 0;
+    transition: all var(--transition);
+  }
+
+  .store-card:hover .card-arrow {
+    background: var(--brand-blue);
+    color: var(--white);
+  }
+
+  .map-panel {
+    position: relative;
+    background: #E8EEF4;
+  }
+
+  #map { width: 100%; height: 100%; min-height: 680px; }
+
+  .map-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    display: none;
+  }
+
+  .map-ctrl-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-mid);
+    font-size: 18px;
+    font-weight: 300;
+    transition: all var(--transition);
+    line-height: 1;
+  }
+
+  .map-ctrl-btn:hover {
+    background: var(--brand-blue);
+    color: var(--white);
+    border-color: var(--brand-blue);
+  }
+
+  .map-info-card {
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: #f1f3f5;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22);
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    width: min(340px, calc(100% - 48px));
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  .map-info-card.visible { display: block; }
+
+  .map-info-name {
+    font-size: 30px;
+    font-weight: 700;
+    color: #0a67ab;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.14;
+    margin-bottom: 12px;
+    max-width: calc(100% - 26px);
+    white-space: pre-line;
+  }
+
+  .map-info-addr {
+    font-size: 30px;
+    font-weight: 700;
+    color: #141414;
+    text-transform: uppercase;
+    line-height: 1.22;
+    margin-bottom: 10px;
+  }
+
+  .map-info-zip {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.2;
+  }
+
+  .map-info-close {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b4b8bc;
+    font-size: 19px;
+    line-height: 1;
+    transition: color var(--transition), background var(--transition);
+  }
+
+  .map-info-close:hover {
+    color: #6b7280;
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  .leaflet-container { font-family: 'DM Sans', sans-serif; }
+  .leaflet-top.leaflet-left { margin-top: 10px; margin-left: 10px; }
+  .leaflet-control-zoom {
+    display: block !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+  }
+  .leaflet-control-zoom a {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 20px;
+    color: #111827 !important;
+  }
+  .leaflet-control-zoom a:hover {
+    background: #f3f4f6;
+  }
+
+  @media (max-width: 860px) {
+    .locator-wrapper {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 420px;
+    }
+
+    .left-panel {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      max-height: 480px;
+    }
+
+    #map { min-height: 420px; }
+
+    .map-info-card { top: 16px; }
+    .map-info-name { font-size: clamp(15px, 4.8vw, 21px); }
+    .map-info-addr { font-size: clamp(14px, 4.4vw, 20px); }
+    .map-info-zip { font-size: clamp(13px, 3.6vw, 17px); }
+  }
+</style>
 </head>
-<body class="subpage">
-  <!-- NAVBAR -->
-  <header class="site-header">
-    <div class="container nav">
-      <a href="index.html" class="nav-brand">
-        <img src="logo.png.png" alt="HHC Franchise Hub" class="nav-logo" />
-      </a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html" class="nav-link">Home</a></li>
-        <li class="nav-dropdown">
-          <a href="index.html#about" class="nav-link nav-dropdown-toggle">
-            About Us
-            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </a>
-          <ul class="nav-dropdown-menu">
-            <li><a href="history.html" class="dropdown-link">History</a></li>
-            <li><a href="founder.html" class="dropdown-link">Founder's Corner</a></li>
-            <li><a href="seals.html" class="dropdown-link">Seals of Approval</a></li>
-            <li><a href="awards.html" class="dropdown-link">Awards and Recognition</a></li>
-          </ul>
-        </li>
-        <li class="nav-dropdown">
-          <a href="index.html#franchises" class="nav-link nav-dropdown-toggle">
-            Franchises
-            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </a>
-          <ul class="nav-dropdown-menu">
-            <li><a href="bigstop.html" class="dropdown-link">BIGSTOP</a></li>
-            <li><a href="herrera-pharmacy.html" class="dropdown-link">Herrera Pharmacy</a></li>
-            <li><a href="boss-siomai.html" class="dropdown-link">Boss Siomai</a></li>
-            <li><a href="boss-chickn.html" class="dropdown-link">Boss Chickn</a></li>
-            <li><a href="boss-fries.html" class="dropdown-link">Boss Fries</a></li>
-            <li><a href="burger2go.html" class="dropdown-link">Burger2Go</a></li>
-            <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
-          </ul>
-        </li>
-        <li><a href="branches.html" class="nav-link active">Branches</a></li>
-        <li><a href="index.html#stories" class="nav-link">Stories</a></li>
-        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
-      </ul>
-      <div class="nav-cta">
-        <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
-        <a href="index.html#contact" class="btn-primary">Franchise Now <span>â†’</span></a>
+<body>
+
+<div class="page-header">
+  <div class="page-title-block">
+    <h1>Store Locator</h1>
+    <p>Find the nearest HHC partner store in your area</p>
+  </div>
+  <div class="store-count-badge">
+    <span class="dot"></span>
+    <span id="storeNationwideCount">0</span> Stores Nationwide
+  </div>
+</div>
+
+<div class="locator-wrapper">
+  <div class="left-panel">
+    <div class="search-section">
+      <div class="search-label">Find a Branch</div>
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search store name or location..." oninput="filterStores()" />
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- HERO BANNER -->
-  <section class="subpage-hero branches-hero">
-    <div class="container">
-      <h1 class="subpage-title">Our Branches</h1>
-      <p class="subpage-subtitle">Find HHC Franchise Hub Locations Nationwide</p>
-    </div>
-  </section>
-
-  <!-- CONTENT -->
-  <section class="section subpage-content">
-    <div class="container">
-      <header class="section-header reveal">
-        <p class="section-kicker">Nationwide Presence</p>
-        <h2 class="section-title">HHC Franchise Locations</h2>
-        <p class="section-subtitle">
-          Our growing network of franchise branches serves communities across the Philippines.
-        </p>
-      </header>
-
-      <!-- Branches Grid -->
-      <div class="branches-grid reveal">
-        <!-- Metro Manila -->
-        <div class="branch-region">
-          <h3 class="region-title">Metro Manila</h3>
-          <div class="branch-list">
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Quezon City Main</h4>
-                <p>123 Commonwealth Ave, Quezon City</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Makati Branch</h4>
-                <p>456 Ayala Ave, Makati City</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Manila Branch</h4>
-                <p>789 Taft Ave, Manila</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Luzon -->
-        <div class="branch-region">
-          <h3 class="region-title">Luzon</h3>
-          <div class="branch-list">
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Pampanga Branch</h4>
-                <p>SM City Clark, Angeles City</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Cavite Branch</h4>
-                <p>Robinsons Dasmarinas, Cavite</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Bulacan Branch</h4>
-                <p>SM City Marilao, Bulacan</p>
-                <span class="branch-status coming-soon">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Visayas -->
-        <div class="branch-region">
-          <h3 class="region-title">Visayas</h3>
-          <div class="branch-list">
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Cebu Branch</h4>
-                <p>Ayala Center Cebu, Cebu City</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Iloilo Branch</h4>
-                <p>SM City Iloilo, Mandurriao</p>
-                <span class="branch-status coming-soon">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mindanao -->
-        <div class="branch-region">
-          <h3 class="region-title">Mindanao</h3>
-          <div class="branch-list">
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>Davao Branch</h4>
-                <p>Abreeza Mall, Davao City</p>
-                <span class="branch-status open">Open</span>
-              </div>
-            </div>
-            <div class="branch-item">
-              <div class="branch-icon">ðŸ“</div>
-              <div class="branch-info">
-                <h4>CDO Branch</h4>
-                <p>Centrio Mall, Cagayan de Oro</p>
-                <span class="branch-status coming-soon">Coming Soon</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact CTA -->
-      <div class="branches-cta reveal">
-        <h3>Want to Open a Branch in Your Area?</h3>
-        <p>Join our growing network of successful franchise partners.</p>
-        <a href="index.html#contact" class="btn-primary btn-large">Inquire Now <span>â†’</span></a>
+      <div class="toggle-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="provinceToggle" onchange="toggleProvinceSearch()" />
+          <span class="toggle-track"></span>
+          <span class="toggle-thumb"></span>
+        </label>
+        <span class="toggle-label" onclick="document.getElementById('provinceToggle').click()">Search by Province and City</span>
       </div>
     </div>
-  </section>
 
-  <!-- FOOTER -->
-      <footer class="site-footer footer-v2">
-    <div class="footer-wrap">
-      <div class="footer-top">
-        <section class="brand-block" aria-label="Company info">
-          <h3 class="brand-title">
-            <span class="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                <path d="M3 18h18" />
-                <path d="M5 18V9" />
-                <path d="M9 18V6" />
-                <path d="M13 18V11" />
-                <path d="M17 18V7" />
-                <path d="M21 18V13" />
-                <path d="M5 9c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-2 5-2" />
-              </svg>
-            </span>
-            HHC Franchise Hub
-          </h3>
-          <p class="brand-desc">
-            Building successful franchise businesses across the Philippines with proven systems and ongoing support.
-          </p>
-        </section>
-        <section class="footer-col" aria-label="Our Brands">
-          <h4>Our Brands</h4>
-          <ul>
-            <li><a href="bigstop.html">BigStop</a></li>
-            <li><a href="herrera-pharmacy.html">Herrera Pharmacy</a></li>
-            <li><a href="boss-siomai.html">Boss Siomai</a></li>
-            <li><a href="boss-chickn.html">Boss Chickn</a></li>
-            <li><a href="boss-fries.html">Boss Fries</a></li>
-            <li><a href="burger2go.html">Burger2Go</a></li>
-            <li><a href="noodle-king.html">Noodle King</a></li>
-          </ul>
-        </section>
-
-        <section class="footer-col" aria-label="Services">
-          <h4>Services</h4>
-          <ul>
-            <li><a href="index.html#franchises">Franchise Opportunities</a></li>
-            <li><a href="index.html#about">Business Training</a></li>
-            <li><a href="branches.html">Location Assistance</a></li>
-            <li><a href="index.html#contact-email">Marketing Support</a></li>
-          </ul>
-        </section>
-
-        <section class="footer-col" aria-label="Connect">
-          <h4>Connect</h4>
-          <ul>
-            <li><a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-            <li><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            <li><a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-            <li><a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube</a></li>
-          </ul>
-        </section>
-      </div>
-
-      <div class="footer-bottom">
-        <nav class="footer-legal" aria-label="Legal links">
-          <a href="#">Terms &amp; Conditions</a>
-          <a href="#">Privacy Policy</a>
-          <a href="faqs.html">FAQs</a>
-        </nav>
-
-        <p class="footer-copy">&copy; 2026 HHC Franchise Hub. All Rights Reserved.</p>
-
-        <div class="footer-qr">
-
-          <a href="https://callingcard.vercel.app/" class="footer-qr-link" target="_blank" rel="noopener noreferrer" aria-label="Open digital calling card">
-
-            <img src="callingcard-qr.png" alt="QR code to HHC calling card" class="footer-qr-img" loading="lazy" decoding="async" />
-
-            <span>Scan for Calling Card</span>
-
-          </a>
-
-        </div>
-
-        <div class="footer-socials" aria-label="Social media icons">
-          <a href="https://api.whatsapp.com/send?phone=+639065032208" aria-label="WhatsApp" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.52 0 .2 5.32.2 11.86c0 2.09.55 4.14 1.6 5.95L0 24l6.37-1.67a11.84 11.84 0 0 0 5.69 1.45h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.15-3.41-8.44Zm-8.46 18.3h-.01a9.92 9.92 0 0 1-5.05-1.39l-.36-.21-3.78.99 1.01-3.69-.23-.38a9.9 9.9 0 0 1-1.52-5.24C2.12 6.39 6.59 1.92 12.06 1.92c2.65 0 5.15 1.03 7.02 2.9a9.86 9.86 0 0 1 2.91 7.03c0 5.47-4.46 9.93-9.93 9.93Zm5.45-7.44c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.78-1.47-1.75-1.65-2.04-.17-.3-.02-.45.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.03-1.05 2.5 0 1.47 1.08 2.88 1.23 3.08.15.2 2.11 3.23 5.11 4.53.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg>
-          </a>
-          <a href="https://www.facebook.com/" aria-label="Facebook" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.03 1.79-4.7 4.54-4.7 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.5 0-1.97.94-1.97 1.9v2.28h3.35l-.54 3.49h-2.81V24C19.61 23.07 24 18.09 24 12.07Z"/></svg>
-          </a>
-          <a href="https://www.instagram.com/" aria-label="Instagram" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 1.8A3.96 3.96 0 0 0 3.8 7.75v8.5a3.96 3.96 0 0 0 3.95 3.95h8.5a3.96 3.96 0 0 0 3.95-3.95v-8.5a3.96 3.96 0 0 0-3.95-3.95h-8.5Zm8.95 1.35a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-          </a>
-        </div>
-      </div>
+    <div class="filter-bar">
+      <span class="pill active" onclick="setFilter(this,'All')">All</span>
+      <span class="pill" onclick="setFilter(this,'Bigstop')">Bigstop</span>
+      <span class="pill" onclick="setFilter(this,'Boss Siomai')">Boss Siomai</span>
+      <span class="pill" onclick="setFilter(this,'Herrera Pharmacy')">Herrera Pharmacy</span>
+      <span class="pill" onclick="setFilter(this,'Laguna')">Laguna</span>
+      <span class="pill" onclick="setFilter(this,'Bataan')">Bataan</span>
+      <span class="pill" onclick="setFilter(this,'Cagayan Valley')">Cagayan Valley</span>
     </div>
-  </footer>
 
-  <script src="script.js"></script>
+    <div class="list-header">
+      <span class="list-header-title">Available Stores</span>
+      <span class="list-header-count" id="storeCount">0 results</span>
+    </div>
+
+    <div class="store-list" id="storeList"></div>
+  </div>
+
+  <div class="map-panel">
+    <div id="map"></div>
+
+    <div class="map-overlay">
+      <button class="map-ctrl-btn" type="button" onclick="map.zoomIn()" aria-label="Zoom in">+</button>
+      <button class="map-ctrl-btn" type="button" onclick="map.zoomOut()" aria-label="Zoom out">-</button>
+    </div>
+
+    <div class="map-info-card" id="mapInfoCard">
+      <button class="map-info-close" type="button" onclick="closeInfoCard()" aria-label="Close">&times;</button>
+      <div class="map-info-name" id="infoName"></div>
+      <div class="map-info-addr" id="infoAddr"></div>
+      <div class="map-info-zip" id="infoZip"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const stores = [
+    { id: 1, brand: "Bigstop", name: "Bigstop Mamatid", address: "Brgy Banlic, Cabuyao City, Laguna", city: "Cabuyao City", province: "Laguna", zip: "4025", lat: 14.2497, lng: 121.1324, open: true, isNew: false },
+    { id: 2, brand: "Bigstop", name: "Bigstop Brgy. Paciano", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2098, lng: 121.1661, open: true, isNew: false },
+    { id: 3, brand: "Bigstop", name: "Bigstop Brgy. Uno Crossing", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2117, lng: 121.1653, open: true, isNew: false },
+    { id: 4, brand: "Bigstop", name: "Bigstop Brgy. 4 Banga", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2185, lng: 121.1650, open: true, isNew: false },
+    { id: 5, brand: "Bigstop", name: "Bigstop Mariveles", address: "Mariveles, Bataan", city: "Mariveles", province: "Bataan", zip: "2105", lat: 14.4361, lng: 120.4850, open: true, isNew: false },
+    { id: 6, brand: "Bigstop", name: "Bigstop Carig Sur", address: "Maharlika Highway, Tuguegarao", city: "Tuguegarao", province: "Cagayan Valley", zip: "3500", lat: 17.6168, lng: 121.7272, open: true, isNew: false },
+    { id: 7, brand: "Bigstop", name: "Bigstop Langagan", address: "Sanchez Mira, Cagayan Valley", city: "Sanchez Mira", province: "Cagayan Valley", zip: "3518", lat: 18.5683, lng: 121.2376, open: true, isNew: false },
+    { id: 8, brand: "Bigstop", name: "Bigstop Junction Bangag", address: "Aparri, Cagayan Valley", city: "Aparri", province: "Cagayan Valley", zip: "3515", lat: 18.3564, lng: 121.6419, open: true, isNew: false },
+    { id: 9, brand: "Bigstop", name: "Bigstop Baua", address: "Gonzaga, Cagayan Valley", city: "Gonzaga", province: "Cagayan Valley", zip: "3513", lat: 18.2595, lng: 122.0051, open: true, isNew: false },
+    { id: 10, brand: "Bigstop", name: "Bigstop Pagsawitan", address: "Sta. Cruz, Laguna", city: "Sta. Cruz", province: "Laguna", zip: "4009", lat: 14.2843, lng: 121.4161, open: true, isNew: false },
+
+    { id: 11, brand: "Boss Siomai", name: "Boss Siomai Brgy. Uno Crossing", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2127, lng: 121.1663, open: true, isNew: false },
+
+    { id: 12, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Brgy. Paciano", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2107, lng: 121.1673, open: true, isNew: false },
+    { id: 13, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Brgy. Uno Crossing", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2137, lng: 121.1640, open: true, isNew: false },
+    { id: 14, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Brgy. 4 Banga", address: "Calamba City, Laguna", city: "Calamba City", province: "Laguna", zip: "4027", lat: 14.2195, lng: 121.1662, open: true, isNew: false },
+    { id: 15, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Mariveles", address: "Mariveles, Bataan", city: "Mariveles", province: "Bataan", zip: "2105", lat: 14.4373, lng: 120.4866, open: true, isNew: false },
+    { id: 16, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Carig Sur", address: "Maharlika Highway, Tuguegarao", city: "Tuguegarao", province: "Cagayan Valley", zip: "3500", lat: 17.6151, lng: 121.7290, open: true, isNew: false },
+    { id: 17, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Junction Bangag", address: "Aparri, Cagayan Valley", city: "Aparri", province: "Cagayan Valley", zip: "3515", lat: 18.3576, lng: 121.6430, open: true, isNew: false },
+    { id: 18, brand: "Herrera Pharmacy", name: "Herrera Pharmacy Pagsawitan", address: "Sta. Cruz, Laguna", city: "Sta. Cruz", province: "Laguna", zip: "4009", lat: 14.2854, lng: 121.4174, open: true, isNew: false }
+  ];
+
+  let activeFilter = 'All';
+  let activeStoreId = null;
+  var map;
+  let markers = [];
+
+  const initialCenter = [12.5, 122.0];
+  const initialZoom = 6;
+
+  map = L.map('map', { zoomControl: true }).setView(initialCenter, initialZoom);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    maxZoom: 19
+  }).addTo(map);
+
+  function getBrandBadge(brand) {
+    if (brand === 'Bigstop') return 'BS';
+    if (brand === 'Boss Siomai') return 'SI';
+    if (brand === 'Herrera Pharmacy') return 'HP';
+    return 'HHC';
+  }
+
+  function createMarkerIcon(store, active) {
+    const size = active ? 34 : 28;
+    const badge = getBrandBadge(store.brand);
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:${size}px;
+        height:${size}px;
+        border-radius:50%;
+        background:#0A6FB8;
+        border:3px solid #F5C300;
+        box-shadow:0 4px 14px rgba(0,0,0,${active ? '0.3' : '0.2'});
+        display:flex;align-items:center;justify-content:center;
+        transition:all 0.2s;
+      "><div style="font-size:${active ? 10 : 9}px;line-height:1;font-weight:700;color:#fff;letter-spacing:0.2px;">${badge}</div></div>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    });
+  }
+
+  function getFilteredStores() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const searchByProvinceCity = document.getElementById('provinceToggle').checked;
+
+    return stores.filter((s) => {
+      const matchFilter =
+        activeFilter === 'All' ||
+        s.brand === activeFilter ||
+        s.province === activeFilter ||
+        s.city === activeFilter;
+      let matchSearch = true;
+      if (q) {
+        if (searchByProvinceCity) {
+          matchSearch = s.province.toLowerCase().includes(q) || s.city.toLowerCase().includes(q) || s.brand.toLowerCase().includes(q);
+        } else {
+          matchSearch =
+            s.name.toLowerCase().includes(q) ||
+            s.address.toLowerCase().includes(q) ||
+            s.city.toLowerCase().includes(q) ||
+            s.brand.toLowerCase().includes(q);
+        }
+      }
+      return matchFilter && matchSearch;
+    });
+  }
+
+  function renderStores() {
+    const list = document.getElementById('storeList');
+    const filtered = getFilteredStores();
+
+    list.innerHTML = '';
+    markers.forEach((m) => map.removeLayer(m));
+    markers = [];
+
+    document.getElementById('storeCount').textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+
+    filtered.forEach((s, i) => {
+      const isActive = s.id === activeStoreId;
+
+      const card = document.createElement('div');
+      card.className = `store-card${isActive ? ' active' : ''}`;
+      card.style.animationDelay = `${i * 0.05}s`;
+      card.innerHTML = `
+        <div class="store-icon">&#127970;</div>
+        <div class="store-info">
+          <div class="store-name">${s.name}</div>
+          <div class="store-address">${s.address}</div>
+          <div class="store-tags">
+            <span class="tag ${s.open ? 'tag-open' : ''}" style="${!s.open ? 'background:#FEE2E2;color:#991B1B;' : ''}">${s.open ? 'Open' : 'Closed'}</span>
+            <span class="tag tag-brand">${s.brand}</span>
+            <span class="tag tag-city">${s.city}</span>
+            <span class="tag tag-city">${s.province}</span>
+          </div>
+        </div>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </div>`;
+      card.onclick = () => selectStore(s);
+      list.appendChild(card);
+
+      const marker = L.marker([s.lat, s.lng], { icon: createMarkerIcon(s, isActive) })
+        .addTo(map)
+        .on('click', () => selectStore(s));
+      markers.push(marker);
+    });
+  }
+
+  function selectStore(s) {
+    activeStoreId = s.id;
+    renderStores();
+    map.flyTo([s.lat, s.lng], 14, { duration: 1.2 });
+
+    document.getElementById('infoName').textContent = `${s.name}\n${s.province}`;
+    document.getElementById('infoAddr').textContent = s.address;
+    document.getElementById('infoZip').textContent = `Zip code: ${s.zip || '-'}`;
+    document.getElementById('mapInfoCard').classList.add('visible');
+
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.store-card');
+      const idx = Array.from(cards).findIndex((c) => c.querySelector('.store-name').textContent === s.name);
+      if (cards[idx]) cards[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+
+  function closeInfoCard() {
+    document.getElementById('mapInfoCard').classList.remove('visible');
+  }
+
+  function filterStores() {
+    activeStoreId = null;
+    closeInfoCard();
+    renderStores();
+  }
+
+  function setFilter(el, filter) {
+    document.querySelectorAll('.pill').forEach((p) => p.classList.remove('active'));
+    el.classList.add('active');
+    activeFilter = filter;
+    activeStoreId = null;
+    closeInfoCard();
+    renderStores();
+    map.setView(initialCenter, initialZoom);
+  }
+
+  function toggleProvinceSearch() {
+    const toggle = document.getElementById('provinceToggle');
+    const input = document.getElementById('searchInput');
+    input.placeholder = toggle.checked ? 'Search by province, city, or brand...' : 'Search store name or location...';
+    filterStores();
+  }
+
+  document.getElementById('storeNationwideCount').textContent = stores.length;
+  renderStores();
+</script>
 </body>
 </html>
-
-
-
-
-
 

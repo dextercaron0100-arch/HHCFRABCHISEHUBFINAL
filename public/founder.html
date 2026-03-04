@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Founder's Corner - HHC Franchise Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -13,12 +13,12 @@
   <!-- NAVBAR -->
   <header class="site-header">
     <div class="container nav">
-      <a href="index.html" class="nav-brand">
+      <a href="index.html#hero" class="nav-brand" aria-label="HHC Franchise Hub Home">
         <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
       </a>
 
       <ul class="nav-links" id="navLinks">
-        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="index.html#hero" class="nav-link">Home</a></li>
         <li class="nav-dropdown">
           <a href="index.html#about" class="nav-link nav-dropdown-toggle">
             About Us
@@ -50,14 +50,15 @@
             <li><a href="noodle-king.html" class="dropdown-link">Noodle King</a></li>
           </ul>
         </li>
-        <li><a href="branches.html" class="nav-link">Branches</a></li>
+        <li><a href="branches.html" class="nav-link">Store Locations</a></li>
         <li><a href="index.html#stories" class="nav-link">Stories</a></li>
-        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+        <li><a href="faqs.html" class="nav-link">FAQs</a></li>
+        <li><a href="index.html#contact-email" class="nav-link">Contact</a></li>
       </ul>
 
       <div class="nav-cta">
         <a href="index.html#franchises" class="btn-outline">View Opportunities</a>
-        <a href="index.html#contact" class="btn-primary">
+        <a href="index.html#contact-email" class="btn-primary">
           Franchise Now
           <span>&rarr;</span>
         </a>
@@ -71,7 +72,7 @@
 
   <main>
     <!-- CINEMATIC HERO -->
-    <section class="founder-hero">
+    <section class="founder-hero" style="--founder-hero-image:url('/HISTORY%20PNGS/history-2025.jpg'); --founder-hero-position:center 10%;">
       <div class="founder-hero-overlay"></div>
       <div class="founder-hero-content">
         <p class="founder-hero-kicker">FOUNDER'S CUT</p>
@@ -82,17 +83,91 @@
           <a class="btn-outline" href="mailto:info@hhcfranchisehub.com">Email the founder</a>
         </div>
       </div>
+    </section>
 
-      <!-- Mini video player overlay -->
-      <button class="hero-player-card" type="button" id="openHeroVideo">
-        <div class="hero-player-thumb">
-          <video class="hero-player-preview" autoplay muted loop playsinline preload="metadata" aria-label="Founder reel preview">
-            <source src="Blesscent Marketing  Corporate Video by Nice Print Photography.mp4" type="video/mp4" />
-          </video>
+    <!-- Centered reel card (below hero) -->
+    <section class="founder-reel-band">
+      <div class="founder-reel-shell">
+        <button class="hero-player-card" type="button" id="openHeroVideo">
+          <div class="hero-player-thumb">
+            <video class="hero-player-preview" autoplay muted loop playsinline preload="metadata" aria-label="Founder reel preview">
+              <source src="Blesscent Marketing  Corporate Video by Nice Print Photography.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div class="hero-player-label">View the reel</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="founder-vision-block">
+      <div class="container founder-vision-card">
+        <div class="visionary-panel-left">
+          <span class="visionary-label-tag">Our Founders</span>
+
+          <div class="visionary-heading-block">
+            <h2>Visionaries<br />Behind <em>HHC</em><br />Franchise Hub</h2>
+            <div class="visionary-divider"></div>
+          </div>
+
+          <div class="visionary-pillars">
+            <div class="visionary-pillar">
+              <span class="visionary-pillar-num">01</span>
+              <span class="visionary-pillar-text">Build with Integrity</span>
+              <span class="visionary-pillar-dot"></span>
+            </div>
+            <div class="visionary-pillar">
+              <span class="visionary-pillar-num">02</span>
+              <span class="visionary-pillar-text">Expand with Strategy</span>
+              <span class="visionary-pillar-dot"></span>
+            </div>
+            <div class="visionary-pillar">
+              <span class="visionary-pillar-num">03</span>
+              <span class="visionary-pillar-text">Lead with Long-Term Vision</span>
+              <span class="visionary-pillar-dot"></span>
+            </div>
+          </div>
+
+          <div class="visionary-corner-accent" aria-hidden="true"></div>
         </div>
-        <div class="hero-player-label">View the reel</div>
-      </button>
 
+        <div class="visionary-panel-right">
+          <div class="visionary-body-copy">
+            <p>
+              Franchise Hub was founded on vision, discipline, and a <strong>deep commitment to empowering Filipino entrepreneurs.</strong>
+              Behind this vision are the Herrera Brothers - the driving force behind Herrera Holding Corporation and the strategic minds behind HHC Franchise Hub.
+            </p>
+
+            <div class="visionary-pull-quote">
+              <p>"Filipino enterprises deserve access to professional franchise systems, operational excellence, and scalable business frameworks."</p>
+            </div>
+
+            <p>
+              With years of hands-on experience in building, operating, and scaling businesses across multiple industries, the Herrera Brothers understand that
+              <strong>true growth is not achieved by expansion alone</strong> - but through structure, system, and sustainability.
+            </p>
+
+            <p>
+              Under their leadership, Franchise Hub was established not merely as a consultancy, but as a growth engine - a platform designed to
+              <strong>transform promising local brands into well-structured, expansion-ready franchise systems</strong> and create meaningful, lasting legacies.
+            </p>
+          </div>
+
+          <div class="visionary-stats">
+            <div class="visionary-stat">
+              <span class="visionary-stat-value">10+</span>
+              <span class="visionary-stat-label">Years Experience</span>
+            </div>
+            <div class="visionary-stat">
+              <span class="visionary-stat-value">&infin;</span>
+              <span class="visionary-stat-label">Growth Mindset</span>
+            </div>
+            <div class="visionary-stat">
+              <span class="visionary-stat-value">PH</span>
+              <span class="visionary-stat-label">Rooted Locally</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- FEATURED PANELS -->
@@ -117,7 +192,7 @@
           <div class="panel-copy">
             <p class="panel-kicker">Chapter 02</p>
             <h2>Leadership</h2>
-            <p>Boardroom calm meets street-level execution: governance paired with daily field intelligence—walking stores, stress-testing menus, and pressure-testing unit economics before they scale.</p>
+            <p>Our leadership philosophy combines boardroom-level governance with disciplined, on-the-ground execution. We integrate strategic oversight with real-time field intelligence - conducting store visits, evaluating operational performance, stress-testing product offerings, and rigorously validating unit economics before scaling. This balanced approach ensures that every expansion decision is grounded in data, operational reality, and long-term sustainability.</p>
             <div class="panel-tags">
               <span class="chip">Governance</span>
               <span class="chip">Unit economics</span>
@@ -127,11 +202,11 @@
         </article>
 
         <article class="founder-panel" id="chapter-future">
-          <div class="panel-image" style="--panel-bg:url('history-2025.jpg');"></div>
+          <div class="panel-image" style="--panel-bg:url('/HISTORY%20PNGS/HISTORY.jpg');"></div>
           <div class="panel-copy">
             <p class="panel-kicker">Chapter 03</p>
             <h2>Future</h2>
-            <p>Experience labs, sustainability mandates, and AI-assisted rollouts keep HHC founders ahead of the curve while staying rooted in service and community impact.</p>
+            <p>At HHC Franchise Hub, our vision for the future is deliberate, innovation-driven, and anchored in long-term stewardship. We are building structured experience laboratories to continuously refine our concepts, implementing sustainability mandates that guide responsible expansion, and integrating AI-assisted rollout systems to enhance precision, speed, and scalability across our network. However, advancement for us is not defined by technology alone. True progress lies in balancing innovation with accountability - ensuring that every rollout strengthens operational excellence, protects brand integrity, and delivers measurable value to our partners. As we move forward, we remain firmly rooted in service, governance, and community impact. Our commitment is clear: to lead responsibly, scale intelligently, and build enterprises that endure for generations.</p>
             <div class="panel-tags">
               <span class="chip">CX Lab</span>
               <span class="chip">Sustainability</span>
@@ -162,7 +237,7 @@
         <button class="video-modal-close" id="closeHeroVideo" aria-label="Close video">x</button>
       </div>
       <div class="video-modal-frame">
-        <video id="heroVideo" preload="metadata" playsinline loop poster="history-2025.jpg">
+        <video id="heroVideo" preload="metadata" playsinline loop poster="/HISTORY%20PNGS/history-2025.jpg">
           <source src="Blesscent Marketing  Corporate Video by Nice Print Photography.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
