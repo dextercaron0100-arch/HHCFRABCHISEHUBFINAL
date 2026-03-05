@@ -92,7 +92,7 @@ export default function InquirySectionPreview() {
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
-                  href="index.html#franchises"
+                  href="/#franchises"
                   className="rounded-xl bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 shadow hover:brightness-95 transition"
                 >
                   View Packages

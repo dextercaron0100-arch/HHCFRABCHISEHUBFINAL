@@ -33,7 +33,7 @@ const DATA = {
       title: 'Neighborhood essentials',
       description:
         'Bigstop is the newest lifestyle convenience store in the Philippines, offering multiple businesses under one roof. The "6 in 1 Package" is designed to maximize your earning potential in one compact store - it includes local goods and Korean products, quickbites, Herrera Pharmacy, DIY Ramyun Station, Payment center bills and ATM Services. A complete lifestyle hub for your community.',
-      href: 'bigstop.html',
+      href: 'bigstop',
       cta: 'Get Started',
       logo: 'bigstop shape.png',
       logoVariant: 'wide',
@@ -49,7 +49,7 @@ const DATA = {
       title: 'Trusted community pharmacy',
       description:
         'Affordable medicines, branded and generic, with personalized healthcare support for every Filipino family. Herrera Pharmacy is your trusted community pharmacy franchise offering quality healthcare access to communities nationwide.',
-      href: 'herrera-pharmacy.html',
+      href: 'herrera-pharmacy',
       cta: 'Get Started',
       logo: 'Copy of hp final logo vertical.png',
       logoVariant: 'tall',
@@ -65,7 +65,7 @@ const DATA = {
       title: 'Best-selling siomai concept',
       description:
         'Boss Siomai is known for serving delicious, affordable, and high-quality siomai loved by many Filipinos. What started as a simple food stall concept has become a trusted negosyo opportunity for aspiring entrepreneurs.',
-      href: 'boss-siomai.html',
+      href: 'boss-siomai',
       cta: 'Get Started',
       logo: 'Copy of BOSS SIOMAI2 horizontal.png',
       logoVariant: 'wide',
@@ -88,7 +88,7 @@ const DATA = {
       title: 'Crispy crowd favorite',
       description:
         'Savor the crispy, juicy goodness of Boss Chicken - a Filipino favorite that delivers bold flavors in every bite. Perfect for entrepreneurs looking to bring a crowd-pleasing chicken concept to their community.',
-      href: 'boss-chickn.html',
+      href: 'boss-chickn',
       cta: 'Get Started',
       logo: 'Copy of BOSS CHICKN LANDSCAPE LOGO.png',
       logoVariant: 'wide',
@@ -111,7 +111,7 @@ const DATA = {
       title: 'Bold Asian-inspired bowls',
       description:
         "Noodle King brings bold Asian-inspired dishes that satisfy every appetite. With its strong customer appeal and affordable setup, Noodle King is a smart choice for aspiring entrepreneurs who want a food business that's both in-demand and rewarding.",
-      href: 'noodle-king.html',
+      href: 'noodle-king',
       cta: 'Get Started',
       logo: 'Copy of noodle king logo.png',
       logoVariant: 'wide',
@@ -134,7 +134,7 @@ const DATA = {
       title: 'Value-driven favorites',
       description:
         'Buy 1 Take 1 burgers, footlong hotdogs, chicken sandwiches and more. Premium taste at affordable prices - Burger 2 Go is the perfect franchise for high-traffic areas where customers want great value and delicious food on the go.',
-      href: 'burger2go.html',
+      href: 'burger2go',
       cta: 'Get Started',
       logo: 'Burger2Go_Official Logo.png',
       logoVariant: 'wide',
@@ -157,7 +157,7 @@ const DATA = {
       title: 'Crispy, craveable fries',
       description:
         'Indulge in the irresistible goodness of Boss Fries made to satisfy every craving. Freshly cooked, golden, and extra crispy on the outside, soft and fluffy on the inside. Coated with rich and flavorful seasonings - every bite delivers a burst of sarap that hits just right.',
-      href: 'boss-fries.html',
+      href: 'boss-fries',
       cta: 'Get Started',
       logo: 'Copy of boss fries mascot.png',
       logoVariant: 'wide',
@@ -743,7 +743,7 @@ export default function Franchise3DSection() {
                   <Phone size={16} />
                   <span>Request a Call</span>
                 </a>
-                <a href="branches.html" className="fr3d-next-btn fr3d-next-btn-secondary">
+                <a href="branches" className="fr3d-next-btn fr3d-next-btn-secondary">
                   <Store size={16} />
                   <span>View Branches</span>
                 </a>

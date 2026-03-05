@@ -280,7 +280,7 @@ function SiteHeader() {
     <header className="history-site-header">
       <div className="history-nav-wrap">
         <a
-          href="index.html#hero"
+          href="/#hero"
           className="history-nav-brand"
           aria-label="HHC Franchise Hub Home"
           onClick={closeMobileMenu}
@@ -290,40 +290,40 @@ function SiteHeader() {
 
         <ul className={`history-nav-links ${mobileMenuOpen ? "open" : ""}`}>
           <li>
-            <a href="index.html#hero" className="history-nav-link" onClick={closeMobileMenu}>
+            <a href="/#hero" className="history-nav-link" onClick={closeMobileMenu}>
               Home
             </a>
           </li>
           <li>
-            <a href="history.html" className="history-nav-link" onClick={closeMobileMenu}>
+            <a href="history" className="history-nav-link" onClick={closeMobileMenu}>
               History
             </a>
           </li>
           <li>
-            <a href="index.html#franchises" className="history-nav-link" onClick={closeMobileMenu}>
+            <a href="/#franchises" className="history-nav-link" onClick={closeMobileMenu}>
               Franchises
             </a>
           </li>
           <li>
-            <a href="branches.html" className="history-nav-link" onClick={closeMobileMenu}>Store Locations</a>
+            <a href="branches" className="history-nav-link" onClick={closeMobileMenu}>Store Locations</a>
           </li>
           <li>
-            <a href="faqs.html" className="history-nav-link" onClick={closeMobileMenu}>
+            <a href="faqs" className="history-nav-link" onClick={closeMobileMenu}>
               FAQs
             </a>
           </li>
           <li>
-            <a href="index.html#contact-email" className="history-nav-link" onClick={closeMobileMenu}>
+            <a href="/#contact-email" className="history-nav-link" onClick={closeMobileMenu}>
               Contact
             </a>
           </li>
         </ul>
 
         <div className="history-nav-cta">
-          <a href="index.html#franchises" className="history-btn-outline" onClick={closeMobileMenu}>
+          <a href="/#franchises" className="history-btn-outline" onClick={closeMobileMenu}>
             View Opportunities
           </a>
-          <a href="index.html#contact-email" className="history-btn-primary" onClick={closeMobileMenu}>
+          <a href="/#contact-email" className="history-btn-primary" onClick={closeMobileMenu}>
             Franchise Now
             <span aria-hidden="true">-&gt;</span>
           </a>
@@ -466,25 +466,25 @@ function SiteFooter() {
             <h4>Our Brands</h4>
             <ul>
               <li>
-                <a href="bigstop.html">BigStop</a>
+                <a href="bigstop">BigStop</a>
               </li>
               <li>
-                <a href="herrera-pharmacy.html">Herrera Pharmacy</a>
+                <a href="herrera-pharmacy">Herrera Pharmacy</a>
               </li>
               <li>
-                <a href="boss-siomai.html">Boss Siomai</a>
+                <a href="boss-siomai">Boss Siomai</a>
               </li>
               <li>
-                <a href="boss-chickn.html">Boss Chickn</a>
+                <a href="boss-chickn">Boss Chickn</a>
               </li>
               <li>
-                <a href="boss-fries.html">Boss Fries</a>
+                <a href="boss-fries">Boss Fries</a>
               </li>
               <li>
-                <a href="burger2go.html">Burger2Go</a>
+                <a href="burger2go">Burger2Go</a>
               </li>
               <li>
-                <a href="noodle-king.html">Noodle King</a>
+                <a href="noodle-king">Noodle King</a>
               </li>
             </ul>
           </section>
@@ -493,16 +493,16 @@ function SiteFooter() {
             <h4>Services</h4>
             <ul>
               <li>
-                <a href="index.html#franchises">Franchise Opportunities</a>
+                <a href="/#franchises">Franchise Opportunities</a>
               </li>
               <li>
-                <a href="index.html#about">Business Training</a>
+                <a href="/#about">Business Training</a>
               </li>
               <li>
-                <a href="branches.html">Location Assistance</a>
+                <a href="branches">Location Assistance</a>
               </li>
               <li>
-                <a href="index.html#contact-email">Marketing Support</a>
+                <a href="/#contact-email">Marketing Support</a>
               </li>
             </ul>
           </section>
@@ -554,7 +554,7 @@ function SiteFooter() {
           <nav className="footer-legal" aria-label="Legal links">
             <a href="#">Terms &amp; Conditions</a>
             <a href="#">Privacy Policy</a>
-            <a href="faqs.html">FAQs</a>
+            <a href="faqs">FAQs</a>
           </nav>
 
           <p className="footer-copy">&copy; 2026 HHC Franchise Hub. All Rights Reserved.</p>
