@@ -1,0 +1,39 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/history.html", "destination": "/history", "permanent": true },
+    { "source": "/boss-siomai.html", "destination": "/boss-siomai", "permanent": true },
+    { "source": "/awards.html", "destination": "/awards", "permanent": true },
+    { "source": "/bigstop-franchise-kit.html", "destination": "/bigstop-franchise-kit", "permanent": true },
+    { "source": "/bigstop.html", "destination": "/bigstop", "permanent": true },
+    { "source": "/boss-chickn.html", "destination": "/boss-chickn", "permanent": true },
+    { "source": "/boss-fries.html", "destination": "/boss-fries", "permanent": true },
+    { "source": "/branches.html", "destination": "/branches", "permanent": true },
+    { "source": "/burger2go.html", "destination": "/burger2go", "permanent": true },
+    { "source": "/faqs.html", "destination": "/faqs", "permanent": true },
+    { "source": "/founder.html", "destination": "/founder", "permanent": true },
+    { "source": "/herrera-franchise-kit.html", "destination": "/herrera-franchise-kit", "permanent": true },
+    { "source": "/herrera-pharmacy.html", "destination": "/herrera-pharmacy", "permanent": true },
+    { "source": "/noodle-king.html", "destination": "/noodle-king", "permanent": true },
+    { "source": "/seals.html", "destination": "/seals", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/history", "destination": "/history.html" },
+    { "source": "/boss-siomai", "destination": "/boss-siomai.html" },
+    { "source": "/awards", "destination": "/awards.html" },
+    { "source": "/bigstop-franchise-kit", "destination": "/bigstop-franchise-kit.html" },
+    { "source": "/bigstop", "destination": "/bigstop.html" },
+    { "source": "/boss-chickn", "destination": "/boss-chickn.html" },
+    { "source": "/boss-fries", "destination": "/boss-fries.html" },
+    { "source": "/branches", "destination": "/branches.html" },
+    { "source": "/burger2go", "destination": "/burger2go.html" },
+    { "source": "/faqs", "destination": "/faqs.html" },
+    { "source": "/founder", "destination": "/founder.html" },
+    { "source": "/herrera-franchise-kit", "destination": "/herrera-franchise-kit.html" },
+    { "source": "/herrera-pharmacy", "destination": "/herrera-pharmacy.html" },
+    { "source": "/noodle-king", "destination": "/noodle-king.html" },
+    { "source": "/seals", "destination": "/seals.html" }
+  ]
+}
