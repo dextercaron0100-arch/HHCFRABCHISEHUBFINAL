@@ -1518,38 +1518,3 @@ prefersReducedMotion.addEventListener('change', (event) => {
 (function initFloatingCta() {
   // CTA removed per latest request
 })();
-
-// Live chat via Crisp (embed)
-(function initCrispLiveChat() {
-  if (window.$crisp) return; // already loaded
-  window.$crisp = window.$crisp || [];
-  window.CRISP_WEBSITE_ID = window.CRISP_WEBSITE_ID || 'a6242ab8-c301-4e65-8c0d-c0bd666fd6a2';
-  // Set launcher/theme color before Crisp loads
-  window.CRISP_RUNTIME_CONFIG = Object.assign(window.CRISP_RUNTIME_CONFIG || {}, {
-    color: { theme: '#f0a72d', background: '#0c1324' }
-  });
-  const existing = document.querySelector('script[src*="client.crisp.chat/l.js"]');
-  if (!existing) {
-    const s = document.createElement('script');
-    s.src = 'https://client.crisp.chat/l.js';
-    s.async = 1;
-    document.head.appendChild(s);
-  }
-
-  const applyBranding = () => {
-    window.$crisp.push(['config', 'color:theme', '#f0a72d']);
-    window.$crisp.push(['config', 'color:background', '#0c1324']);
-    window.$crisp.push(['config', 'text:headline', 'Talk to a real person']);
-    window.$crisp.push(['config', 'text:body', 'Ask about packages, timelines, or support. A live agent will reply.']);
-  };
-
-  window.$crisp.push(['on', 'session:loaded', applyBranding]);
-  // Re-apply a few times to override cached theme
-  let attempts = 0;
-  const repaint = () => {
-    applyBranding();
-    if (++attempts < 5) setTimeout(repaint, 800);
-  };
-  setTimeout(repaint, 600);
-})();
-
