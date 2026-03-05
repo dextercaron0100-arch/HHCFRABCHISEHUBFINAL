@@ -34,6 +34,41 @@ function App() {
       franchiseRootRef.current.render(<Franchise3DSection />)
     }
 
+    const scrollToHashTarget = () => {
+      const hash = window.location.hash
+      if (!hash || hash === '#') return
+
+      const targetId = decodeURIComponent(hash.slice(1))
+      if (!targetId) return
+
+      let attempts = 0
+      const maxAttempts = 30
+
+      const tryScroll = () => {
+        const target = document.getElementById(targetId)
+        if (target) {
+          target.scrollIntoView({ block: 'start' })
+          return
+        }
+
+        attempts += 1
+        if (attempts < maxAttempts) {
+          window.setTimeout(tryScroll, 80)
+        }
+      }
+
+      window.requestAnimationFrame(() => {
+        window.setTimeout(tryScroll, 0)
+      })
+    }
+
+    const onHashChange = () => {
+      scrollToHashTarget()
+    }
+
+    window.addEventListener('hashchange', onHashChange)
+    scrollToHashTarget()
+
     try {
       const storedConsent = window.localStorage.getItem(COOKIE_CONSENT_KEY)
       setShowCookieConsent(storedConsent !== 'accepted')
@@ -42,6 +77,8 @@ function App() {
     }
 
     return () => {
+      window.removeEventListener('hashchange', onHashChange)
+
       if (franchiseRootRef.current) {
         franchiseRootRef.current.unmount()
         franchiseRootRef.current = null
