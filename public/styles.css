@@ -6539,7 +6539,7 @@ body.modal-open {
   height: calc(100vh - var(--nav-height));
   display: flex;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .bigstop-page .hero-banner-img {
