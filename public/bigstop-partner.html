@@ -5,7 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BIGSTOP Franchise Discovery Session</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+  window.HHF_INQUIRY_API_URL = window.HHF_INQUIRY_API_URL || '/api/inquiry';
+</script>
 <style>
+  :root {
+    --bs-blue: #0a3ea5;
+    --bs-blue-deep: #062a77;
+    --bs-red: #d61f32;
+    --bs-red-deep: #a91426;
+    --bs-yellow: #f4c63b;
+    --bs-yellow-deep: #d9ab1d;
+    --bs-ink: #13213f;
+    --bs-muted: #5f6f8f;
+    --bs-bg: #f4f7ff;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Nunito', sans-serif;
@@ -14,7 +28,7 @@
     align-items: center;
     justify-content: center;
     background:
-      linear-gradient(180deg, rgba(6, 13, 27, 0.44), rgba(6, 13, 27, 0.44)),
+      linear-gradient(180deg, rgba(10, 18, 40, 0.54), rgba(10, 18, 40, 0.58)),
       url('/Bigstop header.jpg') center / cover no-repeat fixed;
     padding: 20px;
   }
@@ -24,17 +38,22 @@
     inset: 0;
     pointer-events: none;
   }
-  body::before { background: linear-gradient(180deg, rgba(6, 13, 27, 0.56), rgba(6, 13, 27, 0.5)); }
+  body::before {
+    background:
+      linear-gradient(180deg, rgba(10, 20, 46, 0.58), rgba(10, 20, 46, 0.54)),
+      radial-gradient(120% 100% at 10% 12%, rgba(244, 198, 59, 0.22), transparent 46%);
+  }
   body::after { content: none; }
 
   .card {
     position: relative;
     z-index: 1;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(10, 62, 165, 0.2);
     border-radius: 8px;
     width: 100%;
     max-width: 520px;
-    box-shadow: 0 10px 50px rgba(0,0,0,.2);
+    box-shadow: 0 22px 48px rgba(6, 18, 42, 0.42);
     overflow: hidden;
   }
   .step { display: none; }
@@ -42,7 +61,7 @@
   .card-body { padding: 32px 36px 20px; }
 
   .intro-title, .q-title {
-    color: #1ab8d4;
+    color: var(--bs-blue);
     font-weight: 900;
     line-height: 1.3;
     margin-bottom: 12px;
@@ -50,33 +69,42 @@
   .intro-title { font-size: 26px; text-align: center; }
   .q-title { font-size: 22px; }
   .q-title.center { text-align: center; }
-  .q-subtitle { font-size: 13px; color: #666; text-align: center; margin-bottom: 14px; }
-  .intro-desc, .membership-desc { font-size: 14px; line-height: 1.65; color: #444; }
-  .intro-desc strong, .membership-desc strong { color: #222; }
-  .required-star { display: block; margin-bottom: 10px; font-size: 16px; }
+  .q-subtitle { font-size: 13px; color: var(--bs-muted); text-align: center; margin-bottom: 14px; }
+  .intro-desc, .membership-desc { font-size: 14px; line-height: 1.65; color: #30374a; }
+  .intro-desc strong, .membership-desc strong { color: var(--bs-ink); }
+  .required-star { display: block; margin-bottom: 10px; font-size: 16px; color: var(--bs-red); }
 
   .text-input {
     width: 100%;
-    border: 1.5px solid #ddd;
+    border: 1.5px solid #c8d3ee;
     border-radius: 30px;
     padding: 12px 16px;
     font: 14px 'Nunito', sans-serif;
     outline: none;
+    background: #fff;
+    color: var(--bs-ink);
   }
-  .text-input:focus { border-color: #1ab8d4; }
+  .text-input:focus {
+    border-color: var(--bs-blue);
+    box-shadow: 0 0 0 3px rgba(10, 62, 165, 0.12);
+  }
   .radio-group { display: grid; gap: 10px; }
-  .radio-label { display: flex; gap: 10px; align-items: center; font-size: 15px; cursor: pointer; }
-  .radio-label input[type="radio"] { width: 20px; height: 20px; accent-color: #1ab8d4; }
+  .radio-label { display: flex; gap: 10px; align-items: center; font-size: 15px; cursor: pointer; color: var(--bs-ink); }
+  .radio-label input[type="radio"] { width: 20px; height: 20px; accent-color: var(--bs-red); }
 
   .field-group { margin-bottom: 14px; }
-  .field-label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .field-label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--bs-ink); }
   .field-error { display: none; font-size: 12px; color: #e44; margin-top: 4px; }
   .field-error.show { display: block; }
-  .privacy-links { text-align: center; font-size: 12px; color: #888; margin-top: 10px; }
-  .privacy-links a { color: #1ab8d4; text-decoration: none; }
+  .privacy-links { text-align: center; font-size: 12px; color: var(--bs-muted); margin-top: 10px; }
+  .privacy-links a { color: var(--bs-blue); text-decoration: none; font-weight: 700; }
 
-  .glow-bar { height: 16px; background: linear-gradient(to bottom, #7ff0f8, #29bfda); opacity: .7; }
-  .card-cta { display: flex; align-items: stretch; background: #f5c842; min-height: 52px; }
+  .glow-bar {
+    height: 14px;
+    background: linear-gradient(90deg, var(--bs-blue) 0%, var(--bs-blue) 36%, var(--bs-red) 36%, var(--bs-red) 68%, var(--bs-yellow) 68%, var(--bs-yellow) 100%);
+    opacity: 1;
+  }
+  .card-cta { display: flex; align-items: stretch; background: var(--bs-yellow); min-height: 52px; }
   .cta-spacer { flex: 1; }
   .cta-prev, .cta-next, .cta-submit {
     border: none;
@@ -86,64 +114,126 @@
     text-transform: uppercase;
     padding: 0 24px;
     cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
   }
-  .cta-prev { background: #f5c842; }
-  .cta-next, .cta-submit { background: #d4a800; }
+  .cta-prev { background: var(--bs-yellow); color: var(--bs-ink); }
+  .cta-next, .cta-submit {
+    background: linear-gradient(135deg, var(--bs-blue), var(--bs-blue-deep));
+  }
+  .cta-prev:hover { background: var(--bs-yellow-deep); }
+  .cta-next:hover, .cta-submit:hover { background: linear-gradient(135deg, var(--bs-blue-deep), #041d55); transform: translateY(-1px); }
 
-  .ycbm-wrap, .cb-wrap { background: #fff; }
+  .ycbm-wrap, .cb-wrap { background: var(--bs-bg); }
   .ycbm-header, .cb-header {
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 20px 10px; border-bottom: 1px solid #eee; font-size: 13px; color: #555;
+    padding: 12px 20px 10px; border-bottom: 1px solid #d8e1f6; font-size: 13px; color: var(--bs-ink);
   }
-  .ycbm-logo { width: 22px; height: 22px; border-radius: 5px; background: #3ecf60; color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 900; }
-  .ycbm-green-bar { height: 5px; background: linear-gradient(90deg, #3ecf60, #28b84e); }
+  .ycbm-logo { width: 22px; height: 22px; border-radius: 5px; background: var(--bs-red); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 900; }
+  .ycbm-green-bar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--bs-blue) 0%, var(--bs-blue) 35%, var(--bs-red) 35%, var(--bs-red) 68%, var(--bs-yellow) 68%, var(--bs-yellow) 100%);
+  }
   .ycbm-cal { padding: 16px 22px 10px; }
   .ycbm-cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .ycbm-today-btn { border: 1.5px solid #ccc; border-radius: 20px; background: #fff; padding: 5px 14px; font: 700 13px 'Nunito', sans-serif; }
-  .ycbm-month-label { font-size: 17px; font-weight: 800; }
-  .ycbm-arrow { background: none; border: none; font-size: 18px; color: #aaa; cursor: pointer; padding: 2px 6px; }
-  .ycbm-divider { border: none; border-top: 1px solid #e8e8e8; margin-bottom: 8px; }
+  .ycbm-today-btn {
+    border: 1.5px solid var(--bs-blue);
+    border-radius: 20px;
+    background: #fff;
+    color: var(--bs-blue);
+    padding: 5px 14px;
+    font: 800 13px 'Nunito', sans-serif;
+  }
+  .ycbm-today-btn:hover { background: var(--bs-blue); color: #fff; }
+  .ycbm-month-label { font-size: 17px; font-weight: 800; color: var(--bs-blue-deep); }
+  .ycbm-arrow { background: none; border: none; font-size: 18px; color: var(--bs-blue); cursor: pointer; padding: 2px 6px; }
+  .ycbm-divider { border: none; border-top: 1px solid #d5def4; margin-bottom: 8px; }
   .ycbm-grid { width: 100%; border-collapse: collapse; text-align: center; }
-  .ycbm-grid th { font-size: 12px; color: #888; padding-bottom: 8px; }
+  .ycbm-grid th { font-size: 12px; color: var(--bs-muted); padding-bottom: 8px; }
   .ycbm-grid td { padding: 4px 0; }
-  .day-cell { width: 36px; height: 36px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #ccc; }
-  .day-cell.available { color: #222; border: 2px solid #3ecf60; cursor: pointer; }
-  .day-cell.available.selected, .day-cell.available:hover { background: #3ecf60; color: #fff; }
+  .day-cell { width: 36px; height: 36px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 14px; color: #b6bfd6; }
+  .day-cell.available { color: var(--bs-ink); border: 2px solid var(--bs-blue); cursor: pointer; }
+  .day-cell.available.selected, .day-cell.available:hover { background: var(--bs-blue); color: #fff; }
 
   .ycbm-slots { display: none; padding: 0 22px 14px; }
   .ycbm-slots.show { display: block; }
-  .slots-label { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 8px; }
+  .slots-label { font-size: 13px; font-weight: 700; color: var(--bs-ink); margin-bottom: 8px; }
   .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .slot-btn { border: 1.5px solid #3ecf60; border-radius: 6px; background: #fff; color: #2a9e48; font: 700 13px 'Nunito', sans-serif; padding: 8px 4px; cursor: pointer; }
-  .slot-btn.selected, .slot-btn:hover { background: #3ecf60; color: #fff; }
+  .slot-btn {
+    border: 1.5px solid var(--bs-blue);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--bs-blue);
+    font: 700 13px 'Nunito', sans-serif;
+    padding: 8px 4px;
+    cursor: pointer;
+  }
+  .slot-btn.selected, .slot-btn:hover { background: var(--bs-blue); color: #fff; }
   .ycbm-book-bar { display: none; padding: 10px 22px 16px; }
   .ycbm-book-bar.show { display: block; }
-  .ycbm-book-btn { width: 100%; border: none; border-radius: 8px; background: #3ecf60; color: #fff; padding: 12px; font: 800 15px 'Nunito', sans-serif; cursor: pointer; }
-  .ycbm-tz { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px 14px; font-size: 12px; color: #666; border-top: 1px solid #eee; }
+  .ycbm-book-btn {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--bs-red), var(--bs-red-deep));
+    color: #fff;
+    padding: 12px;
+    font: 800 15px 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+  .ycbm-book-btn:hover { background: linear-gradient(135deg, var(--bs-red-deep), #7f0b1b); }
+  .ycbm-tz { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 22px 14px; font-size: 12px; color: var(--bs-muted); border-top: 1px solid #dbe4f8; }
 
   .cb-body { padding: 18px 22px 20px; }
-  .cb-summary { border: 1.5px solid #ddd; border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; position: relative; }
+  .cb-summary { border: 1.5px solid #d3def4; border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; position: relative; background: #fff; }
   .cb-summary-edit { position: absolute; top: 10px; right: 12px; border: none; background: none; cursor: pointer; }
-  .cb-summary-date { font-size: 12px; color: #888; margin-bottom: 2px; }
-  .cb-summary-time { font-size: 17px; font-weight: 800; color: #111; margin-bottom: 4px; }
-  .cb-summary-tz { font-size: 12px; color: #555; margin-bottom: 8px; }
-  .cb-summary-dur { display: inline-flex; border: 1.5px solid #e0e0e0; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #555; }
+  .cb-summary-date { font-size: 12px; color: var(--bs-muted); margin-bottom: 2px; }
+  .cb-summary-time { font-size: 17px; font-weight: 800; color: var(--bs-blue-deep); margin-bottom: 4px; }
+  .cb-summary-tz { font-size: 12px; color: #495675; margin-bottom: 8px; }
+  .cb-summary-dur { display: inline-flex; border: 1.5px solid #d5def4; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #4f5d7f; background: #fff; }
   .cb-field { margin-bottom: 12px; }
-  .cb-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
-  .cb-label span, .cb-req-tag { font-weight: 400; color: #888; font-size: 12px; }
-  .cb-input { width: 100%; border: 1.5px solid #ccc; border-radius: 5px; padding: 9px 11px; font: 14px 'Nunito', sans-serif; }
-  .cb-question { font-size: 13px; font-weight: 700; line-height: 1.5; margin-bottom: 4px; }
+  .cb-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: var(--bs-ink); }
+  .cb-label span, .cb-req-tag { font-weight: 400; color: var(--bs-muted); font-size: 12px; }
+  .cb-input {
+    width: 100%;
+    border: 1.5px solid #c8d3ee;
+    border-radius: 5px;
+    padding: 9px 11px;
+    font: 14px 'Nunito', sans-serif;
+    color: var(--bs-ink);
+    background: #fff;
+  }
+  .cb-input:focus {
+    border-color: var(--bs-blue);
+    box-shadow: 0 0 0 3px rgba(10, 62, 165, 0.12);
+    outline: none;
+  }
+  .cb-question { font-size: 13px; font-weight: 700; line-height: 1.5; margin-bottom: 4px; color: var(--bs-ink); }
   .cb-radio-group { display: grid; gap: 8px; margin-top: 8px; }
-  .cb-radio-label { display: flex; align-items: center; gap: 10px; font-size: 14px; }
-  .cb-radio-label input[type="radio"] { width: 18px; height: 18px; accent-color: #3ecf60; }
-  .cb-confirm-btn { width: 100%; border: none; border-radius: 30px; background: #1a4a42; color: #fff; padding: 14px; font: 800 15px 'Nunito', sans-serif; cursor: pointer; margin-top: 14px; }
-  .cb-recaptcha { font-size: 11px; color: #aaa; text-align: center; margin-top: 10px; line-height: 1.5; }
-  .cb-recaptcha a { color: #3ecf60; text-decoration: none; }
+  .cb-radio-label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--bs-ink); }
+  .cb-radio-label input[type="radio"] { width: 18px; height: 18px; accent-color: var(--bs-red); }
+  .cb-confirm-btn {
+    width: 100%;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, var(--bs-red), var(--bs-blue));
+    color: #fff;
+    padding: 14px;
+    font: 800 15px 'Nunito', sans-serif;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  .cb-confirm-btn:hover { background: linear-gradient(135deg, var(--bs-red-deep), var(--bs-blue-deep)); }
+  .cb-recaptcha { font-size: 11px; color: var(--bs-muted); text-align: center; margin-top: 10px; line-height: 1.5; }
+  .cb-recaptcha a { color: var(--bs-blue); text-decoration: none; }
+  .partner-status { margin-top: 10px; font-size: 12px; text-align: center; display: none; }
+  .partner-status.show { display: block; }
+  .partner-status.error { color: #e44; }
+  .partner-status.success { color: var(--bs-blue); }
 
   .success-screen { text-align: center; padding: 50px 36px; }
   .success-icon { font-size: 56px; margin-bottom: 14px; }
-  .success-title { font-size: 22px; font-weight: 900; color: #1ab8d4; margin-bottom: 10px; }
-  .success-msg { font-size: 14px; color: #555; line-height: 1.6; }
+  .success-title { font-size: 22px; font-weight: 900; color: var(--bs-blue); margin-bottom: 10px; }
+  .success-msg { font-size: 14px; color: #465372; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -371,7 +461,8 @@
           <input type="text" class="cb-input" id="cb-yes" style="margin-top:8px;">
         </div>
 
-        <button class="cb-confirm-btn" onclick="finalConfirm()">Confirm BIGSTOP Consultation</button>
+        <button class="cb-confirm-btn" id="cb-confirm-btn" onclick="finalConfirm()">Confirm BIGSTOP Consultation</button>
+        <p class="partner-status" id="partnerFormStatus" aria-live="polite"></p>
 
         <div class="cb-recaptcha">
           This form is protected by reCAPTCHA and the Google
@@ -451,6 +542,7 @@
     '2026-4': [4, 5, 6, 11, 12, 13, 18, 19, 20],
   };
   const TIMES = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','2:00 PM','2:30 PM','3:00 PM'];
+  const inquiryEndpoint = window.HHF_INQUIRY_API_URL || '/api/inquiry';
 
   const today = new Date();
   let viewYear = 2026;
@@ -566,9 +658,64 @@
     goTo(10);
   }
 
-  function finalConfirm() {
+  function getCheckedInput(name) {
+    return document.querySelector(`input[name="${name}"]:checked`);
+  }
+
+  function getCheckedLabel(name) {
+    const checked = getCheckedInput(name);
+    if (!checked) return '';
+    const label = checked.closest('label');
+    if (!label) return checked.value || '';
+    return label.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  function setPartnerStatus(message, type = 'error') {
+    const statusEl = document.getElementById('partnerFormStatus');
+    if (!statusEl) return;
+    if (!message) {
+      statusEl.textContent = '';
+      statusEl.classList.remove('show', 'error', 'success');
+      return;
+    }
+    statusEl.textContent = message;
+    statusEl.classList.remove('error', 'success');
+    statusEl.classList.add('show', type);
+  }
+
+  function buildPartnerInquiryComment() {
+    const q1 = document.getElementById('q1')?.value.trim() || '';
+    const q2 = getCheckedLabel('q2');
+    const q3 = getCheckedLabel('q3');
+    const q4 = getCheckedLabel('q4');
+    const q5 = getCheckedLabel('q5');
+    const q6 = document.getElementById('q6')?.value.trim() || '';
+    const q7 = getCheckedLabel('q7');
+    const partnerDecision = getCheckedLabel('cb-partner');
+    const fbLink = document.getElementById('cb-fb')?.value.trim() || '';
+
+    const scheduleText = selectedDay && selectedTime
+      ? `${MONTHS[viewMonth - 1]} ${selectedDay}, ${viewYear} at ${selectedTime}`
+      : 'No schedule selected';
+
+    return [
+      `Current work/business: ${q1 || 'N/A'}`,
+      `Reason for BIGSTOP interest: ${q2 || 'N/A'}`,
+      `Target monthly income: ${q3 || 'N/A'}`,
+      `Budget range: ${q4 || 'N/A'}`,
+      `Target opening timeline: ${q5 || 'N/A'}`,
+      `Growth commitment answer: ${q6 || 'N/A'}`,
+      `Preferred package: ${q7 || 'N/A'}`,
+      `Decision-maker response: ${partnerDecision || 'N/A'}`,
+      `Facebook link: ${fbLink || 'N/A'}`,
+      `Preferred consultation schedule: ${scheduleText}`,
+    ].join('\n');
+  }
+
+  async function finalConfirm() {
     const required = ['cb-fname', 'cb-lname', 'cb-email', 'cb-fb', 'cb-mobile', 'cb-yes'];
     let valid = true;
+    setPartnerStatus('');
 
     required.forEach(id => {
       const el = document.getElementById(id);
@@ -579,12 +726,72 @@
       }
     });
 
-    const partner = document.querySelector('input[name="cb-partner"]:checked');
+    const partner = getCheckedInput('cb-partner');
     if (!partner) valid = false;
 
-    if (valid) goTo('success');
+    const yesEl = document.getElementById('cb-yes');
+    if (yesEl && yesEl.value.trim().toUpperCase() !== 'YES') {
+      valid = false;
+      yesEl.style.borderColor = '#e44';
+      setTimeout(() => { yesEl.style.borderColor = ''; }, 1500);
+    }
+
+    if (!valid) {
+      setPartnerStatus('Please complete all required fields before submitting.', 'error');
+      return;
+    }
+
+    const confirmBtn = document.getElementById('cb-confirm-btn');
+    const originalBtnText = confirmBtn?.textContent || 'Confirm BIGSTOP Consultation';
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Submitting...';
+      confirmBtn.style.opacity = '0.75';
+      confirmBtn.style.cursor = 'wait';
+    }
+
+    const firstName = document.getElementById('cb-fname')?.value.trim() || '';
+    const lastName = document.getElementById('cb-lname')?.value.trim() || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    const payload = {
+      name: fullName,
+      phone: document.getElementById('cb-mobile')?.value.trim() || '',
+      email: document.getElementById('cb-email')?.value.trim() || '',
+      comment: buildPartnerInquiryComment(),
+      franchise_interest: getCheckedLabel('q7'),
+      experience: document.getElementById('q1')?.value.trim() || '',
+      budget: getCheckedLabel('q4'),
+      source: 'BIGSTOP Partner Consultation Form',
+    };
+
+    try {
+      const response = await fetch(inquiryEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || 'Failed to submit inquiry.');
+      }
+
+      setPartnerStatus('Inquiry sent successfully. Redirecting to confirmation...', 'success');
+      goTo('success');
+    } catch (error) {
+      setPartnerStatus(error.message || 'Unable to send inquiry. Please try again.', 'error');
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalBtnText;
+        confirmBtn.style.opacity = '1';
+        confirmBtn.style.cursor = 'pointer';
+      }
+    }
   }
 </script>
 </body>
 </html>
+
+
 
