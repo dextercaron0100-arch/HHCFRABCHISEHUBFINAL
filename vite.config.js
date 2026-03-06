@@ -8,6 +8,7 @@ const cleanUrlHtmlRoutes = {
   '/boss-siomai': '/boss-siomai.html',
   '/awards': '/awards.html',
   '/bigstop-franchise-kit': '/bigstop-franchise-kit.html',
+  '/bigstop-partner': '/bigstop-partner.html',
   '/bigstop': '/bigstop.html',
   '/boss-chickn': '/boss-chickn.html',
   '/boss-fries': '/boss-fries.html',
