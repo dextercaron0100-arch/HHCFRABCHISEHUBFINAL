@@ -14,3 +14,17 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Inquiry Form Deploy Notes (Vercel + Railway)
+
+This project includes a Vercel serverless endpoint at `/api/inquiry` (`api/inquiry.js`) that proxies form submissions to your backend.
+
+Set this env var in Vercel Project Settings:
+
+- `INQUIRY_BACKEND_URL=https://<your-railway-backend-domain>`
+
+Example:
+
+- `INQUIRY_BACKEND_URL=https://your-backend.up.railway.app`
+
+The frontend forms can keep using `/api/inquiry` in production and development.
