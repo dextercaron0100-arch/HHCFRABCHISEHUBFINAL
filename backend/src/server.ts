@@ -1,19 +1,113 @@
-import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
+import nodemailer, {
+  type SendMailOptions,
+  type Transporter,
+} from "nodemailer";
 import fs from "node:fs";
 import path from "node:path";
+import { open, type Database } from "sqlite";
 import sqlite3 from "sqlite3";
-import { open } from "sqlite";
 
 dotenv.config();
 
-const normalize = (value = "") => value.toString().trim();
-const parseBoolean = (value, fallback = true) => {
+type SqliteDatabase = Database<sqlite3.Database, sqlite3.Statement>;
+type InquiryStatus = "new" | "contacted" | "qualified" | "closed" | "spam";
+
+interface MailerConfig {
+  fromEmail: string;
+  gmailAppPassword: string;
+  gmailUser: string;
+  inquiryTo: string;
+  supportEmail: string;
+}
+
+interface EmailPayload {
+  html: string;
+  subject: string;
+  text: string;
+}
+
+interface AdminInquiryEmailInput {
+  budget: string;
+  comment: string;
+  email: string;
+  experience: string;
+  franchiseInterest: string;
+  leadId: string;
+  location: string;
+  name: string;
+  phone: string;
+  source: string;
+  submittedAt: string;
+}
+
+interface AutoReplyEmailInput {
+  comment: string;
+  leadId: string;
+  name: string;
+  submittedAt: string;
+  supportEmail: string;
+}
+
+interface InquiryRequestBody {
+  budget?: unknown;
+  comment?: unknown;
+  email?: unknown;
+  experience?: unknown;
+  franchise_interest?: unknown;
+  location?: unknown;
+  message?: unknown;
+  name?: unknown;
+  phone?: unknown;
+  source?: unknown;
+}
+
+interface InquiryStatusUpdateBody {
+  note?: unknown;
+  status?: unknown;
+}
+
+interface InquiryRecord {
+  admin_email_sent: number;
+  auto_reply_sent: number;
+  created_at: string;
+  email: string | null;
+  email_error: string;
+  lead_id: string;
+  name: string;
+  notes: string;
+  phone: string;
+  source: string | null;
+  status: InquiryStatus;
+  updated_at: string;
+}
+
+const allowedStatuses = new Set<InquiryStatus>([
+  "new",
+  "contacted",
+  "qualified",
+  "closed",
+  "spam",
+]);
+
+const normalize = (value: unknown = ""): string => String(value ?? "").trim();
+
+const parseBoolean = (value: unknown, fallback = true): boolean => {
   if (value === undefined || value === null || value === "") return fallback;
   return !["false", "0", "no", "off"].includes(normalize(value).toLowerCase());
 };
+
+const isInquiryStatus = (value: string): value is InquiryStatus =>
+  allowedStatuses.has(value as InquiryStatus);
+
+const toErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : "Unknown error";
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -26,12 +120,14 @@ const databaseFile = process.env.DATABASE_FILE || "./data/inquiries.db";
 const adminApiKey = normalize(process.env.ADMIN_API_KEY);
 const fromName = normalize(process.env.MAIL_FROM_NAME) || `${businessName} Website`;
 
-const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173")
+const allowedOrigins = (
+  process.env.CLIENT_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173"
+)
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-let db;
+let db: SqliteDatabase | null = null;
 
 app.use(
   cors({
@@ -46,7 +142,7 @@ app.use(
 );
 app.use(express.json());
 
-const escapeHtml = (value = "") =>
+const escapeHtml = (value: string = ""): string =>
   value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -54,37 +150,49 @@ const escapeHtml = (value = "") =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-const isValidEmail = (value = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const isValidEmail = (value: string = ""): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const makeLeadId = () => {
+const makeLeadId = (): string => {
   const stamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `INQ-${stamp}-${random}`;
 };
 
-const formatSubmittedAt = (date = new Date()) =>
+const formatSubmittedAt = (date: Date = new Date()): string =>
   new Intl.DateTimeFormat("en-PH", {
     dateStyle: "full",
     timeStyle: "short",
     timeZone: timezone,
   }).format(date);
 
-const createTransporter = () => {
-  const gmailUser = process.env.GMAIL_USER;
-  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+const getMailerConfig = (): MailerConfig => {
+  const gmailUser = normalize(process.env.GMAIL_USER);
+  const gmailAppPassword = normalize(process.env.GMAIL_APP_PASSWORD);
 
   if (!gmailUser || !gmailAppPassword) {
     throw new Error("Email server is not configured. Missing Gmail credentials.");
   }
 
-  return nodemailer.createTransport({
+  const inquiryTo = normalize(process.env.INQUIRY_TO) || gmailUser;
+
+  return {
+    gmailUser,
+    gmailAppPassword,
+    inquiryTo,
+    fromEmail: normalize(process.env.MAIL_FROM_EMAIL) || gmailUser,
+    supportEmail: normalize(process.env.SUPPORT_EMAIL) || inquiryTo,
+  };
+};
+
+const createTransporter = (config: MailerConfig): Transporter =>
+  nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: gmailUser,
-      pass: gmailAppPassword,
+      user: config.gmailUser,
+      pass: config.gmailAppPassword,
     },
   });
-};
 
 const buildAdminInquiryEmail = ({
   leadId,
@@ -98,7 +206,7 @@ const buildAdminInquiryEmail = ({
   location,
   experience,
   budget,
-}) => {
+}: AdminInquiryEmailInput): EmailPayload => {
   const safeLeadId = escapeHtml(leadId);
   const safeSubmittedAt = escapeHtml(submittedAt);
   const safeName = escapeHtml(name);
@@ -106,10 +214,10 @@ const buildAdminInquiryEmail = ({
   const safeEmail = escapeHtml(email || "N/A");
   const safeComment = escapeHtml(comment).replace(/\n/g, "<br/>");
   const safeSource = escapeHtml(source || "Website Form");
-  const safeFranchiseInterest = escapeHtml(franchiseInterest || "");
-  const safeLocation = escapeHtml(location || "");
-  const safeExperience = escapeHtml(experience || "");
-  const safeBudget = escapeHtml(budget || "");
+  const safeFranchiseInterest = escapeHtml(franchiseInterest);
+  const safeLocation = escapeHtml(location);
+  const safeExperience = escapeHtml(experience);
+  const safeBudget = escapeHtml(budget);
   const leadDetailRows = [
     franchiseInterest
       ? `
@@ -213,7 +321,13 @@ const buildAdminInquiryEmail = ({
   return { subject, html, text };
 };
 
-const buildAutoReplyEmail = ({ leadId, name, submittedAt, comment, supportEmail }) => {
+const buildAutoReplyEmail = ({
+  leadId,
+  name,
+  submittedAt,
+  comment,
+  supportEmail,
+}: AutoReplyEmailInput): EmailPayload => {
   const safeName = escapeHtml(name);
   const safeLeadId = escapeHtml(leadId);
   const safeSubmittedAt = escapeHtml(submittedAt);
@@ -272,13 +386,13 @@ const buildAutoReplyEmail = ({ leadId, name, submittedAt, comment, supportEmail 
   return { subject, html, text };
 };
 
-const ensureDatabaseDirectory = (filename) => {
+const ensureDatabaseDirectory = (filename: string): string => {
   const absolutePath = path.resolve(process.cwd(), filename);
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
   return absolutePath;
 };
 
-const initDatabase = async () => {
+const initDatabase = async (): Promise<SqliteDatabase> => {
   const filePath = ensureDatabaseDirectory(databaseFile);
   const connection = await open({
     filename: filePath,
@@ -310,7 +424,15 @@ const initDatabase = async () => {
   return connection;
 };
 
-const requireAdminKey = (req, res, next) => {
+const getDb = (): SqliteDatabase => {
+  if (!db) {
+    throw new Error("Database has not been initialized.");
+  }
+
+  return db;
+};
+
+const requireAdminKey = (req: Request, res: Response, next: NextFunction): void => {
   if (!adminApiKey) {
     res.status(403).json({
       ok: false,
@@ -328,162 +450,186 @@ const requireAdminKey = (req, res, next) => {
   next();
 };
 
-app.get("/api/health", (_req, res) => {
+const buildHealthPayload = () => ({
+  ok: true,
+  service: "hhfranchisehub-backend",
+  database: Boolean(db),
+  timestamp: new Date().toISOString(),
+});
+
+app.get("/", (_req, res) => {
   res.json({
-    ok: true,
-    service: "hhfranchisehub-backend",
-    database: Boolean(db),
-    timestamp: new Date().toISOString(),
+    ...buildHealthPayload(),
+    message: "Backend is running.",
   });
 });
 
-app.post("/api/inquiry", async (req, res) => {
-  try {
-    const {
-      name,
-      phone,
-      email,
-      comment,
-      message,
-      franchise_interest,
-      location,
-      experience,
-      budget,
-      source,
-    } = req.body || {};
-    const normalizedName = normalize(name);
-    const normalizedPhone = normalize(phone);
-    const normalizedEmail = normalize(email);
-    const normalizedFranchiseInterest = normalize(franchise_interest);
-    const normalizedLocation = normalize(location);
-    const normalizedExperience = normalize(experience);
-    const normalizedBudget = normalize(budget);
-    const normalizedMessage = normalize(comment || message);
-    const normalizedComment = [
-      normalizedMessage,
-      normalizedFranchiseInterest ? `Franchise interest: ${normalizedFranchiseInterest}` : "",
-      normalizedLocation ? `Preferred location: ${normalizedLocation}` : "",
-      normalizedExperience ? `Business experience: ${normalizedExperience}` : "",
-      normalizedBudget ? `Budget range: ${normalizedBudget}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    if (!normalizedName || !normalizedPhone || !normalizedComment) {
-      res.status(400).json({
-        ok: false,
-        message: "Name, phone, and comment are required.",
-      });
-      return;
-    }
-
-    const gmailUser = process.env.GMAIL_USER;
-    const inquiryTo = process.env.INQUIRY_TO || gmailUser;
-    const fromEmail = normalize(process.env.MAIL_FROM_EMAIL) || gmailUser;
-    const supportEmail = normalize(process.env.SUPPORT_EMAIL) || inquiryTo;
-
-    const leadId = makeLeadId();
-    const submittedAt = formatSubmittedAt();
-    const normalizedSource =
-      normalize(source) || normalize(req.headers.origin || req.headers.referer || "Website Form");
-    const now = new Date().toISOString();
-
-    await db.run(
-      `
-        INSERT INTO inquiries (
-          lead_id, name, phone, email, comment, source, status,
-          admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 'new', 0, 0, '', ?, ?)
-      `,
-      leadId,
-      normalizedName,
-      normalizedPhone,
-      normalizedEmail || null,
-      normalizedComment,
-      normalizedSource,
-      now,
-      now
-    );
-
-    const transporter = createTransporter();
-    const adminEmail = buildAdminInquiryEmail({
-      leadId,
-      submittedAt,
-      name: normalizedName,
-      phone: normalizedPhone,
-      email: normalizedEmail,
-      comment: normalizedComment,
-      source: normalizedSource,
-      franchiseInterest: normalizedFranchiseInterest,
-      location: normalizedLocation,
-      experience: normalizedExperience,
-      budget: normalizedBudget,
-    });
-
-    const adminMailOptions = {
-      from: `"${fromName}" <${fromEmail}>`,
-      to: inquiryTo,
-      subject: adminEmail.subject,
-      html: adminEmail.html,
-      text: adminEmail.text,
-    };
-
-    if (isValidEmail(normalizedEmail)) {
-      adminMailOptions.replyTo = normalizedEmail;
-    }
-
-    await transporter.sendMail(adminMailOptions);
-    await db.run(
-      `UPDATE inquiries SET admin_email_sent = 1, updated_at = ? WHERE lead_id = ?`,
-      new Date().toISOString(),
-      leadId
-    );
-
-    let autoReplySent = false;
-    if (autoReplyEnabled && isValidEmail(normalizedEmail)) {
-      const autoReply = buildAutoReplyEmail({
-        leadId,
-        name: normalizedName,
-        submittedAt,
-        comment: normalizedComment,
-        supportEmail,
-      });
-
-      try {
-        await transporter.sendMail({
-          from: `"${fromName}" <${fromEmail}>`,
-          to: normalizedEmail,
-          subject: autoReply.subject,
-          html: autoReply.html,
-          text: autoReply.text,
-          replyTo: supportEmail || fromEmail,
-        });
-        autoReplySent = true;
-        await db.run(
-          `UPDATE inquiries SET auto_reply_sent = 1, updated_at = ? WHERE lead_id = ?`,
-          new Date().toISOString(),
-          leadId
-        );
-      } catch (autoReplyError) {
-        console.error("Auto-reply email error:", autoReplyError);
-        await db.run(
-          `UPDATE inquiries SET email_error = ?, updated_at = ? WHERE lead_id = ?`,
-          `Auto-reply failed: ${autoReplyError.message}`,
-          new Date().toISOString(),
-          leadId
-        );
-      }
-    }
-
-    res.json({ ok: true, message: "Inquiry sent successfully!", leadId, autoReplySent });
-  } catch (error) {
-    console.error("Email send error:", error);
-    res.status(500).json({ ok: false, message: "Failed to send inquiry." });
-  }
+app.get("/health", (_req, res) => {
+  res.json(buildHealthPayload());
 });
 
-app.get("/api/inquiries", requireAdminKey, async (req, res) => {
+app.get("/api/health", (_req, res) => {
+  res.json(buildHealthPayload());
+});
+
+app.post(
+  "/api/inquiry",
+  async (req: Request<object, object, InquiryRequestBody>, res: Response) => {
+    try {
+      const {
+        name,
+        phone,
+        email,
+        comment,
+        message,
+        franchise_interest,
+        location,
+        experience,
+        budget,
+        source,
+      } = req.body || {};
+      const normalizedName = normalize(name);
+      const normalizedPhone = normalize(phone);
+      const normalizedEmail = normalize(email);
+      const normalizedFranchiseInterest = normalize(franchise_interest);
+      const normalizedLocation = normalize(location);
+      const normalizedExperience = normalize(experience);
+      const normalizedBudget = normalize(budget);
+      const normalizedMessage = normalize(comment || message);
+      const normalizedComment = [
+        normalizedMessage,
+        normalizedFranchiseInterest
+          ? `Franchise interest: ${normalizedFranchiseInterest}`
+          : "",
+        normalizedLocation ? `Preferred location: ${normalizedLocation}` : "",
+        normalizedExperience
+          ? `Business experience: ${normalizedExperience}`
+          : "",
+        normalizedBudget ? `Budget range: ${normalizedBudget}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      if (!normalizedName || !normalizedPhone || !normalizedComment) {
+        res.status(400).json({
+          ok: false,
+          message: "Name, phone, and comment are required.",
+        });
+        return;
+      }
+
+      const database = getDb();
+      const mailerConfig = getMailerConfig();
+      const leadId = makeLeadId();
+      const submittedAt = formatSubmittedAt();
+      const normalizedSource =
+        normalize(source) ||
+        normalize(req.headers.origin || req.headers.referer || "Website Form");
+      const now = new Date().toISOString();
+
+      await database.run(
+        `
+          INSERT INTO inquiries (
+            lead_id, name, phone, email, comment, source, status,
+            admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, 'new', 0, 0, '', ?, ?)
+        `,
+        leadId,
+        normalizedName,
+        normalizedPhone,
+        normalizedEmail || null,
+        normalizedComment,
+        normalizedSource,
+        now,
+        now
+      );
+
+      const transporter = createTransporter(mailerConfig);
+      const adminEmail = buildAdminInquiryEmail({
+        leadId,
+        submittedAt,
+        name: normalizedName,
+        phone: normalizedPhone,
+        email: normalizedEmail,
+        comment: normalizedComment,
+        source: normalizedSource,
+        franchiseInterest: normalizedFranchiseInterest,
+        location: normalizedLocation,
+        experience: normalizedExperience,
+        budget: normalizedBudget,
+      });
+
+      const adminMailOptions: SendMailOptions = {
+        from: `"${fromName}" <${mailerConfig.fromEmail}>`,
+        to: mailerConfig.inquiryTo,
+        subject: adminEmail.subject,
+        html: adminEmail.html,
+        text: adminEmail.text,
+      };
+
+      if (isValidEmail(normalizedEmail)) {
+        adminMailOptions.replyTo = normalizedEmail;
+      }
+
+      await transporter.sendMail(adminMailOptions);
+      await database.run(
+        `UPDATE inquiries SET admin_email_sent = 1, updated_at = ? WHERE lead_id = ?`,
+        new Date().toISOString(),
+        leadId
+      );
+
+      let autoReplySent = false;
+      if (autoReplyEnabled && isValidEmail(normalizedEmail)) {
+        const autoReply = buildAutoReplyEmail({
+          leadId,
+          name: normalizedName,
+          submittedAt,
+          comment: normalizedComment,
+          supportEmail: mailerConfig.supportEmail,
+        });
+
+        try {
+          await transporter.sendMail({
+            from: `"${fromName}" <${mailerConfig.fromEmail}>`,
+            to: normalizedEmail,
+            subject: autoReply.subject,
+            html: autoReply.html,
+            text: autoReply.text,
+            replyTo: mailerConfig.supportEmail || mailerConfig.fromEmail,
+          });
+          autoReplySent = true;
+          await database.run(
+            `UPDATE inquiries SET auto_reply_sent = 1, updated_at = ? WHERE lead_id = ?`,
+            new Date().toISOString(),
+            leadId
+          );
+        } catch (autoReplyError) {
+          console.error("Auto-reply email error:", autoReplyError);
+          await database.run(
+            `UPDATE inquiries SET email_error = ?, updated_at = ? WHERE lead_id = ?`,
+            `Auto-reply failed: ${toErrorMessage(autoReplyError)}`,
+            new Date().toISOString(),
+            leadId
+          );
+        }
+      }
+
+      res.json({
+        ok: true,
+        message: "Inquiry sent successfully!",
+        leadId,
+        autoReplySent,
+      });
+    } catch (error) {
+      console.error("Email send error:", error);
+      res.status(500).json({ ok: false, message: "Failed to send inquiry." });
+    }
+  }
+);
+
+app.get("/api/inquiries", requireAdminKey, async (req: Request, res: Response) => {
   try {
+    const database = getDb();
     const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
     const status = normalize(req.query.status);
 
@@ -492,7 +638,7 @@ app.get("/api/inquiries", requireAdminKey, async (req, res) => {
              admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
       FROM inquiries
     `;
-    const params = [];
+    const params: Array<number | string> = [];
 
     if (status) {
       query += ` WHERE status = ?`;
@@ -502,7 +648,7 @@ app.get("/api/inquiries", requireAdminKey, async (req, res) => {
     query += ` ORDER BY datetime(created_at) DESC LIMIT ?`;
     params.push(limit);
 
-    const inquiries = await db.all(query, params);
+    const inquiries = await database.all<InquiryRecord[]>(query, params);
     res.json({ ok: true, count: inquiries.length, inquiries });
   } catch (error) {
     console.error("Failed to fetch inquiries:", error);
@@ -510,67 +656,77 @@ app.get("/api/inquiries", requireAdminKey, async (req, res) => {
   }
 });
 
-app.patch("/api/inquiries/:leadId/status", requireAdminKey, async (req, res) => {
-  try {
-    const leadId = normalize(req.params.leadId);
-    const status = normalize(req.body?.status).toLowerCase();
-    const note = normalize(req.body?.note);
-    const allowedStatuses = new Set(["new", "contacted", "qualified", "closed", "spam"]);
+app.patch(
+  "/api/inquiries/:leadId/status",
+  requireAdminKey,
+  async (
+    req: Request<{ leadId: string }, object, InquiryStatusUpdateBody>,
+    res: Response
+  ) => {
+    try {
+      const database = getDb();
+      const leadId = normalize(req.params.leadId);
+      const status = normalize(req.body?.status).toLowerCase();
+      const note = normalize(req.body?.note);
 
-    if (!leadId) {
-      res.status(400).json({ ok: false, message: "leadId is required." });
-      return;
+      if (!leadId) {
+        res.status(400).json({ ok: false, message: "leadId is required." });
+        return;
+      }
+      if (!isInquiryStatus(status)) {
+        res.status(400).json({
+          ok: false,
+          message: "Invalid status. Use: new, contacted, qualified, closed, or spam.",
+        });
+        return;
+      }
+
+      const existing = await database.get<Pick<InquiryRecord, "notes">>(
+        `SELECT notes FROM inquiries WHERE lead_id = ?`,
+        leadId
+      );
+      if (!existing) {
+        res.status(404).json({ ok: false, message: "Lead not found." });
+        return;
+      }
+
+      let updatedNotes = existing.notes || "";
+      if (note) {
+        const nowLabel = formatSubmittedAt(new Date());
+        const line = `[${nowLabel}] ${note}`;
+        updatedNotes = updatedNotes ? `${updatedNotes}\n${line}` : line;
+      }
+
+      await database.run(
+        `UPDATE inquiries SET status = ?, notes = ?, updated_at = ? WHERE lead_id = ?`,
+        status,
+        updatedNotes,
+        new Date().toISOString(),
+        leadId
+      );
+
+      const updated = await database.get<InquiryRecord>(
+        `
+          SELECT lead_id, name, phone, email, source, status, notes,
+                 admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
+          FROM inquiries
+          WHERE lead_id = ?
+        `,
+        leadId
+      );
+
+      res.json({ ok: true, inquiry: updated });
+    } catch (error) {
+      console.error("Failed to update inquiry:", error);
+      res.status(500).json({ ok: false, message: "Failed to update inquiry." });
     }
-    if (!allowedStatuses.has(status)) {
-      res.status(400).json({
-        ok: false,
-        message: "Invalid status. Use: new, contacted, qualified, closed, or spam.",
-      });
-      return;
-    }
-
-    const existing = await db.get(`SELECT notes FROM inquiries WHERE lead_id = ?`, leadId);
-    if (!existing) {
-      res.status(404).json({ ok: false, message: "Lead not found." });
-      return;
-    }
-
-    let updatedNotes = existing.notes || "";
-    if (note) {
-      const nowLabel = formatSubmittedAt(new Date());
-      const line = `[${nowLabel}] ${note}`;
-      updatedNotes = updatedNotes ? `${updatedNotes}\n${line}` : line;
-    }
-
-    await db.run(
-      `UPDATE inquiries SET status = ?, notes = ?, updated_at = ? WHERE lead_id = ?`,
-      status,
-      updatedNotes,
-      new Date().toISOString(),
-      leadId
-    );
-
-    const updated = await db.get(
-      `
-        SELECT lead_id, name, phone, email, source, status, notes,
-               admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
-        FROM inquiries
-        WHERE lead_id = ?
-      `,
-      leadId
-    );
-
-    res.json({ ok: true, inquiry: updated });
-  } catch (error) {
-    console.error("Failed to update inquiry:", error);
-    res.status(500).json({ ok: false, message: "Failed to update inquiry." });
   }
-});
+);
 
-const startServer = async () => {
+const startServer = async (): Promise<void> => {
   db = await initDatabase();
-  app.listen(port, () => {
-    console.log(`Backend running on http://localhost:${port}`);
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Backend running on port ${port}`);
   });
 };
 

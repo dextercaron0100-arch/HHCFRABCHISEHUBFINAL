@@ -1,6 +1,6 @@
 # Backend
 
-Node/Express backend for inquiry emails and lead tracking.
+TypeScript Node/Express backend for inquiry emails and lead tracking.
 
 ## Setup
 
@@ -48,11 +48,14 @@ npm run dev
 Production:
 
 ```bash
+npm run build
 npm start
 ```
 
 ## API Endpoints
 
+- `GET http://localhost:5000/`
+- `GET http://localhost:5000/health`
 - `GET http://localhost:5000/api/health`
 - `POST http://localhost:5000/api/inquiry`
 - `GET http://localhost:5000/api/inquiries?limit=50&status=new` (requires admin key)
