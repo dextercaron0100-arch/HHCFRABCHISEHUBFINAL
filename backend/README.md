@@ -26,15 +26,20 @@ MAIL_FROM_EMAIL=yourgmail@gmail.com
 SUPPORT_EMAIL=your-receiving-inbox@gmail.com
 AUTO_REPLY_ENABLED=true
 DATABASE_FILE=./data/inquiries.db
+DATABASE_URL=
+PGSSL=true
 ADMIN_API_KEY=replace-with-a-long-random-secret
 ```
+
+`DATABASE_URL` takes precedence over `DATABASE_FILE`. Keep `DATABASE_FILE` for local SQLite, and set `DATABASE_URL` when you want Railway to use Neon/Postgres.
 
 ## Professional Features Added
 
 - Branded admin notification email with lead ID and source metadata
 - Customer auto-reply email confirmation
 - Reply-To handling for direct customer follow-up
-- SQLite database tracking (`data/inquiries.db`)
+- SQLite fallback for local development (`data/inquiries.db`)
+- Postgres/Neon support through `DATABASE_URL`
 - Admin API for listing inquiries and updating lead status
 
 ## Run
@@ -50,6 +55,33 @@ Production:
 ```bash
 npm run build
 npm start
+```
+
+## Neon Setup
+
+1. Create a Neon project and copy its Postgres connection string.
+2. In Railway, set:
+   - `DATABASE_URL=<your-neon-connection-string>`
+   - `PGSSL=true`
+3. Leave `DATABASE_FILE` unset in Railway, or keep it only for local fallback.
+4. Redeploy the Railway backend.
+
+To migrate existing local SQLite data into Neon:
+
+```bash
+npm run migrate:postgres
+```
+
+The migration script looks for a local SQLite file in this order:
+
+- `SQLITE_FILE`
+- `./data/inquiries.db`
+- `DATABASE_FILE`
+
+If needed, override it explicitly:
+
+```bash
+SQLITE_FILE=./data/inquiries.db npm run migrate:postgres
 ```
 
 ## API Endpoints

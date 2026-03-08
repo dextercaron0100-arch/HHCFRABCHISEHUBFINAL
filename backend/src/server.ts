@@ -9,15 +9,13 @@ import nodemailer, {
   type SendMailOptions,
   type Transporter,
 } from "nodemailer";
-import fs from "node:fs";
-import path from "node:path";
-import { open, type Database } from "sqlite";
-import sqlite3 from "sqlite3";
+import {
+  createDatabaseClient,
+  type InquiryRecord,
+  type InquiryStatus,
+} from "./database.js";
 
 dotenv.config();
-
-type SqliteDatabase = Database<sqlite3.Database, sqlite3.Statement>;
-type InquiryStatus = "new" | "contacted" | "qualified" | "closed" | "spam";
 
 interface MailerConfig {
   fromEmail: string;
@@ -73,21 +71,6 @@ interface InquiryStatusUpdateBody {
   status?: unknown;
 }
 
-interface InquiryRecord {
-  admin_email_sent: number;
-  auto_reply_sent: number;
-  created_at: string;
-  email: string | null;
-  email_error: string;
-  lead_id: string;
-  name: string;
-  notes: string;
-  phone: string;
-  source: string | null;
-  status: InquiryStatus;
-  updated_at: string;
-}
-
 const allowedStatuses = new Set<InquiryStatus>([
   "new",
   "contacted",
@@ -117,6 +100,8 @@ const websiteUrl = process.env.BUSINESS_WEBSITE || "http://localhost:5173";
 const responseTime = process.env.RESPONSE_TIME || "within 24 hours";
 const autoReplyEnabled = parseBoolean(process.env.AUTO_REPLY_ENABLED, true);
 const databaseFile = process.env.DATABASE_FILE || "./data/inquiries.db";
+const databaseUrl = normalize(process.env.DATABASE_URL);
+const pgSsl = parseBoolean(process.env.PGSSL, true);
 const adminApiKey = normalize(process.env.ADMIN_API_KEY);
 const fromName = normalize(process.env.MAIL_FROM_NAME) || `${businessName} Website`;
 
@@ -127,7 +112,11 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-let db: SqliteDatabase | null = null;
+const database = createDatabaseClient({
+  databaseFile,
+  databaseUrl,
+  pgSsl,
+});
 
 app.use(
   cors({
@@ -386,52 +375,6 @@ const buildAutoReplyEmail = ({
   return { subject, html, text };
 };
 
-const ensureDatabaseDirectory = (filename: string): string => {
-  const absolutePath = path.resolve(process.cwd(), filename);
-  fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
-  return absolutePath;
-};
-
-const initDatabase = async (): Promise<SqliteDatabase> => {
-  const filePath = ensureDatabaseDirectory(databaseFile);
-  const connection = await open({
-    filename: filePath,
-    driver: sqlite3.Database,
-  });
-
-  await connection.exec(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS inquiries (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      lead_id TEXT NOT NULL UNIQUE,
-      name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      email TEXT,
-      comment TEXT NOT NULL,
-      source TEXT,
-      status TEXT NOT NULL DEFAULT 'new',
-      notes TEXT DEFAULT '',
-      admin_email_sent INTEGER NOT NULL DEFAULT 0,
-      auto_reply_sent INTEGER NOT NULL DEFAULT 0,
-      email_error TEXT DEFAULT '',
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS idx_inquiries_created_at ON inquiries (created_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_inquiries_status ON inquiries (status);
-  `);
-
-  return connection;
-};
-
-const getDb = (): SqliteDatabase => {
-  if (!db) {
-    throw new Error("Database has not been initialized.");
-  }
-
-  return db;
-};
-
 const requireAdminKey = (req: Request, res: Response, next: NextFunction): void => {
   if (!adminApiKey) {
     res.status(403).json({
@@ -453,7 +396,8 @@ const requireAdminKey = (req: Request, res: Response, next: NextFunction): void 
 const buildHealthPayload = () => ({
   ok: true,
   service: "hhfranchisehub-backend",
-  database: Boolean(db),
+  database: database.isReady(),
+  databaseType: database.kind,
   timestamp: new Date().toISOString(),
 });
 
@@ -518,7 +462,6 @@ app.post(
         return;
       }
 
-      const database = getDb();
       const mailerConfig = getMailerConfig();
       const leadId = makeLeadId();
       const submittedAt = formatSubmittedAt();
@@ -527,22 +470,15 @@ app.post(
         normalize(req.headers.origin || req.headers.referer || "Website Form");
       const now = new Date().toISOString();
 
-      await database.run(
-        `
-          INSERT INTO inquiries (
-            lead_id, name, phone, email, comment, source, status,
-            admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, 'new', 0, 0, '', ?, ?)
-        `,
+      await database.createInquiry({
         leadId,
-        normalizedName,
-        normalizedPhone,
-        normalizedEmail || null,
-        normalizedComment,
-        normalizedSource,
+        name: normalizedName,
+        phone: normalizedPhone,
+        email: normalizedEmail || null,
+        comment: normalizedComment,
+        source: normalizedSource,
         now,
-        now
-      );
+      });
 
       const transporter = createTransporter(mailerConfig);
       const adminEmail = buildAdminInquiryEmail({
@@ -572,11 +508,7 @@ app.post(
       }
 
       await transporter.sendMail(adminMailOptions);
-      await database.run(
-        `UPDATE inquiries SET admin_email_sent = 1, updated_at = ? WHERE lead_id = ?`,
-        new Date().toISOString(),
-        leadId
-      );
+      await database.markAdminEmailSent(leadId, new Date().toISOString());
 
       let autoReplySent = false;
       if (autoReplyEnabled && isValidEmail(normalizedEmail)) {
@@ -598,18 +530,13 @@ app.post(
             replyTo: mailerConfig.supportEmail || mailerConfig.fromEmail,
           });
           autoReplySent = true;
-          await database.run(
-            `UPDATE inquiries SET auto_reply_sent = 1, updated_at = ? WHERE lead_id = ?`,
-            new Date().toISOString(),
-            leadId
-          );
+          await database.markAutoReplySent(leadId, new Date().toISOString());
         } catch (autoReplyError) {
           console.error("Auto-reply email error:", autoReplyError);
-          await database.run(
-            `UPDATE inquiries SET email_error = ?, updated_at = ? WHERE lead_id = ?`,
+          await database.setEmailError(
+            leadId,
             `Auto-reply failed: ${toErrorMessage(autoReplyError)}`,
-            new Date().toISOString(),
-            leadId
+            new Date().toISOString()
           );
         }
       }
@@ -629,26 +556,9 @@ app.post(
 
 app.get("/api/inquiries", requireAdminKey, async (req: Request, res: Response) => {
   try {
-    const database = getDb();
     const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200);
     const status = normalize(req.query.status);
-
-    let query = `
-      SELECT lead_id, name, phone, email, source, status, notes,
-             admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
-      FROM inquiries
-    `;
-    const params: Array<number | string> = [];
-
-    if (status) {
-      query += ` WHERE status = ?`;
-      params.push(status);
-    }
-
-    query += ` ORDER BY datetime(created_at) DESC LIMIT ?`;
-    params.push(limit);
-
-    const inquiries = await database.all<InquiryRecord[]>(query, params);
+    const inquiries = await database.listInquiries(limit, status || undefined);
     res.json({ ok: true, count: inquiries.length, inquiries });
   } catch (error) {
     console.error("Failed to fetch inquiries:", error);
@@ -664,7 +574,6 @@ app.patch(
     res: Response
   ) => {
     try {
-      const database = getDb();
       const leadId = normalize(req.params.leadId);
       const status = normalize(req.body?.status).toLowerCase();
       const note = normalize(req.body?.note);
@@ -681,39 +590,27 @@ app.patch(
         return;
       }
 
-      const existing = await database.get<Pick<InquiryRecord, "notes">>(
-        `SELECT notes FROM inquiries WHERE lead_id = ?`,
-        leadId
-      );
-      if (!existing) {
+      const existingNotes = await database.getInquiryNotes(leadId);
+      if (existingNotes === null) {
         res.status(404).json({ ok: false, message: "Lead not found." });
         return;
       }
 
-      let updatedNotes = existing.notes || "";
+      let updatedNotes = existingNotes || "";
       if (note) {
         const nowLabel = formatSubmittedAt(new Date());
         const line = `[${nowLabel}] ${note}`;
         updatedNotes = updatedNotes ? `${updatedNotes}\n${line}` : line;
       }
 
-      await database.run(
-        `UPDATE inquiries SET status = ?, notes = ?, updated_at = ? WHERE lead_id = ?`,
+      await database.updateInquiryStatus(
+        leadId,
         status,
         updatedNotes,
-        new Date().toISOString(),
-        leadId
+        new Date().toISOString()
       );
 
-      const updated = await database.get<InquiryRecord>(
-        `
-          SELECT lead_id, name, phone, email, source, status, notes,
-                 admin_email_sent, auto_reply_sent, email_error, created_at, updated_at
-          FROM inquiries
-          WHERE lead_id = ?
-        `,
-        leadId
-      );
+      const updated = await database.getInquiryByLeadId(leadId);
 
       res.json({ ok: true, inquiry: updated });
     } catch (error) {
@@ -724,7 +621,7 @@ app.patch(
 );
 
 const startServer = async (): Promise<void> => {
-  db = await initDatabase();
+  await database.init();
   app.listen(port, "0.0.0.0", () => {
     console.log(`Backend running on port ${port}`);
   });
