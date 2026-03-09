@@ -18,11 +18,12 @@ BUSINESS_NAME=HHC Franchise Hub
 TIMEZONE=Asia/Manila
 BUSINESS_WEBSITE=http://localhost:5173
 RESPONSE_TIME=within 24 hours
-GMAIL_USER=yourgmail@gmail.com
-GMAIL_APP_PASSWORD=your-16-char-app-password
+RESEND_API_KEY=
+GMAIL_USER=
+GMAIL_APP_PASSWORD=
 INQUIRY_TO=your-receiving-inbox@gmail.com
 MAIL_FROM_NAME=HHC Franchise Hub Website
-MAIL_FROM_EMAIL=yourgmail@gmail.com
+MAIL_FROM_EMAIL=noreply@yourdomain.com
 SUPPORT_EMAIL=your-receiving-inbox@gmail.com
 AUTO_REPLY_ENABLED=true
 DATABASE_FILE=./data/inquiries.db
@@ -32,6 +33,8 @@ ADMIN_API_KEY=replace-with-a-long-random-secret
 ```
 
 `DATABASE_URL` takes precedence over `DATABASE_FILE`. Keep `DATABASE_FILE` for local SQLite, and set `DATABASE_URL` when you want Railway to use Neon/Postgres.
+
+If `RESEND_API_KEY` is set, the backend sends email through Resend over HTTPS. If it is not set, the backend falls back to Gmail SMTP. Railway free-tier deployments should use Resend because SMTP is blocked there.
 
 ## Professional Features Added
 
@@ -65,6 +68,22 @@ npm start
    - `PGSSL=true`
 3. Leave `DATABASE_FILE` unset in Railway, or keep it only for local fallback.
 4. Redeploy the Railway backend.
+
+## Resend Setup For Railway Free Tier
+
+1. Create a free Resend account.
+2. Verify a sending domain in Resend.
+3. Create an API key in Resend.
+4. In Railway, set:
+   - `RESEND_API_KEY=<your-resend-api-key>`
+   - `MAIL_FROM_EMAIL=<verified-from-address>`
+   - `INQUIRY_TO=<where admin notifications should go>`
+   - `SUPPORT_EMAIL=<reply address for auto-replies>`
+   - `MAIL_FROM_NAME=HHC Franchise Hub Website`
+5. Keep `DATABASE_URL=<your-neon-connection-string>` and `PGSSL=true`.
+6. Redeploy the Railway backend.
+
+For local development, you can keep using Gmail by setting `GMAIL_USER` and `GMAIL_APP_PASSWORD` instead of `RESEND_API_KEY`.
 
 To migrate existing local SQLite data into Neon:
 

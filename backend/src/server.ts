@@ -5,10 +5,8 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import nodemailer, {
-  type SendMailOptions,
-  type Transporter,
-} from "nodemailer";
+import nodemailer, { type Transporter } from "nodemailer";
+import { Resend } from "resend";
 import {
   createDatabaseClient,
   type InquiryRecord,
@@ -17,18 +15,38 @@ import {
 
 dotenv.config();
 
-interface MailerConfig {
+interface MailerConfigBase {
   fromEmail: string;
-  gmailAppPassword: string;
-  gmailUser: string;
   inquiryTo: string;
+  provider: "gmail" | "resend";
   supportEmail: string;
 }
+
+interface GmailMailerConfig extends MailerConfigBase {
+  gmailAppPassword: string;
+  gmailUser: string;
+  provider: "gmail";
+}
+
+interface ResendMailerConfig extends MailerConfigBase {
+  provider: "resend";
+  resendApiKey: string;
+}
+
+type MailerConfig = GmailMailerConfig | ResendMailerConfig;
 
 interface EmailPayload {
   html: string;
   subject: string;
   text: string;
+}
+
+interface OutboundEmail {
+  html: string;
+  replyTo?: string;
+  subject: string;
+  text: string;
+  to: string;
 }
 
 interface AdminInquiryEmailInput {
@@ -142,6 +160,9 @@ const escapeHtml = (value: string = ""): string =>
 const isValidEmail = (value: string = ""): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+const formatFromAddress = (name: string, email: string): string =>
+  `"${name.replaceAll('"', '\\"')}" <${email}>`;
+
 const makeLeadId = (): string => {
   const stamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -155,33 +176,103 @@ const formatSubmittedAt = (date: Date = new Date()): string =>
     timeZone: timezone,
   }).format(date);
 
+const getConfiguredEmailProvider = (): MailerConfig["provider"] | "none" => {
+  if (normalize(process.env.RESEND_API_KEY)) return "resend";
+  if (
+    normalize(process.env.GMAIL_USER) &&
+    normalize(process.env.GMAIL_APP_PASSWORD)
+  ) {
+    return "gmail";
+  }
+  return "none";
+};
+
 const getMailerConfig = (): MailerConfig => {
+  const resendApiKey = normalize(process.env.RESEND_API_KEY);
   const gmailUser = normalize(process.env.GMAIL_USER);
   const gmailAppPassword = normalize(process.env.GMAIL_APP_PASSWORD);
+  const configuredFromEmail = normalize(process.env.MAIL_FROM_EMAIL);
+  const defaultRecipient = configuredFromEmail || gmailUser;
+  const inquiryTo = normalize(process.env.INQUIRY_TO) || defaultRecipient;
+  const supportEmail = normalize(process.env.SUPPORT_EMAIL) || inquiryTo;
 
-  if (!gmailUser || !gmailAppPassword) {
-    throw new Error("Email server is not configured. Missing Gmail credentials.");
+  if (resendApiKey) {
+    if (!configuredFromEmail) {
+      throw new Error(
+        "MAIL_FROM_EMAIL is required when RESEND_API_KEY is configured."
+      );
+    }
+
+    return {
+      provider: "resend",
+      resendApiKey,
+      inquiryTo: inquiryTo || configuredFromEmail,
+      fromEmail: configuredFromEmail,
+      supportEmail: supportEmail || configuredFromEmail,
+    };
   }
 
-  const inquiryTo = normalize(process.env.INQUIRY_TO) || gmailUser;
+  if (!gmailUser || !gmailAppPassword) {
+    throw new Error(
+      "Email server is not configured. Set RESEND_API_KEY for Railway or Gmail credentials for local SMTP."
+    );
+  }
+
+  const resolvedInquiryTo = inquiryTo || gmailUser;
 
   return {
+    provider: "gmail",
     gmailUser,
     gmailAppPassword,
-    inquiryTo,
-    fromEmail: normalize(process.env.MAIL_FROM_EMAIL) || gmailUser,
-    supportEmail: normalize(process.env.SUPPORT_EMAIL) || inquiryTo,
+    inquiryTo: resolvedInquiryTo,
+    fromEmail: configuredFromEmail || gmailUser,
+    supportEmail: supportEmail || resolvedInquiryTo,
   };
 };
 
-const createTransporter = (config: MailerConfig): Transporter =>
-  nodemailer.createTransport({
+const createEmailClient = (config: MailerConfig) => {
+  if (config.provider === "resend") {
+    const resend = new Resend(config.resendApiKey);
+
+    return {
+      async send(message: OutboundEmail): Promise<void> {
+        const { error } = await resend.emails.send({
+          from: formatFromAddress(fromName, config.fromEmail),
+          to: [message.to],
+          subject: message.subject,
+          html: message.html,
+          text: message.text,
+          ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+        });
+
+        if (error) {
+          throw new Error(`Resend API error: ${error.message}`);
+        }
+      },
+    };
+  }
+
+  const transporter: Transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: config.gmailUser,
       pass: config.gmailAppPassword,
     },
   });
+
+  return {
+    async send(message: OutboundEmail): Promise<void> {
+      await transporter.sendMail({
+        from: formatFromAddress(fromName, config.fromEmail),
+        to: message.to,
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+        ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+      });
+    },
+  };
+};
 
 const buildAdminInquiryEmail = ({
   leadId,
@@ -398,6 +489,7 @@ const buildHealthPayload = () => ({
   service: "hhfranchisehub-backend",
   database: database.isReady(),
   databaseType: database.kind,
+  emailProvider: getConfiguredEmailProvider(),
   timestamp: new Date().toISOString(),
 });
 
@@ -480,7 +572,7 @@ app.post(
         now,
       });
 
-      const transporter = createTransporter(mailerConfig);
+      const emailClient = createEmailClient(mailerConfig);
       const adminEmail = buildAdminInquiryEmail({
         leadId,
         submittedAt,
@@ -495,8 +587,7 @@ app.post(
         budget: normalizedBudget,
       });
 
-      const adminMailOptions: SendMailOptions = {
-        from: `"${fromName}" <${mailerConfig.fromEmail}>`,
+      const adminMail: OutboundEmail = {
         to: mailerConfig.inquiryTo,
         subject: adminEmail.subject,
         html: adminEmail.html,
@@ -504,10 +595,10 @@ app.post(
       };
 
       if (isValidEmail(normalizedEmail)) {
-        adminMailOptions.replyTo = normalizedEmail;
+        adminMail.replyTo = normalizedEmail;
       }
 
-      await transporter.sendMail(adminMailOptions);
+      await emailClient.send(adminMail);
       await database.markAdminEmailSent(leadId, new Date().toISOString());
 
       let autoReplySent = false;
@@ -521,8 +612,7 @@ app.post(
         });
 
         try {
-          await transporter.sendMail({
-            from: `"${fromName}" <${mailerConfig.fromEmail}>`,
+          await emailClient.send({
             to: normalizedEmail,
             subject: autoReply.subject,
             html: autoReply.html,
