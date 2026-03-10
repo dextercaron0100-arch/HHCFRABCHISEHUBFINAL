@@ -164,6 +164,46 @@ const isValidEmail = (value: string = ""): boolean =>
 const formatFromAddress = (name: string, email: string): string =>
   `"${name.replaceAll('"', '\\"')}" <${email}>`;
 
+const normalizeForCompare = (value: string = ""): string =>
+  value.replace(/\s+/g, " ").trim().toLowerCase();
+
+const toTelHref = (value: string = ""): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const hasLeadingPlus = trimmed.startsWith("+");
+  const digitsOnly = trimmed.replace(/\D/g, "");
+  if (!digitsOnly) return "";
+
+  return `tel:${hasLeadingPlus ? `+${digitsOnly}` : digitsOnly}`;
+};
+
+const parseStructuredComment = (
+  comment: string
+): { details: Array<{ label: string; value: string }>; notes: string[] } => {
+  const lines = comment
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines.reduce(
+    (sections, line) => {
+      const match = line.match(/^([A-Za-z][A-Za-z0-9/&() \-]{1,50}):\s*(.+)$/);
+      if (match) {
+        sections.details.push({
+          label: match[1].trim(),
+          value: match[2].trim(),
+        });
+      } else {
+        sections.notes.push(line);
+      }
+
+      return sections;
+    },
+    { details: [] as Array<{ label: string; value: string }>, notes: [] as string[] }
+  );
+};
+
 const withTimeout = async <T>(
   promise: Promise<T>,
   timeoutMs: number,
@@ -314,12 +354,97 @@ const buildAdminInquiryEmail = ({
   const safeName = escapeHtml(name);
   const safePhone = escapeHtml(phone);
   const safeEmail = escapeHtml(email || "N/A");
-  const safeComment = escapeHtml(comment).replace(/\n/g, "<br/>");
   const safeSource = escapeHtml(source || "Website Form");
   const safeFranchiseInterest = escapeHtml(franchiseInterest);
   const safeLocation = escapeHtml(location);
   const safeExperience = escapeHtml(experience);
   const safeBudget = escapeHtml(budget);
+  const { details: parsedCommentDetails, notes: parsedCommentNotes } =
+    parseStructuredComment(comment);
+  const normalizedBudget = normalizeForCompare(budget);
+  const normalizedExperience = normalizeForCompare(experience);
+  const normalizedFranchiseInterest = normalizeForCompare(franchiseInterest);
+  const normalizedLocation = normalizeForCompare(location);
+  const consultationDetails = parsedCommentDetails.filter(({ label, value }) => {
+    const normalizedLabel = normalizeForCompare(label);
+    const normalizedValue = normalizeForCompare(value);
+
+    if (
+      normalizedBudget &&
+      normalizedLabel.includes("budget") &&
+      normalizedValue === normalizedBudget
+    ) {
+      return false;
+    }
+
+    if (
+      normalizedFranchiseInterest &&
+      (normalizedLabel.includes("franchise") ||
+        normalizedLabel.includes("package")) &&
+      normalizedValue === normalizedFranchiseInterest
+    ) {
+      return false;
+    }
+
+    if (
+      normalizedExperience &&
+      (normalizedLabel.includes("current work") ||
+        normalizedLabel.includes("business experience") ||
+        normalizedLabel === "experience") &&
+      normalizedValue === normalizedExperience
+    ) {
+      return false;
+    }
+
+    if (
+      normalizedLocation &&
+      normalizedLabel.includes("location") &&
+      normalizedValue === normalizedLocation
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+  const noteLines =
+    parsedCommentNotes.length > 0
+      ? parsedCommentNotes
+      : consultationDetails.length === 0
+        ? [comment]
+        : [];
+  const consultationDetailRows = consultationDetails
+    .map(
+      ({ label, value }) => `
+                  <tr>
+                    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;width:220px;font-size:13px;font-weight:700;color:#1e3a8a;background:#f8fafc;">${escapeHtml(
+                      label
+                    )}</td>
+                    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:14px;line-height:1.6;color:#0f172a;">${escapeHtml(
+                      value
+                    )}</td>
+                  </tr>`
+    )
+    .join("");
+  const noteMarkup = noteLines
+    .map(
+      (line) => `
+                <li style="margin:0 0 8px;line-height:1.7;">${escapeHtml(line)}</li>`
+    )
+    .join("");
+  const actionLinks = [
+    isValidEmail(email)
+      ? `<a href="mailto:${escapeHtml(
+          email
+        )}" style="display:inline-block;padding:10px 14px;border-radius:999px;background:#dbeafe;color:#1d4ed8;text-decoration:none;font-size:13px;font-weight:700;">Reply via Email</a>`
+      : "",
+    toTelHref(phone)
+      ? `<a href="${escapeHtml(
+          toTelHref(phone)
+        )}" style="display:inline-block;padding:10px 14px;border-radius:999px;background:#eff6ff;color:#0f172a;text-decoration:none;font-size:13px;font-weight:700;border:1px solid #bfdbfe;">Call Lead</a>`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("&nbsp;");
   const leadDetailRows = [
     franchiseInterest
       ? `
@@ -359,42 +484,80 @@ const buildAdminInquiryEmail = ({
     <div style="margin:0;padding:24px;background:#f2f5fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
         <tr>
-          <td style="padding:20px 24px;background:linear-gradient(135deg,#172554,#1d4ed8);color:#ffffff;">
-            <p style="margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.9;">Website Lead Notification</p>
-            <h1 style="margin:8px 0 0;font-size:22px;line-height:1.2;">${escapeHtml(businessName)} - New Franchise Inquiry</h1>
+          <td style="padding:22px 24px;background:linear-gradient(135deg,#172554,#1d4ed8);color:#ffffff;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="vertical-align:top;">
+                  <p style="margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.9;">Website Lead Notification</p>
+                  <h1 style="margin:8px 0 0;font-size:24px;line-height:1.2;">${escapeHtml(
+                    businessName
+                  )} - New Franchise Inquiry</h1>
+                </td>
+                <td style="vertical-align:top;text-align:right;">
+                  <span style="display:inline-block;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;line-height:1.4;font-weight:700;">${safeSource}</span>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
           <td style="padding:18px 24px;border-bottom:1px solid #e2e8f0;background:#f8fafc;">
-            <p style="margin:0 0 6px;font-size:13px;color:#334155;"><strong>Lead ID:</strong> ${safeLeadId}</p>
-            <p style="margin:0;font-size:13px;color:#334155;"><strong>Submitted:</strong> ${safeSubmittedAt}</p>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="vertical-align:top;">
+                  <p style="margin:0 0 6px;font-size:13px;color:#334155;"><strong>Lead ID:</strong> ${safeLeadId}</p>
+                  <p style="margin:0;font-size:13px;color:#334155;"><strong>Submitted:</strong> ${safeSubmittedAt}</p>
+                </td>
+                <td style="vertical-align:top;text-align:right;">${actionLinks}</td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
           <td style="padding:20px 24px;">
+            <div style="margin-bottom:18px;padding:16px;border:1px solid #dbeafe;background:#f8fbff;border-radius:12px;">
+              <p style="margin:0 0 12px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;font-weight:700;">Lead Summary</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                <tr>
+                  <td style="padding:0 0 10px;width:140px;font-size:14px;color:#64748b;">Name</td>
+                  <td style="padding:0 0 10px;font-size:16px;color:#0f172a;"><strong>${safeName}</strong></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Phone</td>
+                  <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safePhone}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Email</td>
+                  <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeEmail}</td>
+                </tr>
+              </table>
+            </div>
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
               <tr>
-                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Name</td>
-                <td style="padding:8px 0;font-size:15px;color:#0f172a;"><strong>${safeName}</strong></td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Phone</td>
-                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safePhone}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Email</td>
-                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeEmail}</td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;width:140px;font-size:14px;color:#64748b;">Source</td>
-                <td style="padding:8px 0;font-size:15px;color:#0f172a;">${safeSource}</td>
+                <td colspan="2" style="padding:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;font-weight:700;">Franchise Fit</td>
               </tr>
               ${leadDetailRows}
             </table>
-            <div style="margin-top:16px;padding:14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:10px;">
-              <p style="margin:0 0 8px;font-size:13px;color:#334155;text-transform:uppercase;letter-spacing:.06em;"><strong>Comment</strong></p>
-              <p style="margin:0;font-size:15px;line-height:1.6;color:#0f172a;">${safeComment}</p>
-            </div>
+            ${
+              consultationDetailRows
+                ? `
+            <div style="margin-top:18px;padding:16px;border:1px solid #e2e8f0;background:#ffffff;border-radius:12px;">
+              <p style="margin:0 0 12px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;font-weight:700;">Consultation Answers</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                ${consultationDetailRows}
+              </table>
+            </div>`
+                : ""
+            }
+            ${
+              noteMarkup
+                ? `
+            <div style="margin-top:18px;padding:16px;border:1px solid #dbeafe;background:#f8fbff;border-radius:12px;">
+              <p style="margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#1d4ed8;font-weight:700;">Lead Note</p>
+              <ul style="margin:0;padding-left:18px;font-size:15px;color:#0f172a;">${noteMarkup}</ul>
+            </div>`
+                : ""
+            }
           </td>
         </tr>
       </table>
@@ -414,8 +577,11 @@ const buildAdminInquiryEmail = ({
     experience ? `Experience: ${experience}` : "",
     budget ? `Budget: ${budget}` : "",
     "",
-    "Comment:",
-    comment,
+    consultationDetails.length > 0 ? "Consultation Answers:" : "",
+    ...consultationDetails.map(({ label, value }) => `${label}: ${value}`),
+    "",
+    noteLines.length > 0 ? "Lead Note:" : "",
+    ...noteLines,
   ]
     .filter(Boolean)
     .join("\n");
