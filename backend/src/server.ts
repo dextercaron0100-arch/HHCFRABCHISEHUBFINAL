@@ -117,6 +117,7 @@ const timezone = process.env.TIMEZONE || "Asia/Manila";
 const websiteUrl = process.env.BUSINESS_WEBSITE || "http://localhost:5173";
 const responseTime = process.env.RESPONSE_TIME || "within 24 hours";
 const autoReplyEnabled = parseBoolean(process.env.AUTO_REPLY_ENABLED, true);
+const emailTimeoutMs = Math.max(Number(process.env.EMAIL_TIMEOUT_MS) || 15000, 1000);
 const databaseFile = process.env.DATABASE_FILE || "./data/inquiries.db";
 const databaseUrl = normalize(process.env.DATABASE_URL);
 const pgSsl = parseBoolean(process.env.PGSSL, true);
@@ -162,6 +163,27 @@ const isValidEmail = (value: string = ""): boolean =>
 
 const formatFromAddress = (name: string, email: string): string =>
   `"${name.replaceAll('"', '\\"')}" <${email}>`;
+
+const withTimeout = async <T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  label: string
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(`${label} timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
 
 const makeLeadId = (): string => {
   const stamp = Date.now().toString(36).toUpperCase();
@@ -598,10 +620,19 @@ app.post(
         adminMail.replyTo = normalizedEmail;
       }
 
-      await emailClient.send(adminMail);
-      await database.markAdminEmailSent(leadId, new Date().toISOString());
-
+      let adminEmailSent = false;
       let autoReplySent = false;
+      const emailErrors: string[] = [];
+
+      try {
+        await withTimeout(emailClient.send(adminMail), emailTimeoutMs, "Admin email");
+        adminEmailSent = true;
+        await database.markAdminEmailSent(leadId, new Date().toISOString());
+      } catch (adminEmailError) {
+        console.error("Admin email error:", adminEmailError);
+        emailErrors.push(`Admin email failed: ${toErrorMessage(adminEmailError)}`);
+      }
+
       if (autoReplyEnabled && isValidEmail(normalizedEmail)) {
         const autoReply = buildAutoReplyEmail({
           leadId,
@@ -612,30 +643,37 @@ app.post(
         });
 
         try {
-          await emailClient.send({
-            to: normalizedEmail,
-            subject: autoReply.subject,
-            html: autoReply.html,
-            text: autoReply.text,
-            replyTo: mailerConfig.supportEmail || mailerConfig.fromEmail,
-          });
+          await withTimeout(
+            emailClient.send({
+              to: normalizedEmail,
+              subject: autoReply.subject,
+              html: autoReply.html,
+              text: autoReply.text,
+              replyTo: mailerConfig.supportEmail || mailerConfig.fromEmail,
+            }),
+            emailTimeoutMs,
+            "Auto-reply email"
+          );
           autoReplySent = true;
           await database.markAutoReplySent(leadId, new Date().toISOString());
         } catch (autoReplyError) {
           console.error("Auto-reply email error:", autoReplyError);
-          await database.setEmailError(
-            leadId,
-            `Auto-reply failed: ${toErrorMessage(autoReplyError)}`,
-            new Date().toISOString()
-          );
+          emailErrors.push(`Auto-reply failed: ${toErrorMessage(autoReplyError)}`);
         }
+      }
+
+      if (emailErrors.length > 0) {
+        await database.setEmailError(leadId, emailErrors.join(" | "), new Date().toISOString());
       }
 
       res.json({
         ok: true,
-        message: "Inquiry sent successfully!",
+        message: adminEmailSent
+          ? "Inquiry sent successfully!"
+          : "Inquiry received successfully!",
         leadId,
         autoReplySent,
+        adminEmailSent,
       });
     } catch (error) {
       console.error("Email send error:", error);
