@@ -1519,170 +1519,33 @@ prefersReducedMotion.addEventListener('change', (event) => {
   // CTA removed per latest request
 })();
 
-// Site-wide live chat widget
+// Site-wide live chat widget bootstrap.
+// The widget implementation lives only in /live-chat-loader.js.
 (function initLiveChatWidget() {
   if (window.HHF_DISABLE_LEGACY_LIVE_CHAT) return;
-  if (document.getElementById('hhf-live-chat-frame')) return;
   if (window.HHF_DISABLE_LIVE_CHAT) return;
+  if (document.getElementById('hhf-live-chat-launcher')) return;
 
-  const normalizeChatBase = (value = '') => String(value ?? '').trim().replace(/\/+$/, '');
-  const metaUrl = normalizeChatBase(document.querySelector('meta[name="hhf-live-chat-url"]')?.content);
-  const hostname = window.location.hostname || '';
-  const fallbackLocalChatUrl = `${window.location.protocol}//${hostname || 'localhost'}:3000`;
-  const isLocalDevHost =
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1' ||
-    hostname === '::1' ||
-    hostname.endsWith('.local') ||
-    /^10\./.test(hostname) ||
-    /^192\.168\./.test(hostname) ||
-    /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
+  const loaderAlreadyPresent = Array.from(document.scripts).some((script) =>
+    String(script.src || '').includes('/live-chat-loader.js')
+  );
 
-  const resolveChatBase = async () => {
-    const configuredChatBase = normalizeChatBase(window.HHF_LIVE_CHAT_URL || metaUrl);
-    if (configuredChatBase) return configuredChatBase;
-    if (isLocalDevHost) return fallbackLocalChatUrl;
+  if (loaderAlreadyPresent) return;
 
-    try {
-      const response = await fetch('/api/chat-config', {
-        headers: { Accept: 'application/json' },
-      });
-      if (!response.ok) return '';
+  const loadLiveChat = () => {
+    if (document.getElementById('hhf-live-chat-launcher')) return;
 
-      const data = await response.json().catch(() => ({}));
-      return normalizeChatBase(data.liveChatUrl || data.chatBase || '');
-    } catch {
-      return '';
-    }
+    const loader = document.createElement('script');
+    loader.src = '/live-chat-loader.js';
+    loader.async = true;
+    loader.dataset.hhfLiveChatLoader = 'true';
+    document.body.appendChild(loader);
   };
 
-  const startLiveChat = async () => {
-    const chatBase = await resolveChatBase();
-    if (!chatBase) return;
+  if (document.readyState === 'complete') {
+    loadLiveChat();
+    return;
+  }
 
-    let chatOrigin;
-    let widgetSrc;
-
-    try {
-      const baseUrl = new URL(chatBase, window.location.origin);
-      chatOrigin = baseUrl.origin;
-      widgetSrc = new URL('/widget', baseUrl);
-      widgetSrc.searchParams.set('server', baseUrl.origin);
-    } catch (error) {
-      console.warn('Live chat disabled: invalid HHF_LIVE_CHAT_URL.', error);
-      return;
-    }
-
-    const frame = document.createElement('iframe');
-    frame.id = 'hhf-live-chat-frame';
-    frame.title = 'HHC Franchise Hub live chat';
-    frame.src = widgetSrc.toString();
-    frame.loading = 'lazy';
-    frame.allow = 'clipboard-write';
-    frame.setAttribute('aria-label', 'Live chat');
-    frame.style.position = 'fixed';
-    frame.style.right = '12px';
-    frame.style.bottom = '12px';
-    frame.style.width = '92px';
-    frame.style.height = '92px';
-    frame.style.border = '0';
-    frame.style.background = 'transparent';
-    frame.style.overflow = 'hidden';
-    frame.style.zIndex = '2147483000';
-    frame.style.transition = 'width 180ms ease, height 180ms ease, right 180ms ease, bottom 180ms ease';
-
-    let isOpen = false;
-    let resizeFrame = 0;
-
-    const getBottomOffset = (mobile, panelWidth) => {
-      const baseBottom = mobile ? 8 : 12;
-      const cookieBanner = document.querySelector('.cookie-consent-wrap');
-
-      if (!cookieBanner) return baseBottom;
-
-      const style = window.getComputedStyle(cookieBanner);
-      if (style.display === 'none' || style.visibility === 'hidden') {
-        return baseBottom;
-      }
-
-      const rect = cookieBanner.getBoundingClientRect();
-      const clearance = 12;
-      const rightEdgeAllowance = mobile ? 8 : 12;
-      const widgetZoneLeft = window.innerWidth - panelWidth - rightEdgeAllowance;
-      const overlapsWidgetLane = rect.right > widgetZoneLeft;
-      const anchoredToBottom = rect.bottom >= window.innerHeight - 32;
-
-      if (!overlapsWidgetLane || !anchoredToBottom) {
-        return baseBottom;
-      }
-
-      return baseBottom + rect.height + clearance;
-    };
-
-    const applyFrameSize = (open) => {
-      const mobile = window.innerWidth < 640;
-      const closedSize = 92;
-      const openWidth = mobile ? Math.min(window.innerWidth - 16, 390) : 410;
-      const openHeight = mobile ? Math.min(window.innerHeight - 16, 688) : 688;
-      const panelWidth = open ? openWidth : closedSize;
-      const bottomOffset = getBottomOffset(mobile, panelWidth);
-
-      isOpen = open;
-      frame.style.width = `${panelWidth}px`;
-      frame.style.height = `${open ? openHeight : closedSize}px`;
-      frame.style.right = mobile ? '8px' : '12px';
-      frame.style.bottom = `${bottomOffset}px`;
-    };
-
-    const requestFrameSizeUpdate = () => {
-      if (resizeFrame) return;
-      resizeFrame = requestAnimationFrame(() => {
-        resizeFrame = 0;
-        applyFrameSize(isOpen);
-      });
-    };
-
-    const handleMessage = (event) => {
-      if (event.origin !== chatOrigin) return;
-      if (!event.data || event.data.type !== 'hhf-live-chat:state') return;
-      applyFrameSize(Boolean(event.data.open));
-    };
-
-    window.addEventListener('message', handleMessage);
-    window.addEventListener('resize', requestFrameSizeUpdate);
-
-    const observer = new MutationObserver(requestFrameSizeUpdate);
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    applyFrameSize(false);
-    document.body.appendChild(frame);
-  };
-
-  const scheduleLiveChat = () => {
-    const startWhenIdle = () => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => {
-          startLiveChat();
-        }, { timeout: 2200 });
-        return;
-      }
-
-      window.setTimeout(() => {
-        startLiveChat();
-      }, 900);
-    };
-
-    if (document.readyState === 'complete') {
-      startWhenIdle();
-      return;
-    }
-
-    window.addEventListener('load', startWhenIdle, { once: true });
-  };
-
-  scheduleLiveChat();
+  window.addEventListener('load', loadLiveChat, { once: true });
 })();
