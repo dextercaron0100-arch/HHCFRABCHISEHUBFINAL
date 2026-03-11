@@ -1,4 +1,4 @@
-﻿// Hero Slider
+// Hero Slider
 const heroSlider = {
   slides: null,
   dots: null,
@@ -1525,7 +1525,8 @@ prefersReducedMotion.addEventListener('change', (event) => {
   if (document.getElementById('hhf-live-chat-frame')) return;
   if (window.HHF_DISABLE_LIVE_CHAT) return;
 
-  const metaUrl = document.querySelector('meta[name="hhf-live-chat-url"]')?.content?.trim();
+  const normalizeChatBase = (value = '') => String(value ?? '').trim().replace(/\/+$/, '');
+  const metaUrl = normalizeChatBase(document.querySelector('meta[name="hhf-live-chat-url"]')?.content);
   const hostname = window.location.hostname || '';
   const fallbackLocalChatUrl = `${window.location.protocol}//${hostname || 'localhost'}:3000`;
   const isLocalDevHost =
@@ -1536,105 +1537,127 @@ prefersReducedMotion.addEventListener('change', (event) => {
     /^10\./.test(hostname) ||
     /^192\.168\./.test(hostname) ||
     /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
-  const chatBase = (window.HHF_LIVE_CHAT_URL || metaUrl || (isLocalDevHost ? fallbackLocalChatUrl : '')).trim();
 
-  if (!chatBase) return;
+  const resolveChatBase = async () => {
+    const configuredChatBase = normalizeChatBase(window.HHF_LIVE_CHAT_URL || metaUrl);
+    if (configuredChatBase) return configuredChatBase;
+    if (isLocalDevHost) return fallbackLocalChatUrl;
 
-  let chatOrigin;
-  let widgetSrc;
+    try {
+      const response = await fetch('/api/chat-config', {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) return '';
 
-  try {
-    const baseUrl = new URL(chatBase, window.location.origin);
-    chatOrigin = baseUrl.origin;
-    widgetSrc = new URL('/widget', baseUrl);
-    widgetSrc.searchParams.set('server', baseUrl.origin);
-  } catch (error) {
-    console.warn('Live chat disabled: invalid HHF_LIVE_CHAT_URL.', error);
-    return;
-  }
+      const data = await response.json().catch(() => ({}));
+      return normalizeChatBase(data.liveChatUrl || data.chatBase || '');
+    } catch {
+      return '';
+    }
+  };
 
-  const frame = document.createElement('iframe');
-  frame.id = 'hhf-live-chat-frame';
-  frame.title = 'HHC Franchise Hub live chat';
-  frame.src = widgetSrc.toString();
-  frame.loading = 'lazy';
-  frame.allow = 'clipboard-write';
-  frame.setAttribute('aria-label', 'Live chat');
-  frame.style.position = 'fixed';
-  frame.style.right = '12px';
-  frame.style.bottom = '12px';
-  frame.style.width = '92px';
-  frame.style.height = '92px';
-  frame.style.border = '0';
-  frame.style.background = 'transparent';
-  frame.style.overflow = 'hidden';
-  frame.style.zIndex = '2147483000';
-  frame.style.transition = 'width 180ms ease, height 180ms ease, right 180ms ease, bottom 180ms ease';
+  const startLiveChat = async () => {
+    const chatBase = await resolveChatBase();
+    if (!chatBase) return;
 
-  let isOpen = false;
+    let chatOrigin;
+    let widgetSrc;
 
-  const getBottomOffset = (mobile, panelWidth) => {
-    const baseBottom = mobile ? 8 : 12;
-    const cookieBanner = document.querySelector('.cookie-consent-wrap');
-
-    if (!cookieBanner) return baseBottom;
-
-    const style = window.getComputedStyle(cookieBanner);
-    if (style.display === 'none' || style.visibility === 'hidden') {
-      return baseBottom;
+    try {
+      const baseUrl = new URL(chatBase, window.location.origin);
+      chatOrigin = baseUrl.origin;
+      widgetSrc = new URL('/widget', baseUrl);
+      widgetSrc.searchParams.set('server', baseUrl.origin);
+    } catch (error) {
+      console.warn('Live chat disabled: invalid HHF_LIVE_CHAT_URL.', error);
+      return;
     }
 
-    const rect = cookieBanner.getBoundingClientRect();
-    const clearance = 12;
-    const rightEdgeAllowance = mobile ? 8 : 12;
-    const widgetZoneLeft = window.innerWidth - panelWidth - rightEdgeAllowance;
-    const overlapsWidgetLane = rect.right > widgetZoneLeft;
-    const anchoredToBottom = rect.bottom >= window.innerHeight - 32;
+    const frame = document.createElement('iframe');
+    frame.id = 'hhf-live-chat-frame';
+    frame.title = 'HHC Franchise Hub live chat';
+    frame.src = widgetSrc.toString();
+    frame.loading = 'lazy';
+    frame.allow = 'clipboard-write';
+    frame.setAttribute('aria-label', 'Live chat');
+    frame.style.position = 'fixed';
+    frame.style.right = '12px';
+    frame.style.bottom = '12px';
+    frame.style.width = '92px';
+    frame.style.height = '92px';
+    frame.style.border = '0';
+    frame.style.background = 'transparent';
+    frame.style.overflow = 'hidden';
+    frame.style.zIndex = '2147483000';
+    frame.style.transition = 'width 180ms ease, height 180ms ease, right 180ms ease, bottom 180ms ease';
 
-    if (!overlapsWidgetLane || !anchoredToBottom) {
-      return baseBottom;
-    }
+    let isOpen = false;
 
-    return baseBottom + rect.height + clearance;
+    const getBottomOffset = (mobile, panelWidth) => {
+      const baseBottom = mobile ? 8 : 12;
+      const cookieBanner = document.querySelector('.cookie-consent-wrap');
+
+      if (!cookieBanner) return baseBottom;
+
+      const style = window.getComputedStyle(cookieBanner);
+      if (style.display === 'none' || style.visibility === 'hidden') {
+        return baseBottom;
+      }
+
+      const rect = cookieBanner.getBoundingClientRect();
+      const clearance = 12;
+      const rightEdgeAllowance = mobile ? 8 : 12;
+      const widgetZoneLeft = window.innerWidth - panelWidth - rightEdgeAllowance;
+      const overlapsWidgetLane = rect.right > widgetZoneLeft;
+      const anchoredToBottom = rect.bottom >= window.innerHeight - 32;
+
+      if (!overlapsWidgetLane || !anchoredToBottom) {
+        return baseBottom;
+      }
+
+      return baseBottom + rect.height + clearance;
+    };
+
+    const applyFrameSize = (open) => {
+      const mobile = window.innerWidth < 640;
+      const closedSize = 92;
+      const openWidth = mobile ? Math.min(window.innerWidth - 16, 390) : 410;
+      const openHeight = mobile ? Math.min(window.innerHeight - 16, 688) : 688;
+      const panelWidth = open ? openWidth : closedSize;
+      const bottomOffset = getBottomOffset(mobile, panelWidth);
+
+      isOpen = open;
+      frame.style.width = `${panelWidth}px`;
+      frame.style.height = `${open ? openHeight : closedSize}px`;
+      frame.style.right = mobile ? '8px' : '12px';
+      frame.style.bottom = `${bottomOffset}px`;
+    };
+
+    const handleMessage = (event) => {
+      if (event.origin !== chatOrigin) return;
+      if (!event.data || event.data.type !== 'hhf-live-chat:state') return;
+      applyFrameSize(Boolean(event.data.open));
+    };
+
+    window.addEventListener('message', handleMessage);
+    window.addEventListener('resize', () => {
+      applyFrameSize(isOpen);
+    });
+
+    const observer = new MutationObserver(() => {
+      applyFrameSize(isOpen);
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    });
+
+    applyFrameSize(false);
+    document.body.appendChild(frame);
   };
 
-  const applyFrameSize = (open) => {
-    const mobile = window.innerWidth < 640;
-    const closedSize = 92;
-    const openWidth = mobile ? Math.min(window.innerWidth - 16, 390) : 410;
-    const openHeight = mobile ? Math.min(window.innerHeight - 16, 688) : 688;
-    const panelWidth = open ? openWidth : closedSize;
-    const bottomOffset = getBottomOffset(mobile, panelWidth);
-
-    isOpen = open;
-    frame.style.width = `${panelWidth}px`;
-    frame.style.height = `${open ? openHeight : closedSize}px`;
-    frame.style.right = mobile ? '8px' : '12px';
-    frame.style.bottom = `${bottomOffset}px`;
-  };
-
-  const handleMessage = (event) => {
-    if (event.origin !== chatOrigin) return;
-    if (!event.data || event.data.type !== 'hhf-live-chat:state') return;
-    applyFrameSize(Boolean(event.data.open));
-  };
-
-  window.addEventListener('message', handleMessage);
-  window.addEventListener('resize', () => {
-    applyFrameSize(isOpen);
-  });
-
-  const observer = new MutationObserver(() => {
-    applyFrameSize(isOpen);
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'style'],
-  });
-
-  applyFrameSize(false);
-  document.body.appendChild(frame);
+  startLiveChat();
 })();

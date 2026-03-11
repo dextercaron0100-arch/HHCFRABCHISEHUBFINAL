@@ -28,3 +28,15 @@ Example:
 - `INQUIRY_BACKEND_URL=https://your-backend.up.railway.app`
 
 The frontend forms can keep using `/api/inquiry` in production and development.
+
+## Live Chat Deploy Notes (Vercel + Chat Backend)
+
+Set this env var in Vercel Project Settings:
+
+- `HHF_LIVE_CHAT_URL=https://<your-chat-server-domain>`
+
+Example:
+
+- `HHF_LIVE_CHAT_URL=https://your-chat-server.up.railway.app`
+
+The website will read `/api/chat-config` at runtime and use that URL for the live chat widget. Your chat server must also allow your website domain in `ALLOWED_ORIGINS`.

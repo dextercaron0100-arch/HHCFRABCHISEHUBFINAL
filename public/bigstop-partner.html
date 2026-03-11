@@ -231,7 +231,8 @@
   .partner-status.success { color: var(--bs-blue); }
 
   .success-screen { text-align: center; padding: 50px 36px; }
-  .success-icon { font-size: 56px; margin-bottom: 14px; }
+  .success-icon { margin: 0 auto 14px; width: min(144px, 40vw); }
+  .success-icon img { display: block; width: 100%; height: auto; }
   .success-title { font-size: 22px; font-weight: 900; color: var(--bs-blue); margin-bottom: 10px; }
   .success-msg { font-size: 14px; color: #465372; line-height: 1.6; }
 </style>
@@ -471,7 +472,9 @@
 
   <div class="step" id="step-success">
     <div class="success-screen">
-      <div class="success-icon">??</div>
+      <div class="success-icon">
+        <img src="/bigstop%20shape.png" alt="BIGSTOP logo">
+      </div>
       <h2 class="success-title">Your Consultation Is Booked!</h2>
       <p class="success-msg">Your FREE 30-minute BIGSTOP franchise coaching session has been scheduled.<br>Check your email for confirmation details.</p>
     </div>

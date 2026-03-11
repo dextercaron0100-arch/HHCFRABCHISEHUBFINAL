@@ -1,8 +1,11 @@
-(() => {
+(async () => {
   if (document.getElementById('hhf-live-chat-launcher')) return;
   if (window.HHF_DISABLE_LIVE_CHAT) return;
 
-  const metaUrl = document.querySelector('meta[name="hhf-live-chat-url"]')?.content?.trim();
+  const normalizeChatBase = (value = '') => String(value ?? '').trim().replace(/\/+$/, '');
+  const metaUrl = normalizeChatBase(
+    document.querySelector('meta[name="hhf-live-chat-url"]')?.content
+  );
   const hostname = window.location.hostname || '';
   const fallbackLocalChatUrl = `${window.location.protocol}//${hostname || 'localhost'}:3000`;
   const isLocalDevHost =
@@ -13,8 +16,26 @@
     /^10\./.test(hostname) ||
     /^192\.168\./.test(hostname) ||
     /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
-  const chatBase = (window.HHF_LIVE_CHAT_URL || metaUrl || (isLocalDevHost ? fallbackLocalChatUrl : '')).trim();
 
+  const resolveChatBase = async () => {
+    const configuredChatBase = normalizeChatBase(window.HHF_LIVE_CHAT_URL || metaUrl);
+    if (configuredChatBase) return configuredChatBase;
+    if (isLocalDevHost) return fallbackLocalChatUrl;
+
+    try {
+      const response = await fetch('/api/chat-config', {
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) return '';
+
+      const data = await response.json().catch(() => ({}));
+      return normalizeChatBase(data.liveChatUrl || data.chatBase || '');
+    } catch {
+      return '';
+    }
+  };
+
+  const chatBase = await resolveChatBase();
   if (!chatBase) return;
 
   let chatOrigin;
