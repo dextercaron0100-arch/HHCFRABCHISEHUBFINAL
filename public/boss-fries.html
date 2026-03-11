@@ -1,349 +1,1957 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Boss Fries - HHC Franchise Hub</title>
-      <link rel="icon" type="image/png" href="/logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss Fries - Own the Flavor</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #ffd600;
+      --orange: #ff6b00;
+      --red: #e8002b;
+      --black: #060606;
+      --white: #ffffff;
+      --line: rgba(255, 255, 255, 0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Barlow", sans-serif;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 214, 0, 0.07), transparent 28%),
+        radial-gradient(circle at 82% 72%, rgba(255, 107, 0, 0.08), transparent 26%),
+        linear-gradient(180deg, #030303 0%, #070707 100%);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea, select { font: inherit; }
+    input, textarea, select { cursor: text; }
+
+    .cursor {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--yellow);
+      border-radius: 50%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease;
+      mix-blend-mode: difference;
+    }
+
+    .cursor.hover {
+      transform: translate(-50%, -50%) scale(2.5);
+      background: var(--yellow);
+      opacity: 0.4;
+    }
+
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 96px 54px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      color: var(--yellow);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .section-label::before {
+      content: "";
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--yellow);
+    }
+
+    .section-title {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(3rem, 6vw, 5.4rem);
+      line-height: 0.92;
+      letter-spacing: 0.015em;
+    }
+
+    .section-title span { color: var(--yellow); }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 54px;
+      border-top: 1px solid rgba(255, 214, 0, 0.28);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.45), transparent);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-logo {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 2.35rem;
+      letter-spacing: 0.06em;
+      color: var(--yellow);
+    }
+
+    .nav-logo span { color: var(--orange); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 34px;
+    }
+
+    nav ul a {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.76);
+      transition: color 0.2s ease;
+    }
+
+    nav ul a:hover { color: var(--yellow); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0.8rem 1.35rem;
+      background: var(--yellow);
+      color: #090909;
+      border: 0;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: transform 0.18s ease, background 0.18s ease;
+    }
+
+    .nav-cta:hover {
+      background: #ffe03b;
+      transform: translateY(-1px);
+    }
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(380px, 0.92fr);
+      align-items: center;
+      gap: 32px;
+      padding-top: 116px;
+      padding-bottom: 56px;
+      overflow: hidden;
+    }
+
+    .hero-bg-text {
+      position: absolute;
+      left: 49%;
+      top: 54%;
+      transform: translate(-50%, -50%);
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(14rem, 32vw, 42rem);
+      line-height: 0.82;
+      color: rgba(255, 214, 0, 0.055);
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .hero-left {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.52rem 0.88rem;
+      background: var(--red);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 22px;
+      box-shadow: 0 10px 30px rgba(232, 0, 43, 0.28);
+      animation: pulse-badge 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232, 0, 43, 0.38); }
+      50% { box-shadow: 0 0 0 10px rgba(232, 0, 43, 0); }
+    }
+
+    .hero-title {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(4.4rem, 9.1vw, 8.4rem);
+      line-height: 0.87;
+      letter-spacing: 0.015em;
+      color: var(--white);
+    }
+
+    .hero-title .yellow {
+      display: block;
+      color: var(--yellow);
+    }
+
+    .hero-title .stroke {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--yellow);
+      text-stroke: 2px var(--yellow);
+    }
+
+    .hero-sub {
+      max-width: 520px;
+      margin-top: 28px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 1.08rem;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 34px;
+    }
+
+    .btn-primary,
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      padding: 0 32px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+
+    .btn-primary {
+      position: relative;
+      overflow: hidden;
+      border: 0;
+      color: #0c0c0c;
+      background: var(--yellow);
+      box-shadow: 0 18px 35px rgba(255, 214, 0, 0.14);
+    }
+
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.28s ease;
+    }
+
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary:hover::after { transform: scaleX(1); }
+    .btn-primary:hover,
+    .btn-outline:hover { transform: translateY(-2px); }
+
+    .btn-outline {
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      color: var(--white);
+      background: transparent;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 36px;
+      margin-top: 42px;
+    }
+
+    .stat-num {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 2.25rem;
+      line-height: 1;
+      color: var(--yellow);
+    }
+
+    .stat-label {
+      margin-top: 2px;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.44);
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 520px;
+    }
+
+    .glow-ring {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 214, 0, 0.18) 0%, rgba(232, 0, 43, 0.08) 35%, transparent 70%);
+      animation: glow-pulse 3.2s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.82; }
+      50% { transform: scale(1.13); opacity: 1; }
+    }
+
+    .fries-container {
+      position: relative;
+      width: 390px;
+      height: 410px;
+    }
+
+    .fries-box {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 240px;
+      height: 280px;
+      transform: translate(-50%, -38%) rotate(-4deg);
+    }
+
+    .box-body {
+      position: absolute;
+      bottom: 0;
+      width: 240px;
+      height: 192px;
+      border-radius: 6px 6px 18px 18px;
+      background: linear-gradient(135deg, #ff0837 0%, #cc001f 100%);
+      box-shadow: 0 26px 70px rgba(232, 0, 43, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box-top {
+      position: absolute;
+      top: 68px;
+      left: -10px;
+      width: 260px;
+      height: 54px;
+      background: linear-gradient(135deg, #ff1a40 0%, #cf001f 100%);
+      clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+    }
+
+    .box-logo-text {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 1.6rem;
+      color: var(--yellow);
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.36);
+    }
+
+    .fries-stick {
+      position: absolute;
+      background: linear-gradient(to bottom, #ffe066, #ffb300, #e8960a);
+      border-radius: 3px;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.26);
+      transform-origin: bottom center;
+    }
+
+    .fs1 { width: 14px; height: 112px; top: 2px; left: 64px; transform: rotate(-12deg); }
+    .fs2 { width: 12px; height: 132px; top: -10px; left: 88px; transform: rotate(-4deg); }
+    .fs3 { width: 15px; height: 102px; top: 6px; left: 108px; transform: rotate(6deg); }
+    .fs4 { width: 11px; height: 122px; top: -4px; left: 128px; transform: rotate(-8deg); }
+    .fs5 { width: 13px; height: 116px; top: 2px; left: 146px; transform: rotate(10deg); }
+    .fs6 { width: 10px; height: 96px; top: 8px; left: 164px; transform: rotate(-2deg); }
+    .fs7 { width: 14px; height: 126px; top: -8px; left: 46px; transform: rotate(14deg); }
+    .fs8 { width: 11px; height: 108px; top: 4px; left: 180px; transform: rotate(-14deg); }
+
+    .float-chip {
+      position: absolute;
+      width: 42px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #ffd600, #ffb300);
+      animation: float-around 3.1s ease-in-out infinite;
+    }
+
+    .float-chip:nth-child(1) { top: 28px; right: 24px; transform: rotate(30deg); }
+    .float-chip:nth-child(2) { top: 82px; left: 12px; width: 30px; transform: rotate(-20deg); animation-delay: 0.4s; }
+    .float-chip:nth-child(3) { bottom: 62px; right: 8px; width: 26px; transform: rotate(15deg); animation-delay: 1s; }
+    .float-chip:nth-child(4) { bottom: 104px; left: 18px; width: 36px; transform: rotate(-35deg); animation-delay: 1.5s; }
+
+    @keyframes float-around {
+      0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+      50% { transform: translateY(-10px) rotate(var(--r, 0deg)); }
+    }
+
+    .flavor-tag {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 12px;
+      background: var(--yellow);
+      color: #090909;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      animation: float-around 2.5s ease-in-out infinite;
+    }
+
+    .flavor-tag:nth-of-type(1) { top: 44px; left: -10px; background: var(--orange); color: var(--white); animation-delay: 0.3s; }
+    .flavor-tag:nth-of-type(2) { top: 50%; right: -24px; animation-delay: 0.8s; }
+    .flavor-tag:nth-of-type(3) { bottom: 44px; left: -18px; background: var(--red); color: var(--white); animation-delay: 1.2s; }
+
+    .ticker-wrap {
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      padding: 10px 0;
+      background: var(--yellow);
+      white-space: nowrap;
+    }
+
+    .ticker {
+      display: inline-flex;
+      animation: ticker-scroll 20s linear infinite;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 26px;
+      padding: 0 28px;
+      color: #080808;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+    }
+
+    .ticker-item::after {
+      content: "*";
+      color: var(--orange);
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    #why {
+      background:
+        radial-gradient(circle at 86% 68%, rgba(255, 214, 0, 0.08), transparent 18%),
+        linear-gradient(180deg, rgba(14, 14, 14, 0.96), rgba(6, 6, 6, 0.96));
+      overflow: hidden;
+    }
+
+    #why::before {
+      content: "BOSS";
+      position: absolute;
+      right: -42px;
+      top: 52%;
+      transform: translateY(-50%);
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 20vw;
+      line-height: 1;
+      color: rgba(255, 214, 0, 0.03);
+      pointer-events: none;
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(0, 1.6fr);
+      gap: 80px;
+      align-items: start;
+      margin-top: 46px;
+    }
+
+    .why-copy p {
+      max-width: 440px;
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 1.02rem;
+      line-height: 1.72;
+    }
+
+    .why-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .why-card {
+      position: relative;
+      min-height: 166px;
+      padding: 26px 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(135deg, rgba(24, 24, 24, 0.92), rgba(17, 17, 17, 0.78));
+      transition: transform 0.24s ease, border-color 0.24s ease;
+      overflow: hidden;
+    }
+
+    .why-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .why-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 214, 0, 0.24);
+    }
+
+    .why-card:hover::before { transform: scaleX(1); }
+
+    .why-card.highlight {
+      background: linear-gradient(135deg, rgba(255, 214, 0, 0.13), rgba(255, 107, 0, 0.1));
+      border-color: rgba(255, 214, 0, 0.28);
+    }
+
+    .why-card-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      min-height: 34px;
+      margin-bottom: 18px;
+      font-size: 1.45rem;
+    }
+
+    .why-card h3 {
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .why-card p {
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 0.94rem;
+      line-height: 1.62;
+    }
+    .package-section {
+      padding-top: 74px;
+      background: linear-gradient(180deg, rgba(6, 6, 6, 0.96), rgba(8, 8, 8, 0.98));
+    }
+
+    .package-shell {
+      position: relative;
+      border-top: 1px solid rgba(255, 107, 0, 0.4);
+      padding-top: 40px;
+    }
+
+    .package-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.96fr);
+      gap: 26px 50px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .package-header p {
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 1.02rem;
+      line-height: 1.72;
+      max-width: 580px;
+      justify-self: end;
+    }
+
+    .package-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .package-card {
+      position: relative;
+      min-height: 206px;
+      padding: 28px 26px 24px;
+      background:
+        linear-gradient(135deg, rgba(10, 10, 10, 0.96), rgba(7, 7, 7, 0.94)),
+        linear-gradient(135deg, rgba(255, 214, 0, 0.06), rgba(255, 107, 0, 0.02));
+      transition: background 0.24s ease, transform 0.24s ease;
+    }
+
+    .package-card:hover {
+      transform: translateY(-3px);
+      background:
+        linear-gradient(135deg, rgba(18, 18, 18, 0.98), rgba(8, 8, 8, 0.96)),
+        linear-gradient(135deg, rgba(255, 214, 0, 0.09), rgba(255, 107, 0, 0.03));
+    }
+
+    .package-card.featured {
+      background:
+        radial-gradient(circle at 72% 18%, rgba(255, 214, 0, 0.32), transparent 14%),
+        linear-gradient(135deg, rgba(71, 63, 22, 0.46), rgba(14, 14, 14, 0.98) 54%);
+    }
+
+    .package-number {
+      display: block;
+      margin-bottom: 16px;
+      color: rgba(255, 214, 0, 0.35);
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 3rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    .package-card h3 {
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .package-card p {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.94rem;
+      line-height: 1.68;
+      max-width: 34ch;
+    }
+
+    .royalty-banner {
+      padding: 58px 54px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--yellow) 0%, var(--orange) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .royalty-banner::before {
+      content: "NO ROYALTY";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 18vw;
+      line-height: 1;
+      color: rgba(0, 0, 0, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .royalty-banner h2 {
+      position: relative;
+      z-index: 1;
+      color: #0a0a0a;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(2.3rem, 5vw, 4.2rem);
+      line-height: 0.95;
+    }
+
+    .royalty-banner p {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 14px auto 0;
+      color: rgba(0, 0, 0, 0.7);
+      font-size: 1.08rem;
+      line-height: 1.65;
+    }
+
+    .btn-dark {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+      margin-top: 28px;
+      padding: 0 36px;
+      background: #0a0a0a;
+      color: var(--yellow);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .btn-dark:hover {
+      background: #151515;
+      transform: translateY(-2px);
+    }
+
+    #training {
+      background: linear-gradient(180deg, rgba(11, 11, 11, 0.98), rgba(6, 6, 6, 0.98));
+    }
+
+    .training-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 72px;
+      align-items: center;
+      margin-top: 52px;
+    }
+
+    .training-text p {
+      max-width: 560px;
+      margin-top: 0;
+      margin-bottom: 22px;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+
+    .support-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 214, 0, 0.22);
+      background: rgba(255, 214, 0, 0.08);
+      color: var(--yellow);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .training-visual {
+      border: 1px solid rgba(255, 214, 0, 0.16);
+      background: rgba(23, 23, 23, 0.94);
+      padding: 42px 34px;
+      position: relative;
+    }
+
+    .training-visual::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: -1px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
+    }
+
+    .training-step {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      transition: padding-left 0.22s ease;
+    }
+
+    .training-step:last-child { border-bottom: 0; }
+    .training-step:hover { padding-left: 8px; }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      background: var(--yellow);
+      color: #0a0a0a;
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 1.2rem;
+    }
+
+    .step-content h4 {
+      margin-bottom: 4px;
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .step-content p {
+      color: rgba(255, 255, 255, 0.56);
+      font-size: 0.88rem;
+      line-height: 1.58;
+    }
+
+    #flavors {
+      background: linear-gradient(180deg, rgba(7, 7, 7, 0.98), rgba(5, 5, 5, 1));
+    }
+
+    .flavors-header {
+      max-width: 680px;
+      margin: 0 auto 58px;
+      text-align: center;
+    }
+
+    .flavors-header .section-label {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .flavors-header .section-label::before { display: none; }
+
+    .flavors-header p {
+      margin-top: 14px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .flavors-categories {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px;
+    }
+
+    .flavor-category-label {
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.42);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .flavor-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .flavor-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(23, 23, 23, 0.92);
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .flavor-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--yellow), var(--orange));
+      transform: scaleY(0);
+      transition: transform 0.26s ease;
+    }
+
+    .flavor-card:hover {
+      transform: translateX(6px);
+      border-color: rgba(255, 214, 0, 0.24);
+    }
+
+    .flavor-card:hover::before { transform: scaleY(1); }
+
+    .flavor-emoji {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .flavor-info { flex: 1; }
+
+    .flavor-name {
+      color: var(--white);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .flavor-desc {
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.46);
+      font-size: 0.84rem;
+    }
+
+    .flavor-tag-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid rgba(255, 214, 0, 0.2);
+      background: rgba(255, 214, 0, 0.1);
+      color: var(--yellow);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .flavor-tag-badge.korean {
+      border-color: rgba(255, 107, 0, 0.2);
+      background: rgba(255, 107, 0, 0.1);
+      color: var(--orange);
+    }
+
+    .faq-section {
+      background: linear-gradient(180deg, rgba(11, 11, 11, 0.98), rgba(7, 7, 7, 0.98));
+      padding-top: 82px;
+      padding-bottom: 82px;
+    }
+
+    .faq-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.2fr);
+      gap: 72px;
+      align-items: start;
+    }
+
+    .faq-copy p {
+      margin-top: 18px;
+      color: rgba(255, 255, 255, 0.54);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+
+    .faq-list { margin-top: 6px; }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 0;
+      border: 0;
+      background: transparent;
+      color: var(--white);
+      text-align: left;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .faq-q:hover { color: var(--yellow); }
+
+    .faq-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      border-color: var(--yellow);
+      background: var(--yellow);
+      color: #090909;
+    }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.38s ease;
+      color: rgba(255, 255, 255, 0.56);
+      font-size: 0.94rem;
+      line-height: 1.7;
+    }
+
+    .faq-a-inner { padding-bottom: 20px; }
+
+    .faq-item.open .faq-a { max-height: 220px; }
+
+    #cta {
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(255, 214, 0, 0.1), transparent 60%),
+        linear-gradient(180deg, rgba(9, 9, 9, 0.98), rgba(6, 6, 6, 0.99));
+      overflow: hidden;
+    }
+
+    #cta::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 46%, rgba(255, 214, 0, 0.05), transparent 52%);
+      pointer-events: none;
+    }
+
+    #cta .section-label {
+      justify-content: center;
+      width: 100%;
+    }
+
+    #cta .section-label::before { display: none; }
+
+    #cta > p {
+      max-width: 620px;
+      margin: 16px auto 0;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 1.08rem;
+      line-height: 1.72;
+    }
+
+    .contact-form {
+      position: relative;
+      z-index: 1;
+      max-width: 580px;
+      margin: 48px auto 0;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(23, 23, 23, 0.92);
+      text-align: left;
+    }
+
+    .contact-form::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -1px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--yellow), var(--orange));
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.54);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--white);
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255, 255, 255, 0.34); }
+
+    .form-group select option {
+      background: #181818;
+      color: var(--white);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--yellow);
+      background: rgba(255, 214, 0, 0.05);
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: none;
+    }
+
+    .form-submit {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 8px;
+      border: 0;
+      background: var(--yellow);
+      color: #090909;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+    }
+
+    .form-submit:hover:not(:disabled) {
+      background: var(--orange);
+      transform: translateY(-1px);
+    }
+
+    .form-submit:disabled {
+      opacity: 0.72;
+      cursor: not-allowed;
+    }
+
+    .form-status {
+      min-height: 1.3em;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .form-status.success { color: #7ef0a5; }
+    .form-status.error { color: #ff8f8f; }
+
+    .form-note {
+      margin-top: 12px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.34);
+      font-size: 0.78rem;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 34px 54px 42px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(5, 5, 5, 0.98);
+    }
+
+    .footer-brand {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 0.08em;
+      color: var(--yellow);
+    }
+
+    .footer-brand span { color: var(--orange); }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.42);
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover { color: var(--yellow); }
+
+    .footer-copy {
+      color: rgba(255, 255, 255, 0.28);
+      font-size: 0.8rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 1080px) {
+      #hero,
+      .why-grid,
+      .training-layout,
+      .faq-layout,
+      .package-header,
+      .flavors-categories {
+        grid-template-columns: 1fr;
+      }
+
+      .package-header p {
+        justify-self: start;
+      }
+
+      .package-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 16px 24px;
+      }
+
+      nav ul { display: none; }
+
+      section,
+      #hero,
+      .royalty-banner,
+      footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      #hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-top: 102px;
+        padding-bottom: 48px;
+      }
+
+      .hero-visual {
+        min-height: 380px;
+        margin-top: 22px;
+      }
+
+      .hero-bg-text {
+        left: 50%;
+        top: 53%;
+        font-size: 30vw;
+      }
+
+      .hero-stats {
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .why-cards,
+      .package-grid,
+      .flavors-categories,
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-form {
+        padding: 30px 22px;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-logo { font-size: 1.95rem; }
+
+      .nav-cta {
+        min-height: 40px;
+        padding: 0 14px;
+        font-size: 0.72rem;
+      }
+
+      .hero-title {
+        font-size: clamp(3.2rem, 18vw, 5.6rem);
+      }
+
+      .hero-sub,
+      .package-header p,
+      .why-copy p,
+      #cta > p {
+        font-size: 0.97rem;
+      }
+
+      .btn-primary,
+      .btn-outline,
+      .btn-dark {
+        width: 100%;
+      }
+
+      .fries-container {
+        width: 310px;
+        height: 330px;
+      }
+
+      .glow-ring {
+        width: 280px;
+        height: 280px;
+      }
+
+      .fries-box {
+        transform: translate(-50%, -40%) scale(0.84) rotate(-4deg);
+      }
+    }
+
+    @media (pointer: fine) {
+      body { cursor: none; }
+      a, button, .why-card, .package-card, .flavor-card { cursor: none; }
+    }
+
+    @media (pointer: coarse) {
+      body { cursor: auto; }
+      .cursor { display: none; }
+    }
+  </style>
 </head>
-<body class="subpage bigstop-page fries-page">
-  <header class="site-header">
-    <div class="container nav">
-      <a href="/" class="nav-brand">
-        <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
-      </a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="/" class="nav-link">Home</a></li>
-        <li class="nav-dropdown">
-          <a href="/#about" class="nav-link nav-dropdown-toggle">
-            About Us
-            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </a>
-          <ul class="nav-dropdown-menu">
-            <li><a href="/history" class="dropdown-link">History</a></li>
-            <li><a href="/founder" class="dropdown-link">Founder's Corner</a></li>
-            <li><a href="/seals" class="dropdown-link">Seals of Approval</a></li>
-            <li><a href="/awards" class="dropdown-link">Awards and Recognition</a></li>
-          </ul>
-        </li>
-        <li class="nav-dropdown">
-          <a href="/#franchises" class="nav-link nav-dropdown-toggle">
-            Franchises
-            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </a>
-          <ul class="nav-dropdown-menu">
-            <li><a href="/bigstop" class="dropdown-link">BIGSTOP</a></li>
-            <li><a href="/herrera-pharmacy" class="dropdown-link">Herrera Pharmacy</a></li>
-            <li><a href="/boss-siomai" class="dropdown-link">Boss Siomai</a></li>
-            <li><a href="/boss-chickn" class="dropdown-link">Boss Chickn</a></li>
-            <li><a href="/boss-fries" class="dropdown-link">Boss Fries</a></li>
-            <li><a href="/burger2go" class="dropdown-link">Burger2Go</a></li>
-            <li><a href="/noodle-king" class="dropdown-link">Noodle King</a></li>
-          </ul>
-        </li>
-        <li><a href="/branches" class="nav-link">Store Locations</a></li>
-        <li><a href="/#stories" class="nav-link">Stories</a></li>
-        <li><a href="/#contact-email" class="nav-link">Contact</a></li>
-      </ul>
-      <div class="nav-cta">
-        <a href="/#franchises" class="btn-outline">View Opportunities</a>
-        <a href="/#contact-email" class="btn-primary">Franchise Now <span>&rarr;</span></a>
+<body>
+  <div class="cursor" id="cursor"></div>
+
+  <nav>
+    <a href="/" class="nav-logo">Boss<span>Fries</span></a>
+    <ul>
+      <li><a href="#why">Why Us</a></li>
+      <li><a href="#package">Package</a></li>
+      <li><a href="#flavors">Flavors</a></li>
+      <li><a href="#training">Training</a></li>
+      <li><a href="#cta">Contact</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">Franchise Now</a>
+  </nav>
+
+  <section id="hero">
+    <div class="hero-bg-text">FRIES</div>
+    <div class="hero-left">
+      <span class="hero-badge">&#128293; Now Accepting Franchise Partners</span>
+      <h1 class="hero-title">
+        Own The
+        <span class="yellow">Flavor.</span>
+        <span class="stroke">Be The</span>
+        Boss.
+      </h1>
+      <p class="hero-sub">
+        Join the Boss Fries franchise family - an affordable, proven food business built on crispy fries, bold flavors, and zero royalty fees. Start earning on your own terms.
+      </p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary"><span>Get Started Today</span></a>
+        <a href="#package" class="btn-outline">See What's Included</a>
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <main class="bigstop-layout">
-    <section class="bigstop-showcase">
-      <div class="container">
-        <div class="bigstop-hero-grid">
-          <div class="bigstop-hero-copy">
-            <p class="bigstop-kicker">Boss Fries Franchise</p>
-            <h1>Golden Crunch That Sells All Day</h1>
-            <p>
-              Build a snack concept made for impulse buying, quick service, and repeat daily demand in schools, terminals, malls, and community hotspots.
-            </p>
-            <a href="/#contact-email" class="bigstop-hero-button">
-              Request Franchise Details <span>&rarr;</span>
-            </a>
-          </div>
-          <aside class="bigstop-hero-card" aria-label="Boss Fries featured visual">
-            <div class="bigstop-hero-card-visual">
-              <img src="Copy of boss fries mascot.png" alt="Boss Fries mascot logo" />
-            </div>
-            <a href="/#franchises" class="bigstop-card-button">
-              View Opportunities <span>&rarr;</span>
-            </a>
-          </aside>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">0%</div>
+          <div class="stat-label">Royalty Fees</div>
         </div>
-
-        <div class="bigstop-proof-grid">
-          <div class="bigstop-proof-media fries-media-fit">
-            <img src="Copy of boss fries mascot.png" alt="Boss Fries mascot branding visual" />
-          </div>
-          <div class="bigstop-proof-side">
-            <p>
-              Boss Fries is designed for high snack frequency and quick queue movement, making it a practical model for entrepreneurs who want compact setup and strong daily turnover.
-            </p>
-            <div class="bigstop-stat-stack">
-              <article class="bigstop-stat-card">
-                <strong>Snack-ready</strong>
-                <span>fits merienda and impulse food demand all day</span>
-              </article>
-              <article class="bigstop-stat-card">
-                <strong>Compact Setup</strong>
-                <span>kiosk and cart-friendly format for flexible locations</span>
-              </article>
-              <article class="bigstop-stat-card">
-                <strong>Fast Service</strong>
-                <span>simple workflow that supports peak-hour traffic</span>
-              </article>
-            </div>
-          </div>
+        <div class="stat-item">
+          <div class="stat-num">8+</div>
+          <div class="stat-label">Signature Flavors</div>
         </div>
-      </div>
-    </section>
-
-    <section class="bigstop-reasons section">
-      <div class="container">
-        <div class="section-header bigstop-section-header">
-          <p class="section-kicker">Why Partner With Us</p>
-          <h2 class="section-title">4 Reasons Why Boss Fries Works in High-Traffic Spots</h2>
-        </div>
-        <div class="bigstop-reasons-grid">
-          <article class="bigstop-reason-card">
-            <span class="bigstop-reason-number">1</span>
-            <h3>High Repeat Potential</h3>
-            <p>Fries are an easy everyday snack that customers buy again and again.</p>
-          </article>
-          <article class="bigstop-reason-card">
-            <span class="bigstop-reason-number">2</span>
-            <h3>Simple Operations</h3>
-            <p>Easy-to-train service model keeps consistency and speeds up transactions.</p>
-          </article>
-          <article class="bigstop-reason-card">
-            <span class="bigstop-reason-number">3</span>
-            <h3>Flexible Format</h3>
-            <p>Works in kiosks, carts, and small store footprints with strong walk-in appeal.</p>
-          </article>
-          <article class="bigstop-reason-card">
-            <span class="bigstop-reason-number">4</span>
-            <h3>Launch Guidance</h3>
-            <p>Startup support from planning to opening to help you launch with confidence.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="fries-package section">
-      <div class="container">
-        <div class="fries-package-shell">
-          <div class="fries-package-header">
-            <div class="section-header bigstop-section-header">
-              <p class="section-kicker">Franchise Package</p>
-              <h2 class="section-title">Everything You Need to Start</h2>
-            </div>
-            <p class="fries-package-intro">
-              The Boss Fries franchise package is a complete bundle, from brand rights to training, giving you everything required to open and operate your business with confidence.
-            </p>
-          </div>
-          <div class="fries-package-grid">
-            <article class="fries-package-card">
-              <span class="fries-package-number">01</span>
-              <h3>Brand Name &amp; Trademark</h3>
-              <p>Gain full rights to operate under the Boss Fries brand, including its official logo, identity, and marketing materials from day one.</p>
-            </article>
-            <article class="fries-package-card">
-              <span class="fries-package-number">02</span>
-              <h3>Quality Products &amp; Menu</h3>
-              <p>Serve crispy, flavorful fries with signature seasonings such as BBQ, sour cream, cheese, and more at price points customers love.</p>
-            </article>
-            <article class="fries-package-card">
-              <span class="fries-package-number">03</span>
-              <h3>No Royalty or Renewal Fees</h3>
-              <p>Maximize your profit with no ongoing royalty fees and no renewal fees, so what you make stays with your business.</p>
-            </article>
-            <article class="fries-package-card">
-              <span class="fries-package-number">04</span>
-              <h3>Comprehensive Training</h3>
-              <p>Menu prep, equipment care, inventory management, and customer service standards are all covered in the operational training program.</p>
-            </article>
-            <article class="fries-package-card">
-              <span class="fries-package-number">05</span>
-              <h3>Marketing &amp; Promotions</h3>
-              <p>Leverage brand-level campaigns and promotional support to build awareness and drive foot traffic to your location.</p>
-            </article>
-            <article class="fries-package-card">
-              <span class="fries-package-number">06</span>
-              <h3>Site Evaluation Help</h3>
-              <p>Get guidance and recommendations to help you choose a location with strong business potential before you launch.</p>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="bigstop-invest fries-invest section">
-      <div class="container">
-        <div class="bigstop-invest-card fries-invest-card">
-          <div class="fries-invest-header">
-            <p class="fries-invest-kicker">Boss Fries Franchise</p>
-            <h2>Investment Details</h2>
-            <p class="fries-invest-intro">
-              Flexible franchise packages are available for both cart and kiosk formats, with final investment based on your preferred setup size.
-            </p>
-          </div>
-          <div class="bigstop-invest-grid fries-invest-grid">
-            <article class="fries-invest-item">
-              <em class="fries-invest-index">01</em>
-              <span>Franchise Fee</span>
-              <strong>Contact for Details</strong>
-            </article>
-            <article class="fries-invest-item">
-              <em class="fries-invest-index">02</em>
-              <span>Total Investment</span>
-              <strong>Varies by Cart or Kiosk Size</strong>
-            </article>
-            <article class="fries-invest-item">
-              <em class="fries-invest-index">03</em>
-              <span>Contract Term</span>
-              <strong>5 Years</strong>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="bigstop-contact section">
-      <div class="container">
-        <div class="bigstop-contact-grid">
-          <div class="bigstop-contact-copy">
-            <p class="section-kicker">Talk to the Team</p>
-            <h2>Discuss Your Boss Fries Franchise Plan</h2>
-            <p>Share your target location and budget so we can recommend the right setup and rollout approach for your area.</p>
-            <a href="/#franchises" class="btn-outline">View All Franchises</a>
-          </div>
-          <form class="bigstop-form" action="/#contact-email" method="get">
-            <label for="fries-name" class="sr-only">Name</label>
-            <input id="fries-name" type="text" name="name" placeholder="Name" />
-            <label for="fries-phone" class="sr-only">Phone</label>
-            <input id="fries-phone" type="tel" name="phone" placeholder="Phone" />
-            <label for="fries-message" class="sr-only">Comment</label>
-            <textarea id="fries-message" name="message" rows="4" placeholder="Comment"></textarea>
-            <button type="submit">Send Inquiry</button>
-            <small>By sending this form, you agree to the processing of your personal data.</small>
-          </form>
-        </div>
-      </div>
-    </section>
-  </main>
-
-      <footer class="site-footer footer-v2">
-    <div class="footer-wrap">
-      <div class="footer-top">
-        <section class="brand-block" aria-label="Company info">
-          <h3 class="brand-title">
-            <span class="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                <path d="M3 18h18" />
-                <path d="M5 18V9" />
-                <path d="M9 18V6" />
-                <path d="M13 18V11" />
-                <path d="M17 18V7" />
-                <path d="M21 18V13" />
-                <path d="M5 9c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-2 5-2" />
-              </svg>
-            </span>
-            HHC Franchise Hub
-          </h3>
-          <p class="brand-desc">
-            Building successful franchise businesses across the Philippines with proven systems and ongoing support.
-          </p>
-        </section>
-        <section class="footer-col" aria-label="Our Brands">
-          <h4>Our Brands</h4>
-          <ul>
-            <li><a href="/bigstop">BigStop</a></li>
-            <li><a href="/herrera-pharmacy">Herrera Pharmacy</a></li>
-            <li><a href="/boss-siomai">Boss Siomai</a></li>
-            <li><a href="/boss-chickn">Boss Chickn</a></li>
-            <li><a href="/boss-fries">Boss Fries</a></li>
-            <li><a href="/burger2go">Burger2Go</a></li>
-            <li><a href="/noodle-king">Noodle King</a></li>
-          </ul>
-        </section>
-
-        <section class="footer-col" aria-label="Services">
-          <h4>Services</h4>
-          <ul>
-            <li><a href="/#franchises">Franchise Opportunities</a></li>
-            <li><a href="/#about">Business Training</a></li>
-            <li><a href="/branches">Location Assistance</a></li>
-            <li><a href="/#contact-email">Marketing Support</a></li>
-          </ul>
-        </section>
-
-        <section class="footer-col" aria-label="Connect">
-          <h4>Connect</h4>
-          <ul>
-            <li><a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-            <li><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-            <li><a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-            <li><a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube</a></li>
-          </ul>
-        </section>
-      </div>
-
-      <div class="footer-bottom">
-        <nav class="footer-legal" aria-label="Legal links">
-          <a href="#">Terms &amp; Conditions</a>
-          <a href="#">Privacy Policy</a>
-          <a href="/faqs">FAQs</a>
-        </nav>
-
-        <p class="footer-copy">&copy; 2026 HHC Franchise Hub. All Rights Reserved.</p>
-
-        <div class="footer-qr">
-
-          <a href="https://callingcard.vercel.app/" class="footer-qr-link" target="_blank" rel="noopener noreferrer" aria-label="Open digital calling card">
-
-            <img src="callingcard-qr.png" alt="QR code to HHC calling card" class="footer-qr-img" loading="lazy" decoding="async" />
-
-            <span>Scan for Calling Card</span>
-
-          </a>
-
-        </div>
-
-        <div class="footer-socials" aria-label="Social media icons">
-          <a href="https://api.whatsapp.com/send?phone=+639065032208" aria-label="WhatsApp" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.52 0 .2 5.32.2 11.86c0 2.09.55 4.14 1.6 5.95L0 24l6.37-1.67a11.84 11.84 0 0 0 5.69 1.45h.01c6.54 0 11.86-5.32 11.86-11.86 0-3.17-1.23-6.15-3.41-8.44Zm-8.46 18.3h-.01a9.92 9.92 0 0 1-5.05-1.39l-.36-.21-3.78.99 1.01-3.69-.23-.38a9.9 9.9 0 0 1-1.52-5.24C2.12 6.39 6.59 1.92 12.06 1.92c2.65 0 5.15 1.03 7.02 2.9a9.86 9.86 0 0 1 2.91 7.03c0 5.47-4.46 9.93-9.93 9.93Zm5.45-7.44c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.78-1.47-1.75-1.65-2.04-.17-.3-.02-.45.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.03-1.05 2.5 0 1.47 1.08 2.88 1.23 3.08.15.2 2.11 3.23 5.11 4.53.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.11.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg>
-          </a>
-          <a href="https://www.facebook.com/" aria-label="Facebook" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.03 1.79-4.7 4.54-4.7 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.5 0-1.97.94-1.97 1.9v2.28h3.35l-.54 3.49h-2.81V24C19.61 23.07 24 18.09 24 12.07Z"/></svg>
-          </a>
-          <a href="https://www.instagram.com/" aria-label="Instagram" class="social-btn" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 1.8A3.96 3.96 0 0 0 3.8 7.75v8.5a3.96 3.96 0 0 0 3.95 3.95h8.5a3.96 3.96 0 0 0 3.95-3.95v-8.5a3.96 3.96 0 0 0-3.95-3.95h-8.5Zm8.95 1.35a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"/></svg>
-          </a>
+        <div class="stat-item">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Support Provided</div>
         </div>
       </div>
     </div>
+    <div class="hero-visual">
+      <div class="glow-ring"></div>
+      <div class="fries-container">
+        <div class="float-chip" style="--r:30deg"></div>
+        <div class="float-chip" style="--r:-20deg"></div>
+        <div class="float-chip" style="--r:15deg"></div>
+        <div class="float-chip" style="--r:-35deg"></div>
+        <div class="fries-box">
+          <div class="fs1 fries-stick"></div>
+          <div class="fs2 fries-stick"></div>
+          <div class="fs3 fries-stick"></div>
+          <div class="fs4 fries-stick"></div>
+          <div class="fs5 fries-stick"></div>
+          <div class="fs6 fries-stick"></div>
+          <div class="fs7 fries-stick"></div>
+          <div class="fs8 fries-stick"></div>
+          <div class="box-top"></div>
+          <div class="box-body"><span class="box-logo-text">BOSS FRIES</span></div>
+        </div>
+        <span class="flavor-tag">Cheese</span>
+        <span class="flavor-tag">Crispy</span>
+        <span class="flavor-tag">BBQ</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span class="ticker-item">No Royalty Fees</span>
+      <span class="ticker-item">Complete Training</span>
+      <span class="ticker-item">8 Bold Flavors</span>
+      <span class="ticker-item">Site Assistance</span>
+      <span class="ticker-item">Marketing Support</span>
+      <span class="ticker-item">Korean-Inspired Menu</span>
+      <span class="ticker-item">Affordable Investment</span>
+      <span class="ticker-item">No Royalty Fees</span>
+      <span class="ticker-item">Complete Training</span>
+      <span class="ticker-item">8 Bold Flavors</span>
+      <span class="ticker-item">Site Assistance</span>
+      <span class="ticker-item">Marketing Support</span>
+      <span class="ticker-item">Korean-Inspired Menu</span>
+      <span class="ticker-item">Affordable Investment</span>
+    </div>
+  </div>
+
+  <section id="why">
+    <div class="section-label">Why Boss Fries</div>
+    <div class="why-grid">
+      <div class="why-copy reveal">
+        <h2 class="section-title">The Smart Way to<br><span>Start a Business</span></h2>
+        <p>
+          Boss Fries is designed for aspiring entrepreneurs who want a real, proven business model with full support - without the heavy financial burden.
+        </p>
+      </div>
+      <div class="why-cards">
+        <article class="why-card highlight reveal">
+          <span class="why-card-icon">&#128176;</span>
+          <h3>Zero Royalty Fees</h3>
+          <p>Keep 100% of what you earn. No ongoing percentage cuts, no renewal charges.</p>
+        </article>
+        <article class="why-card reveal" style="transition-delay:0.08s">
+          <span class="why-card-icon">&#127991;</span>
+          <h3>Established Brand</h3>
+          <p>Operate under a recognizable brand with official logo and marketing materials.</p>
+        </article>
+        <article class="why-card reveal" style="transition-delay:0.16s">
+          <span class="why-card-icon">&#128205;</span>
+          <h3>Location Support</h3>
+          <p>Get guidance on identifying high-potential sites for your franchise location.</p>
+        </article>
+        <article class="why-card reveal" style="transition-delay:0.24s">
+          <span class="why-card-icon">&#129309;</span>
+          <h3>Ongoing Guidance</h3>
+          <p>Continuous operational support to maintain quality, service, and efficiency.</p>
+        </article>
+        <article class="why-card reveal" style="transition-delay:0.32s">
+          <span class="why-card-icon">&#128227;</span>
+          <h3>Marketing Support</h3>
+          <p>Benefit from brand campaigns and promotional initiatives to attract customers.</p>
+        </article>
+        <article class="why-card reveal" style="transition-delay:0.4s">
+          <span class="why-card-icon">&#128640;</span>
+          <h3>Affordable Entry</h3>
+          <p>Cost-effective package designed for aspiring entrepreneurs at any budget level.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section id="package" class="package-section">
+    <div class="package-shell">
+      <div class="package-header reveal">
+        <div>
+          <div class="section-label">Franchise Package</div>
+          <h2 class="section-title">Everything You<br><span>Need to Start</span></h2>
+        </div>
+        <p>
+          The Boss Fries franchise package is a complete bundle - from brand rights to training - giving you everything required to open and operate your business with confidence.
+        </p>
+      </div>
+      <div class="package-grid">
+        <article class="package-card reveal">
+          <span class="package-number">01</span>
+          <h3>Brand Name &amp; Trademark</h3>
+          <p>Gain full rights to operate under the Boss Fries brand, including its official logo, identity, and marketing materials from day one.</p>
+        </article>
+        <article class="package-card reveal" style="transition-delay:0.08s">
+          <span class="package-number">02</span>
+          <h3>Quality Products &amp; Menu</h3>
+          <p>Serve crispy, flavorful fries with signature seasonings - BBQ, sour cream, cheese, and more - at affordable price points customers love.</p>
+        </article>
+        <article class="package-card reveal" style="transition-delay:0.16s">
+          <span class="package-number">03</span>
+          <h3>No Royalty or Renewal Fees</h3>
+          <p>Maximize your profit. Boss Fries charges no ongoing royalty fees or renewal fees. What you make is yours to keep.</p>
+        </article>
+        <article class="package-card reveal" style="transition-delay:0.24s">
+          <span class="package-number">04</span>
+          <h3>Comprehensive Training</h3>
+          <p>Menu prep, equipment care, inventory management, and customer service standards are all covered in your full operational training program.</p>
+        </article>
+        <article class="package-card reveal" style="transition-delay:0.32s">
+          <span class="package-number">05</span>
+          <h3>Marketing &amp; Promotions</h3>
+          <p>Leverage brand-level campaigns and promotional support to build awareness and drive foot traffic to your location.</p>
+        </article>
+        <article class="package-card featured reveal" style="transition-delay:0.4s">
+          <span class="package-number">06</span>
+          <h3>Site Evaluation Help</h3>
+          <p>Not sure where to set up? Boss Fries provides guidance and recommendations to help you choose a site with strong business potential.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="royalty-banner reveal">
+    <h2>Zero Royalty.<br>Zero Renewal Fees.<br>100% Your Profit.</h2>
+    <p>Unlike most franchise systems, Boss Fries never takes a cut of your monthly sales. Your business, your earnings.</p>
+    <a href="#cta" class="btn-dark">Inquire Now</a>
+  </div>
+
+  <section id="training">
+    <div class="section-label reveal">Training &amp; Support</div>
+    <div class="training-layout">
+      <div class="training-text reveal">
+        <h2 class="section-title">We Train You<br><span>For Success</span></h2>
+        <p>
+          From your very first day to ongoing operations, Boss Fries provides a structured training program that covers everything you need to run a smooth, profitable franchise.
+        </p>
+        <p>
+          On-site support during opening ensures you are never left to figure things out alone. Our team is with you every step of the way.
+        </p>
+        <div class="support-badges">
+          <span class="badge">On-Site Opening</span>
+          <span class="badge">Equipment Training</span>
+          <span class="badge">Inventory System</span>
+          <span class="badge">Continuous Support</span>
+        </div>
+      </div>
+      <div class="training-visual reveal" style="transition-delay:0.16s">
+        <div class="training-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Menu Orientation &amp; Preparation</h4>
+            <p>Learn product recipes, seasoning ratios, and preparation procedures for consistent quality.</p>
+          </div>
+        </div>
+        <div class="training-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Equipment Use &amp; Maintenance</h4>
+            <p>Proper handling, daily cleaning routines, and maintenance of all frying and food equipment.</p>
+          </div>
+        </div>
+        <div class="training-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Inventory Management</h4>
+            <p>Stock tracking, ordering systems, waste control, and sales reporting fundamentals.</p>
+          </div>
+        </div>
+        <div class="training-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Customer Service Standards</h4>
+            <p>Brand-aligned service etiquette to build repeat customers and strong reviews.</p>
+          </div>
+        </div>
+        <div class="training-step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Initial On-Site Training</h4>
+            <p>Hands-on support during your store's opening stage to ensure a smooth launch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flavors">
+    <div class="flavors-header reveal">
+      <div class="section-label">The Menu</div>
+      <h2 class="section-title">8 Bold Flavors<br><span>Customers Crave</span></h2>
+      <p>Classic favorites and Korean-inspired premium options - a menu designed to keep customers coming back for more.</p>
+    </div>
+    <div class="flavors-categories">
+      <div class="reveal">
+        <div class="flavor-category-label">Classic Favorite Flavors</div>
+        <div class="flavor-cards">
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#129472;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Cheese</div>
+              <div class="flavor-desc">Rich, creamy classic cheese coating</div>
+            </div>
+            <span class="flavor-tag-badge">Classic</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#129371;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Sour Cream</div>
+              <div class="flavor-desc">Tangy and smooth sour cream flavor</div>
+            </div>
+            <span class="flavor-tag-badge">Classic</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#127830;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Barbecue</div>
+              <div class="flavor-desc">Smoky, sweet BBQ seasoning</div>
+            </div>
+            <span class="flavor-tag-badge">Classic</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#127798;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Chili Barbecue</div>
+              <div class="flavor-desc">Smoky BBQ with a spicy kick</div>
+            </div>
+            <span class="flavor-tag-badge">Classic</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#128293;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Chili Cheese</div>
+              <div class="flavor-desc">Spicy heat meets cheesy richness</div>
+            </div>
+            <span class="flavor-tag-badge">Classic</span>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.18s">
+        <div class="flavor-category-label">Korean-Inspired Premium Flavors</div>
+        <div class="flavor-cards">
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#127855;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Honey Butter</div>
+              <div class="flavor-desc">Sweet, buttery - the iconic Korean snack flavor</div>
+            </div>
+            <span class="flavor-tag-badge korean">Premium</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#127754;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Seaweed (Umami)</div>
+              <div class="flavor-desc">Deep savory umami from toasted seaweed</div>
+            </div>
+            <span class="flavor-tag-badge korean">Premium</span>
+          </div>
+          <div class="flavor-card">
+            <span class="flavor-emoji">&#129476;</span>
+            <div class="flavor-info">
+              <div class="flavor-name">Garlic Parmesan</div>
+              <div class="flavor-desc">Bold garlic with aged parmesan richness</div>
+            </div>
+            <span class="flavor-tag-badge korean">Premium</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="faq-layout">
+      <div class="faq-copy reveal">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common<br><span>Questions</span></h2>
+        <p>
+          Everything you need to know before making your decision. Still have questions? Reach out to our franchise team.
+        </p>
+      </div>
+      <div class="faq-list reveal" style="transition-delay:0.16s">
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            Are there any ongoing fees after buying the franchise?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">No. Boss Fries charges no royalty fees and no renewal fees. Once you are in, you keep your profits - there are no monthly percentage cuts from your revenue.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            Do I need food business experience?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Not at all. The comprehensive training program covers everything from menu preparation to customer service, designed so that even first-time entrepreneurs can operate confidently.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            Will Boss Fries help me find a location?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Yes. Boss Fries provides location guidance and recommendations to help you choose a site with strong business potential before you launch.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            What marketing support do I receive?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">You benefit from brand-level marketing campaigns, promotional initiatives, and brand exposure materials to increase awareness and attract customers to your location.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            How many flavors can I offer?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">You can offer all 8 Boss Fries flavors - 5 classic favorites and 3 Korean-inspired premium flavors.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta">
+    <div class="section-label reveal">Start Today</div>
+    <h2 class="section-title reveal" style="transition-delay:0.08s">Ready to<br><span>Be The Boss?</span></h2>
+    <p class="reveal" style="transition-delay:0.16s">
+      Fill in your details below and a Boss Fries franchise representative will get in touch with you about the next steps.
+    </p>
+    <form id="boss-fries-form" class="contact-form reveal" style="transition-delay:0.24s">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" name="first_name" placeholder="Juan" required>
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" name="last_name" placeholder="Dela Cruz" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@email.com" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Mobile Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="+63 9XX XXX XXXX" required>
+        </div>
+        <div class="form-group">
+          <label for="city">Location / City</label>
+          <input type="text" id="city" name="location" placeholder="Quezon City">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="budget">Budget Range</label>
+          <select id="budget" name="budget">
+            <option value="">Select one...</option>
+            <option>Cart Setup</option>
+            <option>Kiosk Setup</option>
+            <option>Multiple Units</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="timeline">Target Launch</label>
+          <select id="timeline" name="target_launch">
+            <option value="">Select one...</option>
+            <option>Within 30 days</option>
+            <option>1-3 months</option>
+            <option>3-6 months</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="source">Where did you hear about us?</label>
+        <select id="source" name="source_channel">
+          <option value="">Select one...</option>
+          <option>Social Media</option>
+          <option>Friend / Referral</option>
+          <option>Website / Online Search</option>
+          <option>Franchise Event</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="msg">Message (Optional)</label>
+        <textarea id="msg" name="message" placeholder="Tell us a bit about yourself and your interest..."></textarea>
+      </div>
+      <button class="form-submit" id="submitBtn" type="submit">Submit Franchise Inquiry</button>
+      <p class="form-status" id="formStatus" aria-live="polite"></p>
+      <p class="form-note">We usually respond within 1-2 business days. No spam, ever.</p>
+    </form>
+  </section>
+
+  <footer>
+    <a href="/" class="footer-brand">Boss<span>Fries</span></a>
+    <div class="footer-links">
+      <a href="#why">Why Us</a>
+      <a href="#package">Package</a>
+      <a href="#flavors">Flavors</a>
+      <a href="#training">Training</a>
+      <a href="#cta">Contact</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 Boss Fries. All rights reserved.</div>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    window.HHF_INQUIRY_API_URL = window.HHF_INQUIRY_API_URL || "/api/inquiry";
+
+    const cursor = document.getElementById("cursor");
+    document.addEventListener("mousemove", (event) => {
+      if (!cursor) return;
+      cursor.style.left = event.clientX + "px";
+      cursor.style.top = event.clientY + "px";
+    });
+
+    document.querySelectorAll("a, button, .why-card, .package-card, .flavor-card").forEach((element) => {
+      element.addEventListener("mouseenter", () => cursor && cursor.classList.add("hover"));
+      element.addEventListener("mouseleave", () => cursor && cursor.classList.remove("hover"));
+    });
+
+    const revealItems = document.querySelectorAll(".reveal");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      revealItems.forEach((element) => element.classList.add("visible"));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      }, { threshold: 0.12 });
+      revealItems.forEach((element) => observer.observe(element));
+    }
+
+    document.querySelectorAll(".faq-q").forEach((button) => {
+      button.addEventListener("click", () => {
+        const item = button.parentElement;
+        const isOpen = item.classList.contains("open");
+        document.querySelectorAll(".faq-item").forEach((entry) => entry.classList.remove("open"));
+        if (!isOpen) item.classList.add("open");
+      });
+    });
+
+    const form = document.getElementById("boss-fries-form");
+    const submitBtn = document.getElementById("submitBtn");
+    const formStatus = document.getElementById("formStatus");
+
+    const setFormStatus = (message, type) => {
+      formStatus.textContent = message || "";
+      formStatus.className = "form-status" + (type ? " " + type : "");
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const firstName = String(formData.get("first_name") || "").trim();
+      const lastName = String(formData.get("last_name") || "").trim();
+      const name = [firstName, lastName].filter(Boolean).join(" ").trim();
+      const phone = String(formData.get("phone") || "").trim();
+      const email = String(formData.get("email") || "").trim();
+      const location = String(formData.get("location") || "").trim();
+      const budget = String(formData.get("budget") || "").trim();
+      const targetLaunch = String(formData.get("target_launch") || "").trim();
+      const sourceChannel = String(formData.get("source_channel") || "").trim();
+      const message = String(formData.get("message") || "").trim();
+
+      if (!name || !phone || !email) {
+        setFormStatus("Please complete your name, email, and mobile number.", "error");
+        return;
+      }
+
+      const commentParts = [];
+      if (message) commentParts.push(message);
+      if (location) commentParts.push("Preferred location: " + location);
+      if (budget) commentParts.push("Budget range: " + budget);
+      if (targetLaunch) commentParts.push("Target launch: " + targetLaunch);
+
+      const payload = {
+        name,
+        phone,
+        email,
+        location,
+        message,
+        comment: commentParts.join("\n") || "Boss Fries franchise inquiry from landing page.",
+        franchise_interest: "Boss Fries",
+        source: sourceChannel ? "Boss Fries Landing Page - " + sourceChannel : "Boss Fries Landing Page"
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+      setFormStatus("", "");
+
+      try {
+        const response = await fetch(window.HHF_INQUIRY_API_URL || "/api/inquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to submit inquiry.");
+        }
+
+        const leadText = data.leadId ? " Reference: " + data.leadId + "." : "";
+        const autoReplyText = data.autoReplySent ? " Confirmation email sent." : "";
+        setFormStatus("Inquiry submitted successfully." + leadText + autoReplyText, "success");
+        form.reset();
+      } catch (error) {
+        setFormStatus(error.message || "Unable to send inquiry right now. Please try again.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Franchise Inquiry";
+      }
+    });
+  </script>
+  <script src="live-chat-loader.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
