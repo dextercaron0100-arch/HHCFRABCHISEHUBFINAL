@@ -9764,6 +9764,101 @@ body.modal-open {
   background: linear-gradient(135deg, rgba(215, 45, 23, 0.98), rgba(148, 26, 13, 0.96));
 }
 
+.fries-page .fries-invest {
+  padding-top: 0.35rem;
+}
+
+.fries-page .fries-invest-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.35rem, 2vw, 1.8rem);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 214, 0, 0.16), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(232, 0, 43, 0.16), transparent 34%),
+    linear-gradient(145deg, rgba(74, 23, 8, 0.94), rgba(40, 13, 6, 0.96));
+  box-shadow: 0 24px 46px rgba(0, 0, 0, 0.34);
+}
+
+.fries-page .fries-invest-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 220, 123, 0.7), rgba(255, 107, 0, 0.26), rgba(232, 0, 43, 0.34));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.fries-page .fries-invest-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.fries-page .fries-invest-kicker {
+  width: fit-content;
+  margin: 0;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 220, 123, 0.36);
+  background: rgba(255, 214, 0, 0.1);
+  color: #ffe58f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.fries-page .fries-invest-grid {
+  gap: 1rem;
+}
+
+.fries-page .fries-invest-item {
+  position: relative;
+  min-height: 142px;
+  padding: 1.1rem 1rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 194, 120, 0.24);
+  background: linear-gradient(180deg, rgba(98, 32, 10, 0.88), rgba(61, 20, 8, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 238, 202, 0.06);
+}
+
+.fries-page .fries-invest-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.9rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd600, #ff9f1a);
+  color: #4a1608;
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fries-page .fries-invest-item span {
+  color: rgba(255, 229, 183, 0.84);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fries-page .fries-invest-item strong {
+  max-width: 16ch;
+  color: #fff8ef;
+  font-size: clamp(1rem, 2vw, 1.12rem);
+  line-height: 1.35;
+}
+
 .fries-page .bigstop-proof-media.fries-media-fit {
   display: flex;
   align-items: center;
@@ -9996,6 +10091,10 @@ body.modal-open {
 
   .bigstop-invest-grid {
     grid-template-columns: 1fr;
+  }
+
+  .fries-page .fries-invest-item {
+    min-height: 0;
   }
 
   .invest-header.stacked {
