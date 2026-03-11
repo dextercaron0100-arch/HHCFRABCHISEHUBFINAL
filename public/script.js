@@ -1592,6 +1592,7 @@ prefersReducedMotion.addEventListener('change', (event) => {
     frame.style.transition = 'width 180ms ease, height 180ms ease, right 180ms ease, bottom 180ms ease';
 
     let isOpen = false;
+    let resizeFrame = 0;
 
     const getBottomOffset = (mobile, panelWidth) => {
       const baseBottom = mobile ? 8 : 12;
@@ -1633,6 +1634,14 @@ prefersReducedMotion.addEventListener('change', (event) => {
       frame.style.bottom = `${bottomOffset}px`;
     };
 
+    const requestFrameSizeUpdate = () => {
+      if (resizeFrame) return;
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        applyFrameSize(isOpen);
+      });
+    };
+
     const handleMessage = (event) => {
       if (event.origin !== chatOrigin) return;
       if (!event.data || event.data.type !== 'hhf-live-chat:state') return;
@@ -1640,24 +1649,40 @@ prefersReducedMotion.addEventListener('change', (event) => {
     };
 
     window.addEventListener('message', handleMessage);
-    window.addEventListener('resize', () => {
-      applyFrameSize(isOpen);
-    });
+    window.addEventListener('resize', requestFrameSizeUpdate);
 
-    const observer = new MutationObserver(() => {
-      applyFrameSize(isOpen);
-    });
+    const observer = new MutationObserver(requestFrameSizeUpdate);
 
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style'],
     });
 
     applyFrameSize(false);
     document.body.appendChild(frame);
   };
 
-  startLiveChat();
+  const scheduleLiveChat = () => {
+    const startWhenIdle = () => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          startLiveChat();
+        }, { timeout: 2200 });
+        return;
+      }
+
+      window.setTimeout(() => {
+        startLiveChat();
+      }, 900);
+    };
+
+    if (document.readyState === 'complete') {
+      startWhenIdle();
+      return;
+    }
+
+    window.addEventListener('load', startWhenIdle, { once: true });
+  };
+
+  scheduleLiveChat();
 })();

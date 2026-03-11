@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   BriefcaseBusiness,
@@ -368,41 +368,113 @@ function useCurrentCard(activeTab, slideIndex) {
 }
 
 function TiltCard({ children, className = '' }) {
-  const [rotation, setRotation] = useState({ x: 0, y: 0 })
-  const [glow, setGlow] = useState({ x: 50, y: 50, opacity: 0.24 })
+  const shellRef = useRef(null)
+  const glowRef = useRef(null)
+  const frameRef = useRef(0)
+  const latestStateRef = useRef({ x: 0, y: 0, glowX: 50, glowY: 50, opacity: 0.24, active: false })
+  const coarsePointerRef = useRef(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined
+
+    const mediaQuery = window.matchMedia('(pointer: coarse)')
+    const syncPointerMode = (event) => {
+      coarsePointerRef.current = event.matches
+      if (event.matches) {
+        latestStateRef.current = { x: 0, y: 0, glowX: 50, glowY: 50, opacity: 0.24, active: false }
+        if (frameRef.current) {
+          cancelAnimationFrame(frameRef.current)
+          frameRef.current = 0
+        }
+
+        if (shellRef.current) {
+          shellRef.current.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0)'
+          shellRef.current.classList.remove('is-interacting')
+        }
+        if (glowRef.current) {
+          glowRef.current.style.opacity = '0.24'
+          glowRef.current.style.background =
+            'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.08) 24%, rgba(255,255,255,0) 58%)'
+        }
+      }
+    }
+
+    syncPointerMode(mediaQuery)
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', syncPointerMode)
+      return () => mediaQuery.removeEventListener('change', syncPointerMode)
+    }
+
+    mediaQuery.addListener(syncPointerMode)
+    return () => mediaQuery.removeListener(syncPointerMode)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current)
+      }
+    }
+  }, [])
+
+  const flushTilt = () => {
+    frameRef.current = 0
+    const shell = shellRef.current
+    const glow = glowRef.current
+    const state = latestStateRef.current
+    if (!shell || !glow) return
+
+    shell.style.transform = `rotateX(${state.x}deg) rotateY(${state.y}deg) translateZ(0)`
+    shell.classList.toggle('is-interacting', state.active)
+    glow.style.opacity = String(state.opacity)
+    glow.style.background = `radial-gradient(circle at ${state.glowX}% ${state.glowY}%, rgba(255,255,255,${state.opacity}) 0%, rgba(255,255,255,0.08) 24%, rgba(255,255,255,0) 58%)`
+  }
+
+  const queueTilt = (nextState) => {
+    latestStateRef.current = nextState
+    if (frameRef.current) return
+    frameRef.current = requestAnimationFrame(flushTilt)
+  }
 
   const handleMove = (event) => {
-    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return
+    if (coarsePointerRef.current) return
     const rect = event.currentTarget.getBoundingClientRect()
     const px = (event.clientX - rect.left) / rect.width
     const py = (event.clientY - rect.top) / rect.height
 
-    setRotation({ x: (0.5 - py) * 8, y: (px - 0.5) * 11 })
-    setGlow({ x: px * 100, y: py * 100, opacity: 0.42 })
+    queueTilt({
+      x: (0.5 - py) * 8,
+      y: (px - 0.5) * 11,
+      glowX: px * 100,
+      glowY: py * 100,
+      opacity: 0.42,
+      active: true,
+    })
   }
 
   const handleLeave = () => {
-    setRotation({ x: 0, y: 0 })
-    setGlow({ x: 50, y: 50, opacity: 0.24 })
+    queueTilt({ x: 0, y: 0, glowX: 50, glowY: 50, opacity: 0.24, active: false })
   }
 
   return (
     <div className="fr3d-perspective" onMouseMove={handleMove} onMouseLeave={handleLeave}>
-      <motion.div
-        animate={{ rotateX: rotation.x, rotateY: rotation.y }}
-        transition={{ type: 'spring', stiffness: 170, damping: 16, mass: 0.62 }}
+      <div
+        ref={shellRef}
         style={{ transformStyle: 'preserve-3d' }}
         className={`fr3d-card-shell ${className}`}
       >
         <div
+          ref={glowRef}
           className="fr3d-card-pointer-glow"
           style={{
-            background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(255,255,255,${glow.opacity}) 0%, rgba(255,255,255,0.08) 24%, rgba(255,255,255,0) 58%)`,
+            background:
+              'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.08) 24%, rgba(255,255,255,0) 58%)',
           }}
         />
         <div className="fr3d-card-top-light" />
         {children}
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -413,7 +485,7 @@ export default function Franchise3DSection() {
   const [slideIndex, setSlideIndex] = useState(0)
   const [direction, setDirection] = useState(1)
   const currentCard = useCurrentCard(activeTab, slideIndex)
-  const currentList = DATA[activeTab] || []
+  const currentList = useMemo(() => DATA[activeTab] || [], [activeTab])
   const hasManyCards = currentList.length > 1
   const isFoodTab = activeTab === 'Food'
   const [applyModalCard, setApplyModalCard] = useState(null)

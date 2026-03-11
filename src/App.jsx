@@ -1,15 +1,164 @@
 import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import homeContent from './home-content.html?raw'
-import Franchise3DSection from './Franchise3DSection.jsx'
-import LivePurchaseToast from './LivePurchaseToast.jsx'
 import './cookie-consent.css'
 
 const COOKIE_CONSENT_KEY = 'hhf_cookie_consent_v1'
+const LEGACY_SCRIPT_IDLE_TIMEOUT_MS = 1200
+const FRANCHISE_SECTION_IDLE_TIMEOUT_MS = 2200
+const TOAST_IDLE_TIMEOUT_MS = 1800
+
+function scheduleIdleWork(callback, timeout) {
+  if (typeof window === 'undefined') {
+    return () => {}
+  }
+
+  if ('requestIdleCallback' in window) {
+    const idleId = window.requestIdleCallback(callback, { timeout })
+    return () => window.cancelIdleCallback?.(idleId)
+  }
+
+  const timeoutId = window.setTimeout(callback, Math.min(timeout, 700))
+  return () => window.clearTimeout(timeoutId)
+}
+
+function FranchiseSectionFallback() {
+  const placeholderCardStyle = {
+    minHeight: '230px',
+    borderRadius: '24px',
+    border: '1px solid rgba(148, 163, 184, 0.2)',
+    background:
+      'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(241,245,249,0.92) 100%)',
+    boxShadow: '0 16px 40px rgba(15, 23, 42, 0.08)',
+  }
+
+  return (
+    <section
+      className="section"
+      id="franchises"
+      aria-busy="true"
+      style={{
+        background: 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #f8fafc 100%)',
+      }}
+    >
+      <div
+        style={{
+          width: 'min(1120px, calc(100% - 2.5rem))',
+          margin: '0 auto',
+          color: '#0f172a',
+          textAlign: 'center',
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: '#475569',
+          }}
+        >
+          Franchise Opportunities
+        </p>
+        <h2
+          style={{
+            margin: '0.8rem 0 0.6rem',
+            fontFamily: 'var(--font-serif)',
+            fontSize: 'clamp(1.9rem, 4vw, 3rem)',
+            lineHeight: 1.08,
+          }}
+        >
+          Loading interactive franchise showcase...
+        </h2>
+        <p
+          style={{
+            margin: '0 auto',
+            maxWidth: '44rem',
+            color: '#475569',
+            lineHeight: 1.7,
+          }}
+        >
+          Preparing the 3D cards, reviews, and application flow.
+        </p>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '1rem',
+            marginTop: '1.75rem',
+          }}
+        >
+          <div style={placeholderCardStyle} />
+          <div style={placeholderCardStyle} />
+          <div style={placeholderCardStyle} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function DeferredFranchiseSection() {
+  const hostRef = useRef(null)
+  const [SectionComponent, setSectionComponent] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    let hasStartedLoading = false
+    let observer
+
+    const loadSection = () => {
+      if (cancelled || hasStartedLoading) return
+      hasStartedLoading = true
+
+      import('./Franchise3DSection.jsx')
+        .then(({ default: Component }) => {
+          if (cancelled) return
+          setSectionComponent(() => Component)
+        })
+        .catch(() => {
+          hasStartedLoading = false
+        })
+    }
+
+    if (hostRef.current && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const isVisible = entries.some((entry) => entry.isIntersecting)
+          if (!isVisible) return
+          loadSection()
+          observer.disconnect()
+        },
+        { rootMargin: '360px 0px' }
+      )
+      observer.observe(hostRef.current)
+    }
+
+    const cancelIdleLoad = scheduleIdleWork(loadSection, FRANCHISE_SECTION_IDLE_TIMEOUT_MS)
+
+    return () => {
+      cancelled = true
+      observer?.disconnect()
+      cancelIdleLoad()
+    }
+  }, [])
+
+  if (SectionComponent) {
+    return <SectionComponent />
+  }
+
+  return (
+    <div ref={hostRef}>
+      <FranchiseSectionFallback />
+    </div>
+  )
+}
 
 function App() {
   const franchiseRootRef = useRef(null)
   const [showCookieConsent, setShowCookieConsent] = useState(false)
+  const [LivePurchaseToastComponent, setLivePurchaseToastComponent] = useState(null)
 
   useEffect(() => {
     document.body.classList.add('home-page')
@@ -19,19 +168,31 @@ function App() {
       yearSpan.textContent = new Date().getFullYear()
     }
 
-    let legacyScript = document.querySelector('script[data-hhf-script="legacy"]')
-    if (!legacyScript) {
+    let componentCancelled = false
+    const cancelLegacyScriptLoad = scheduleIdleWork(() => {
+      let legacyScript = document.querySelector('script[data-hhf-script="legacy"]')
+      if (legacyScript) return
+
       legacyScript = document.createElement('script')
       legacyScript.src = '/script.js'
-      legacyScript.defer = true
+      legacyScript.async = true
       legacyScript.dataset.hhfScript = 'legacy'
       document.body.appendChild(legacyScript)
-    }
+    }, LEGACY_SCRIPT_IDLE_TIMEOUT_MS)
+
+    const cancelToastLoad = scheduleIdleWork(() => {
+      import('./LivePurchaseToast.jsx')
+        .then(({ default: Component }) => {
+          if (componentCancelled) return
+          setLivePurchaseToastComponent(() => Component)
+        })
+        .catch(() => {})
+    }, TOAST_IDLE_TIMEOUT_MS)
 
     const franchiseHost = document.getElementById('franchise3d-host')
     if (franchiseHost && !franchiseRootRef.current) {
       franchiseRootRef.current = createRoot(franchiseHost)
-      franchiseRootRef.current.render(<Franchise3DSection />)
+      franchiseRootRef.current.render(<DeferredFranchiseSection />)
     }
 
     const scrollToHashTarget = () => {
@@ -77,6 +238,9 @@ function App() {
     }
 
     return () => {
+      componentCancelled = true
+      cancelLegacyScriptLoad()
+      cancelToastLoad()
       window.removeEventListener('hashchange', onHashChange)
 
       if (franchiseRootRef.current) {
@@ -99,7 +263,7 @@ function App() {
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: homeContent }} />
-      <LivePurchaseToast position="bottom-left" mobileFullWidth />
+      {LivePurchaseToastComponent ? <LivePurchaseToastComponent position="bottom-left" mobileFullWidth /> : null}
 
       {showCookieConsent ? (
         <aside className="cookie-consent-wrap" aria-live="polite" aria-label="Cookie notice">

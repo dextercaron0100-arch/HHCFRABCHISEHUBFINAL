@@ -241,6 +241,7 @@
 
 .fr3d-perspective {
   perspective: 1200px;
+  contain: paint;
 }
 
 .fr3d-card-shell {
@@ -249,12 +250,21 @@
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.36);
   box-shadow: 0 22px 52px rgba(15, 23, 42, 0.18);
+  transform: rotateX(0deg) rotateY(0deg) translateZ(0);
+  transition: transform 0.22s ease-out;
+  will-change: transform;
+}
+
+.fr3d-card-shell.is-interacting {
+  transition-duration: 0.08s;
 }
 
 .fr3d-card-pointer-glow {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  opacity: 0.24;
+  will-change: opacity;
 }
 
 .fr3d-card-top-light {
@@ -456,6 +466,7 @@
   background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.14), transparent 70%);
   pointer-events: none;
   animation: fr3dNextGlow 5.8s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .fr3d-next-grid {
@@ -592,6 +603,7 @@
   background: linear-gradient(90deg, #f59e0b, #ef4444, #ec4899, #3b82f6);
   background-size: 180% 100%;
   animation: fr3dBarShift 3.4s linear infinite;
+  will-change: background-position;
 }
 
 .fr-reviews {
@@ -675,6 +687,7 @@
   gap: 0.75rem;
   width: max-content;
   animation: frReviewsMarquee linear infinite;
+  will-change: transform;
 }
 
 .fr-reviews-track:hover {
@@ -1370,5 +1383,36 @@ body.modal-open {
   .fr3d-food-description {
     font-size: 0.8rem;
     -webkit-line-clamp: 10;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .fr3d-card-shell,
+  .fr3d-food-link,
+  .fr3d-next-btn,
+  .fr3d-steps li {
+    transition: none;
+  }
+
+  .fr3d-next::before,
+  .fr3d-next-bar,
+  .fr-reviews-track {
+    animation: none !important;
+  }
+
+  .fr-reviews-marquee-shell {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .fr-reviews-marquee-shell::before,
+  .fr-reviews-marquee-shell::after {
+    display: none;
+  }
+
+  .fr-reviews-track {
+    width: max-content;
+    padding-bottom: 0.18rem;
   }
 }

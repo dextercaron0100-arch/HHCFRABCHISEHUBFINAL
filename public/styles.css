@@ -134,6 +134,16 @@ button {
   padding-block: 4rem;
 }
 
+body.home-page main > .section:not(.hero) {
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
+}
+
+body.home-page main > #franchise3d-host {
+  content-visibility: auto;
+  contain-intrinsic-size: 1320px;
+}
+
 .section-header {
   text-align: center;
   margin-bottom: 2.5rem;
