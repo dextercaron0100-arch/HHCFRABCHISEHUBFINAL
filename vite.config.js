@@ -53,6 +53,7 @@ function extensionlessHtmlRewritePlugin(routes) {
 export default defineConfig({
   plugins: [react(), tailwindcss(), extensionlessHtmlRewritePlugin(cleanUrlHtmlRoutes)],
   server: {
+    host: '0.0.0.0',
     open: '/index.html',
     proxy: {
       '/api': {
@@ -62,6 +63,7 @@ export default defineConfig({
     },
   },
   preview: {
+    host: '0.0.0.0',
     open: '/index.html',
   },
   build: {

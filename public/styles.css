@@ -9087,6 +9087,11 @@ body.modal-open {
     linear-gradient(160deg, rgba(68, 24, 6, 0.88), rgba(37, 13, 3, 0.92));
 }
 
+.siomai-page .bigstop-hero-card-visual img {
+  width: min(92%, 420px);
+  max-height: 220px;
+}
+
 .siomai-page .bigstop-proof-media,
 .siomai-page .bigstop-proof-side > p,
 .siomai-page .bigstop-stat-card,
@@ -9206,6 +9211,15 @@ body.modal-open {
   max-width: 420px;
   filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.46));
   text-align: center;
+}
+
+.siomai-why-brand img {
+  display: block;
+  width: min(100%, 420px);
+  height: auto;
+  margin: 0 auto;
+  border-radius: 24px;
+  object-fit: cover;
 }
 
 .siomai-why-right {
@@ -10387,6 +10401,9 @@ body.modal-open {
 
 .siomai-packages-logo img {
   width: min(320px, 36vw);
+  height: auto;
+  border-radius: 22px;
+  object-fit: cover;
   filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.35));
 }
 

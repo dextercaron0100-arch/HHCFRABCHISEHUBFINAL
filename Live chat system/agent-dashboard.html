@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Chat — Agent Dashboard</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#040404;--panel:#090909;--surface:#0e0e0e;--border:#2a2218;
+  --accent:#c9a84c;--accent2:#f0d080;--gold:#c9a84c;--gold2:#f0d080;
+  --red:#ef4444;--green:#22c55e;--text:#f5f0e8;--muted:#7a6e58;--radius:12px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;gap:16px;padding:0 20px;
+  height:54px;background:var(--panel);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.logo{font-size:16px;font-weight:700;letter-spacing:.05em;font-family:'Cormorant Garamond',serif;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar-spacer{flex:1;}
+.topbar-stat{display:flex;align-items:center;gap:6px;padding:5px 12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  font-size:12px;color:var(--muted);}
+.topbar-stat span{font-weight:600;color:var(--accent2);}
+.agent-info{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.agent-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+.logout-btn{padding:6px 14px;font-size:12px;font-weight:500;border:1px solid var(--border);
+  background:none;color:var(--muted);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:border-color .15s,color .15s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ── MAIN LAYOUT ── */
+.main{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:300px;flex-shrink:0;
+  background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sidebar-header{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.sidebar-title{font-size:13px;font-weight:600;flex:1;}
+.filter-tabs{display:flex;gap:4px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.ftab{
+  padding:4px 10px;font-size:11px;font-weight:500;border-radius:20px;
+  background:none;border:1px solid transparent;cursor:pointer;
+  color:var(--muted);font-family:'DM Sans',sans-serif;transition:.15s;
+}
+.ftab.active{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.4);color:var(--accent2);}
+.session-list{flex:1;overflow-y:auto;padding:8px;}
+.session-list::-webkit-scrollbar{width:4px;}
+.session-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.session-card{
+  padding:11px 13px;border-radius:10px;cursor:pointer;margin-bottom:4px;
+  border:1px solid transparent;transition:.15s;background:var(--surface);
+}
+.session-card:hover{border-color:var(--border);}
+.session-card.selected{background:#131324;border-color:var(--accent);}
+.sc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sc-name{font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sc-badge{
+  font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;
+  letter-spacing:.04em;flex-shrink:0;
+}
+.badge-bot   {background:rgba(201,168,76,.12);color:var(--accent2);}
+.badge-queued{background:rgba(240,208,128,.12);color:var(--gold2); animation:badgePulse 1.2s infinite;}
+.badge-active{background:rgba(34,197,94,.10);color:#4ade80;}
+.badge-closed{background:rgba(100,100,100,.10);color:var(--muted);}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.5}}
+.sc-topic{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sc-last{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
+.sc-meta{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.sc-time{font-size:10px;color:var(--muted);}
+.sc-online{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.online-true{background:var(--green);}
+.online-false{background:var(--muted);}
+.empty-list{padding:32px 16px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ── CHAT AREA ── */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.chat-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);}
+.chat-placeholder-icon{font-size:48px;opacity:.3;}
+.chat-placeholder-text{font-size:14px;}
+
+/* Chat Panel */
+.chat-panel{flex:1;display:none;flex-direction:column;overflow:hidden;}
+.chat-panel.visible{display:flex;}
+.chat-topbar{
+  padding:12px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+  background:var(--panel);
+}
+.ct-info{flex:1;}
+.ct-name{font-size:14px;font-weight:600;}
+.ct-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.ct-actions{display:flex;gap:6px;}
+.ct-btn{
+  padding:6px 13px;font-size:11px;font-weight:600;border-radius:8px;
+  border:1px solid var(--border);background:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:.15s;
+  display:flex;align-items:center;gap:5px;
+}
+.ct-btn.join{color:#4ade80;border-color:rgba(34,197,94,.3);}
+.ct-btn.join:hover{background:rgba(34,197,94,.08);}
+.ct-btn.transfer{color:var(--accent2);border-color:rgba(201,168,76,.3);}
+.ct-btn.transfer:hover{background:rgba(201,168,76,.1);}
+.ct-btn.close-chat{color:var(--red);border-color:rgba(239,68,68,.3);}
+.ct-btn.close-chat:hover{background:rgba(239,68,68,.1);}
+
+/* Messages */
+#agent-messages{
+  flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+#agent-messages::-webkit-scrollbar{width:4px;}
+#agent-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.amsg{display:flex;flex-direction:column;max-width:72%;}
+.amsg.user    {align-self:flex-end;align-items:flex-end;}
+.amsg.assistant,.amsg.bot{align-self:flex-start;align-items:flex-start;}
+.amsg.agent   {align-self:flex-end;align-items:flex-end;}
+.amsg.system  {align-self:center;}
+.amsg-name{font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:500;}
+.amsg-bubble{
+  padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.55;
+  color:var(--text);word-break:break-word;
+}
+.amsg.user   .amsg-bubble{background:#0e0d0a;border:1px solid #2a2218;border-bottom-right-radius:4px;}
+.amsg.assistant .amsg-bubble,.amsg.bot .amsg-bubble{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.amsg.agent  .amsg-bubble{background:linear-gradient(135deg,#110f06,#181408);border:1px solid #3a3020;border-bottom-right-radius:4px;color:var(--accent2);}
+.amsg.system .amsg-bubble{background:transparent;color:var(--muted);font-size:11px;font-style:italic;border-left:2px solid var(--border);padding:2px 8px;border-radius:0;}
+.amsg-time{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* Agent Input */
+.agent-input-area{
+  padding:12px 16px;border-top:1px solid var(--border);
+  display:flex;gap:8px;align-items:flex-end;background:var(--panel);
+}
+#agent-msg-input{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:10px 13px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  outline:none;resize:none;max-height:100px;min-height:40px;
+  line-height:1.4;transition:border-color .15s;scrollbar-width:none;
+}
+#agent-msg-input:focus{border-color:var(--accent);}
+#agent-msg-input::placeholder{color:var(--muted);}
+.agent-send-btn{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:opacity .15s;
+}
+.agent-send-btn:hover{opacity:.85;}
+.agent-send-btn svg{width:18px;height:18px;fill:#000;}
+
+/* ── LOGIN OVERLAY ── */
+#login-overlay{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:100;
+}
+.login-card{
+  width:360px;padding:36px;
+  background:var(--panel);border:1px solid var(--border);border-radius:18px;
+}
+.login-logo{font-size:24px;font-weight:700;margin-bottom:4px;font-family:'Cormorant Garamond',serif;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:10px;font-weight:600;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+.form-group input{
+  width:100%;background:#080808;border:1px solid var(--border);
+  border-radius:10px;padding:10px 13px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;outline:none;
+  transition:border-color .15s;
+}
+.form-group input:focus{border-color:var(--accent);}
+.login-btn{
+  width:100%;padding:12px;margin-top:4px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.05em;border:none;border-radius:12px;cursor:pointer;transition:opacity .15s;
+}
+.login-btn:hover{opacity:.9;}
+.login-error{font-size:12px;color:var(--red);margin-top:10px;display:none;}
+.login-creds{font-size:11px;color:var(--muted);margin-top:14px;padding:10px;
+  background:var(--surface);border-radius:8px;line-height:1.7;
+  font-family:'DM Mono',monospace;}
+</style>
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">LiveChat</div>
+    <div class="login-sub">Agent Dashboard — Sign in to continue</div>
+    <div class="form-group">
+      <label>Username</label>
+      <input id="login-user" type="text" placeholder="username" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div id="login-error" class="login-error">Invalid credentials. Try again.</div>
+    <div class="login-creds">
+      Default agents:<br>
+      admin / admin123<br>
+      agent1 / agent123
+    </div>
+  </div>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="logo">✦ LiveChat</div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-stat" id="stat-queued">Queued <span id="c-queued">0</span></div>
+  <div class="topbar-stat" id="stat-active">Active <span id="c-active">0</span></div>
+  <div class="topbar-stat">Bot <span id="c-bot">0</span></div>
+  <div class="topbar-stat">Closed <span id="c-closed">0</span></div>
+  <div class="agent-info"><div class="agent-dot"></div><span id="agent-name-display">Agent</span></div>
+  <button class="logout-btn" onclick="doLogout()">Logout</button>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Sessions</div>
+    </div>
+    <div class="filter-tabs">
+      <button class="ftab active" onclick="setFilter('all',this)">All</button>
+      <button class="ftab" onclick="setFilter('queued',this)">Queued</button>
+      <button class="ftab" onclick="setFilter('active',this)">Active</button>
+      <button class="ftab" onclick="setFilter('bot',this)">Bot</button>
+      <button class="ftab" onclick="setFilter('closed',this)">Closed</button>
+    </div>
+    <div class="session-list" id="session-list">
+      <div class="empty-list">No sessions yet</div>
+    </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <div class="chat-placeholder" id="chat-placeholder">
+      <div class="chat-placeholder-icon">💬</div>
+      <div class="chat-placeholder-text">Select a session to view chat</div>
+    </div>
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-topbar">
+        <div class="ct-info">
+          <div class="ct-name" id="ct-name">—</div>
+          <div class="ct-meta" id="ct-meta">—</div>
+        </div>
+        <div class="ct-actions" id="ct-actions"></div>
+      </div>
+      <div id="agent-messages"></div>
+      <div class="agent-input-area" id="agent-input-area" style="display:none">
+        <textarea id="agent-msg-input" placeholder="Type reply..." rows="1"
+          onkeydown="handleAgentKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="agent-send-btn" onclick="sendAgentMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const query = new URLSearchParams(window.location.search);
+const SERVER_URL =
+  query.get('server') ||
+  window.CHAT_SERVER_URL ||
+  ((window.location.protocol === 'http:' || window.location.protocol === 'https:')
+    ? window.location.origin
+    : 'http://localhost:3000');
+
+let token    = null;
+let agentMe  = null;
+let socket   = null;
+let sessions = {};
+let activeSessionId = null;
+let filterMode = 'all';
+
+// ── LOGIN ────────────────────────────────────
+async function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  try {
+    const r = await fetch(SERVER_URL + '/api/agent/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username:u, password:p })
+    });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    token = d.token; agentMe = d.agent;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('agent-name-display').textContent = agentMe.name;
+    connectAgentSocket();
+  } catch {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+function doLogout() {
+  token=null; agentMe=null;
+  if(socket) socket.disconnect();
+  sessions={};
+  document.getElementById('login-overlay').style.display='flex';
+}
+
+// ── SOCKET ───────────────────────────────────
+function connectAgentSocket() {
+  socket = io(SERVER_URL + '/agent', {
+    auth: { token },
+    transports: ['websocket','polling']
+  });
+
+  socket.on('sessions:list', list => {
+    list.forEach(s => sessions[s.id] = s);
+    renderList(); updateStats();
+  });
+  socket.on('sessions:update', s => {
+    sessions[s.id] = s;
+    renderList(); updateStats();
+    if (activeSessionId === s.id) updateChatHeader(s);
+  });
+  socket.on('sessions:queued', s => {
+    sessions[s.id] = s;
+    renderList(); updateStats();
+    notifyQueued(s);
+  });
+  socket.on('session:transcript', s => {
+    sessions[s.id] = s;
+    renderTranscript(s);
+    updateChatHeader(s);
+  });
+  socket.on('chat:message', ({ sessionId, role, content, ts }) => {
+    if (activeSessionId !== sessionId) {
+      if (sessions[sessionId]) sessions[sessionId].unread = (sessions[sessionId].unread||0)+1;
+      renderList(); return;
+    }
+    appendAgentMessage(role, content, ts);
+  });
+  socket.on('session:closed', ({ sessionId }) => {
+    if (sessions[sessionId]) sessions[sessionId].status = 'closed';
+    renderList(); updateStats();
+    if (activeSessionId === sessionId) updateChatHeader(sessions[sessionId]);
+  });
+  socket.on('connect_error', e => console.error('Agent socket error:', e.message));
+}
+
+// ── SESSION LIST ──────────────────────────────
+function setFilter(f, el) {
+  filterMode = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const list = Object.values(sessions)
+    .filter(s => filterMode === 'all' || s.status === filterMode)
+    .sort((a,b) => {
+      const order = { queued:0, active:1, bot:2, closed:3 };
+      return (order[a.status]??9) - (order[b.status]??9) || b.updatedAt - a.updatedAt;
+    });
+
+  const el = document.getElementById('session-list');
+  if (!list.length) { el.innerHTML = '<div class="empty-list">No sessions</div>'; return; }
+
+  el.innerHTML = list.map(s => `
+    <div class="session-card ${activeSessionId===s.id?'selected':''}" onclick="selectSession('${s.id}')">
+      <div class="sc-top">
+        <div class="sc-name">${esc(s.visitorName)}</div>
+        <div class="sc-badge badge-${s.status}">${s.status}</div>
+        ${s.unread ? `<div class="sc-badge" style="background:rgba(201,168,76,.2);color:var(--accent2)">${s.unread}</div>` : ''}
+      </div>
+      <div class="sc-topic">${esc(s.topic)}</div>
+      <div class="sc-last">${esc(s.lastMessage||'')}</div>
+      <div class="sc-meta">
+        <div class="sc-online online-${s.online}"></div>
+        <div class="sc-time">${timeAgo(s.updatedAt)}</div>
+        ${s.assignedAgent ? `<div style="font-size:10px;color:var(--muted)">· ${esc(s.assignedAgent)}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function updateStats() {
+  const all = Object.values(sessions);
+  document.getElementById('c-queued').textContent = all.filter(s=>s.status==='queued').length;
+  document.getElementById('c-active').textContent  = all.filter(s=>s.status==='active').length;
+  document.getElementById('c-bot').textContent     = all.filter(s=>s.status==='bot').length;
+  document.getElementById('c-closed').textContent  = all.filter(s=>s.status==='closed').length;
+}
+
+// ── SELECT SESSION ─────────────────────────────
+function selectSession(id) {
+  activeSessionId = id;
+  if (sessions[id]) sessions[id].unread = 0;
+  renderList();
+  document.getElementById('chat-placeholder').style.display = 'none';
+  document.getElementById('chat-panel').classList.add('visible');
+  socket.emit('session:join', { sessionId: id });
+}
+
+function renderTranscript(s) {
+  const el = document.getElementById('agent-messages');
+  el.innerHTML = '';
+  s.messages.forEach(m => appendAgentMessage(m.role, m.content, m.ts));
+  updateChatHeader(s);
+}
+
+function appendAgentMessage(role, content, ts) {
+  const el = document.getElementById('agent-messages');
+  const div = document.createElement('div');
+  div.className = 'amsg ' + role;
+  const names = { user:'👤 Visitor', assistant:'🤖 Bot', agent:'👨‍💼 You (Agent)', system:'System', bot:'🤖 Bot' };
+  const time = ts ? new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+  div.innerHTML = `
+    <div class="amsg-name">${names[role]||role}</div>
+    <div class="amsg-bubble">${esc(content)}</div>
+    <div class="amsg-time">${time}</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateChatHeader(s) {
+  document.getElementById('ct-name').textContent = s.visitorName + (s.visitorEmail ? ` <${s.visitorEmail}>` : '');
+  document.getElementById('ct-meta').textContent = `${s.topic} · ${s.status} · ${s.messageCount} msgs · ${s.online?'Online':'Offline'}`;
+
+  const actionsEl = document.getElementById('ct-actions');
+  const inputEl   = document.getElementById('agent-input-area');
+
+  if (s.status === 'closed') {
+    actionsEl.innerHTML = `<span style="font-size:12px;color:var(--muted)">Closed</span>`;
+    inputEl.style.display = 'none';
+    return;
+  }
+
+  const isMySession = s.assignedAgent === agentMe?.name;
+  let btns = '';
+
+  if (s.status === 'queued' || s.status === 'bot' || (s.status === 'active' && !isMySession)) {
+    btns += `<button class="ct-btn join" onclick="joinSession('${s.id}')">✔ Take Chat</button>`;
+  }
+  if (isMySession && s.status === 'active') {
+    btns += `<button class="ct-btn transfer" onclick="transferBot('${s.id}')">🤖 Transfer to Bot</button>`;
+  }
+  btns += `<button class="ct-btn close-chat" onclick="closeSession('${s.id}')">✕ Close</button>`;
+
+  actionsEl.innerHTML = btns;
+  inputEl.style.display = isMySession ? 'flex' : 'none';
+}
+
+// ── AGENT ACTIONS ─────────────────────────────
+function joinSession(id) {
+  socket.emit('session:join', { sessionId: id });
+}
+function closeSession(id) {
+  if (!confirm('Close this session?')) return;
+  socket.emit('session:close', { sessionId: id });
+}
+function transferBot(id) {
+  socket.emit('session:transfer_bot', { sessionId: id });
+}
+
+function sendAgentMessage() {
+  const input = document.getElementById('agent-msg-input');
+  const text = input.value.trim();
+  if (!text || !activeSessionId) return;
+  socket.emit('chat:message', { sessionId: activeSessionId, content: text });
+  input.value = ''; autoResize(input);
+}
+function handleAgentKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendAgentMessage(); }
+}
+
+// ── NOTIFICATION ─────────────────────────────
+function notifyQueued(s) {
+  if (Notification.permission === 'granted') {
+    new Notification('New chat queued', { body: `${s.visitorName} — ${s.topic}`, icon: '' });
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+}
+
+// ── HELPERS ───────────────────────────────────
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function timeAgo(ts) {
+  const d = (Date.now()-ts)/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+// Auto-refresh list every 30s
+setInterval(() => { if(token) { renderList(); updateStats(); } }, 30000);
+</script>
+</body>
+</html>
