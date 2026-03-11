@@ -92,6 +92,10 @@
 
   let frame = null;
   let isOpen = false;
+  const getViewportWidth = () =>
+    Math.floor(window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth || 0);
+  const getViewportHeight = () =>
+    Math.floor(window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight || 0);
 
   const getBottomOffset = (mobile, panelWidth) => {
     const baseBottom = mobile ? 8 : 12;
@@ -107,9 +111,9 @@
     const rect = cookieBanner.getBoundingClientRect();
     const clearance = 12;
     const rightEdgeAllowance = mobile ? 8 : 12;
-    const widgetZoneLeft = window.innerWidth - panelWidth - rightEdgeAllowance;
+    const widgetZoneLeft = getViewportWidth() - panelWidth - rightEdgeAllowance;
     const overlapsWidgetLane = rect.right > widgetZoneLeft;
-    const anchoredToBottom = rect.bottom >= window.innerHeight - 32;
+    const anchoredToBottom = rect.bottom >= getViewportHeight() - 32;
 
     if (!overlapsWidgetLane || !anchoredToBottom) {
       return baseBottom;
@@ -119,17 +123,23 @@
   };
 
   const getPanelMetrics = () => {
-    const mobile = window.innerWidth < 640;
-    const openWidth = mobile ? Math.min(window.innerWidth - 16, 390) : 410;
-    const openHeight = mobile ? Math.min(window.innerHeight - 16, 688) : 688;
+    const viewportWidth = getViewportWidth();
+    const viewportHeight = getViewportHeight();
+    const mobile = viewportWidth < 640;
+    const openWidth = mobile
+      ? Math.max(0, Math.min(viewportWidth - 16, 390))
+      : Math.max(0, Math.min(viewportWidth - 24, 410));
     const launcherSize = 64;
-    return { mobile, openWidth, openHeight, launcherSize };
+    const panelBottom = getBottomOffset(mobile, openWidth);
+    const topInset = mobile ? 8 : 12;
+    const availableHeight = Math.max(0, viewportHeight - panelBottom - topInset);
+    const openHeight = Math.min(688, availableHeight);
+    return { mobile, openWidth, openHeight, launcherSize, panelBottom };
   };
 
   const positionElements = () => {
-    const { mobile, openWidth, openHeight, launcherSize } = getPanelMetrics();
+    const { mobile, openWidth, openHeight, launcherSize, panelBottom } = getPanelMetrics();
     const launcherBottom = getBottomOffset(mobile, launcherSize);
-    const panelBottom = getBottomOffset(mobile, openWidth);
 
     launcher.style.left = mobile ? '12px' : 'auto';
     launcher.style.right = mobile ? 'auto' : '12px';
@@ -204,6 +214,8 @@
   window.addEventListener('resize', () => {
     positionElements();
   });
+  window.visualViewport?.addEventListener('resize', positionElements);
+  window.visualViewport?.addEventListener('scroll', positionElements);
 
   const observer = new MutationObserver(() => {
     positionElements();
