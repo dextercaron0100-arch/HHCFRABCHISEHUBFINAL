@@ -20,6 +20,7 @@ const Anthropic = require("@anthropic-ai/sdk");
 // CONFIG
 // ─────────────────────────────────────────────
 const PORT        = process.env.PORT        || 3000;
+const HOST        = process.env.HOST        || '0.0.0.0';
 const JWT_SECRET  = process.env.JWT_SECRET  || "change-me-in-production-secret";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost,http://127.0.0.1").split(",");
 
@@ -491,7 +492,7 @@ function getSessionSummary(s) {
 // ─────────────────────────────────────────────
 // START
 // ─────────────────────────────────────────────
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   console.log(`\n🚀 Live Chat Server running on port ${PORT}`);
   console.log(`   Visitor WS : ws://localhost:${PORT}/visitor`);
   console.log(`   Agent WS   : ws://localhost:${PORT}/agent`);
