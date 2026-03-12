@@ -16,6 +16,7 @@
       --black: #060606;
       --white: #ffffff;
       --line: rgba(255, 255, 255, 0.08);
+      --nav-height: 84px;
     }
 
     html { scroll-behavior: smooth; }
@@ -112,75 +113,227 @@
       transform: translateY(0);
     }
 
-    nav {
+    .container {
+      width: min(1200px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .site-header {
       position: fixed;
-      inset: 0 0 auto 0;
-      z-index: 20;
+      top: 0;
+      inset-inline: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255, 214, 0, 0.16);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.28));
+      backdrop-filter: blur(16px);
+    }
+
+    .site-header .nav {
+      min-height: var(--nav-height);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 54px;
-      border-top: 1px solid rgba(255, 214, 0, 0.28);
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.45), transparent);
-      backdrop-filter: blur(8px);
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
     }
 
     .nav-logo {
-      font-family: "Bebas Neue", sans-serif;
-      font-size: 2.35rem;
-      letter-spacing: 0.06em;
-      color: var(--yellow);
+      height: 46px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
     }
 
-    .nav-logo span { color: var(--orange); }
-
-    nav ul {
+    .nav-links {
       list-style: none;
       display: flex;
       align-items: center;
-      gap: 34px;
+      gap: 1.45rem;
+      margin-left: auto;
     }
 
-    nav ul a {
+    .nav-link,
+    .dropdown-link {
+      color: rgba(255, 255, 255, 0.86);
       font-family: "Barlow Condensed", sans-serif;
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.76);
-      transition: color 0.2s ease;
+      transition: color 0.18s ease, opacity 0.18s ease;
     }
 
-    nav ul a:hover { color: var(--yellow); }
+    .nav-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding-block: 0.25rem;
+    }
 
-    .nav-cta {
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--yellow);
+      transition: width 0.22s ease;
+    }
+
+    .nav-link:hover,
+    .dropdown-link:hover {
+      color: var(--yellow);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .dropdown-arrow {
+      transition: transform 0.18s ease;
+    }
+
+    .nav-dropdown:hover .dropdown-arrow,
+    .nav-dropdown:focus-within .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .nav-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 14px);
+      left: 0;
+      min-width: 220px;
+      padding: 0.6rem 0;
+      list-style: none;
+      border: 1px solid rgba(255, 214, 0, 0.16);
+      border-radius: 18px;
+      background: rgba(11, 11, 11, 0.96);
+      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(18px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+      z-index: 60;
+    }
+
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.72rem 1rem;
+      letter-spacing: 0.08em;
+      font-size: 0.78rem;
+    }
+
+    .site-header .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .site-header .nav-cta .btn-outline,
+    .site-header .nav-cta .btn-primary {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 34px;
-      padding: 0.8rem 1.35rem;
-      background: var(--yellow);
-      color: #090909;
-      border: 0;
+      min-height: 42px;
+      padding: 0 1.15rem;
+      border-radius: 999px;
       font-family: "Barlow Condensed", sans-serif;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      transition: transform 0.18s ease, background 0.18s ease;
+      white-space: nowrap;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
     }
 
-    .nav-cta:hover {
-      background: #ffe03b;
-      transform: translateY(-1px);
+    .site-header .nav-cta .btn-outline {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--white);
     }
+
+    .site-header .nav-cta .btn-outline:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 214, 0, 0.42);
+      color: var(--yellow);
+    }
+
+    .site-header .nav-cta .btn-primary {
+      border: 0;
+      color: #090909;
+      background: linear-gradient(135deg, var(--yellow), #ffef73);
+      box-shadow: 0 18px 32px rgba(255, 214, 0, 0.18);
+    }
+
+    .site-header .nav-cta .btn-primary:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, #ffe03b, #fff08f);
+    }
+
+    .nav-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border: 1px solid rgba(255, 214, 0, 0.22);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .nav-toggle span {
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--white);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .nav-toggle.open span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+
+    .nav-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-toggle.open span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
     #hero {
       min-height: 100vh;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(380px, 0.92fr);
       align-items: center;
       gap: 32px;
-      padding-top: 116px;
+      padding-top: 132px;
       padding-bottom: 56px;
       overflow: hidden;
     }
@@ -1272,11 +1425,72 @@
     }
 
     @media (max-width: 900px) {
-      nav {
-        padding: 16px 24px;
+      .container {
+        width: min(1200px, calc(100% - 32px));
       }
 
-      nav ul { display: none; }
+      .site-header .nav {
+        min-height: 76px;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: calc(var(--nav-height) - 2px);
+        left: 16px;
+        right: 16px;
+        padding: 1rem 1.1rem 1.15rem;
+        border: 1px solid rgba(255, 214, 0, 0.18);
+        border-radius: 22px;
+        background: rgba(10, 10, 10, 0.97);
+        box-shadow: 0 28px 54px rgba(0, 0, 0, 0.44);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px) scale(0.98);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 45;
+      }
+
+      .nav-links.open {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      .nav-dropdown,
+      .nav-dropdown-menu,
+      .nav-links li {
+        width: 100%;
+      }
+
+      .nav-dropdown-menu {
+        position: static;
+        min-width: 100%;
+        padding: 0.3rem 0 0;
+        margin-top: 0.35rem;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        backdrop-filter: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+
+      .dropdown-link {
+        padding: 0.48rem 0 0.48rem 1rem;
+      }
+
+      .site-header .nav-cta .btn-outline {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: inline-flex;
+      }
 
       section,
       #hero,
@@ -1289,7 +1503,7 @@
       #hero {
         grid-template-columns: 1fr;
         min-height: auto;
-        padding-top: 102px;
+        padding-top: 122px;
         padding-bottom: 48px;
       }
 
@@ -1327,11 +1541,13 @@
     }
 
     @media (max-width: 640px) {
-      .nav-logo { font-size: 1.95rem; }
+      .nav-logo {
+        height: 40px;
+      }
 
-      .nav-cta {
+      .site-header .nav-cta .btn-primary {
         min-height: 40px;
-        padding: 0 14px;
+        padding: 0 0.95rem;
         font-size: 0.72rem;
       }
 
@@ -1381,17 +1597,57 @@
 <body>
   <div class="cursor" id="cursor"></div>
 
-  <nav>
-    <a href="/" class="nav-logo">Boss<span>Fries</span></a>
-    <ul>
-      <li><a href="#why">Why Us</a></li>
-      <li><a href="#package">Package</a></li>
-      <li><a href="#flavors">Flavors</a></li>
-      <li><a href="#training">Training</a></li>
-      <li><a href="#cta">Contact</a></li>
-    </ul>
-    <a href="#cta" class="nav-cta">Franchise Now</a>
-  </nav>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="/" class="nav-brand">
+        <img src="logo.png" alt="HHC Franchise Hub" class="nav-logo" />
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li class="nav-dropdown">
+          <a href="/#about" class="nav-link nav-dropdown-toggle">
+            About Us
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="/history" class="dropdown-link">History</a></li>
+            <li><a href="/founder" class="dropdown-link">Founder's Corner</a></li>
+            <li><a href="/seals" class="dropdown-link">Seals of Approval</a></li>
+            <li><a href="/awards" class="dropdown-link">Awards and Recognition</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="/#franchises" class="nav-link nav-dropdown-toggle">
+            Franchises
+            <svg class="dropdown-arrow" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="/bigstop" class="dropdown-link">BIGSTOP</a></li>
+            <li><a href="/herrera-pharmacy" class="dropdown-link">Herrera Pharmacy</a></li>
+            <li><a href="/boss-siomai" class="dropdown-link">Boss Siomai</a></li>
+            <li><a href="/boss-chickn" class="dropdown-link">Boss Chickn</a></li>
+            <li><a href="/boss-fries" class="dropdown-link">Boss Fries</a></li>
+            <li><a href="/burger2go" class="dropdown-link">Burger2Go</a></li>
+            <li><a href="/noodle-king" class="dropdown-link">Noodle King</a></li>
+          </ul>
+        </li>
+        <li><a href="/branches" class="nav-link">Store Locations</a></li>
+        <li><a href="/#stories" class="nav-link">Stories</a></li>
+        <li><a href="/#contact-email" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="/#franchises" class="btn-outline">View Opportunities</a>
+        <a href="#cta" class="btn-primary">Franchise Now <span>&rarr;</span></a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
   <section id="hero">
     <div class="hero-bg-text">FRIES</div>
@@ -1849,6 +2105,37 @@
       cursor.style.left = event.clientX + "px";
       cursor.style.top = event.clientY + "px";
     });
+
+    const navToggle = document.getElementById("navToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    if (navToggle && navLinks) {
+      navToggle.addEventListener("click", () => {
+        navToggle.classList.toggle("open");
+        navLinks.classList.toggle("open");
+      });
+
+      navLinks.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navToggle.classList.remove("open");
+          navLinks.classList.remove("open");
+        });
+      });
+
+      document.addEventListener("click", (event) => {
+        if (window.innerWidth > 900) return;
+        if (navToggle.contains(event.target) || navLinks.contains(event.target)) return;
+        navToggle.classList.remove("open");
+        navLinks.classList.remove("open");
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 900) {
+          navToggle.classList.remove("open");
+          navLinks.classList.remove("open");
+        }
+      });
+    }
 
     document.querySelectorAll("a, button, .why-card, .package-card, .flavor-card").forEach((element) => {
       element.addEventListener("mouseenter", () => cursor && cursor.classList.add("hover"));
