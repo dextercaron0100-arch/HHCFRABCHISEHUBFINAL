@@ -528,7 +528,7 @@
     <div class="agent-avatar">💬</div>
     <div class="header-info">
       <div class="header-title">Support Chat</div>
-      <div class="header-sub" id="header-sub">AI-powered · Available now</div>
+      <div class="header-sub" id="header-sub">Instant support · Available now</div>
     </div>
     <div class="header-actions">
       <button class="header-btn" onclick="minimizeChat()" title="Minimize">
@@ -540,13 +540,13 @@
   <!-- Status Bar -->
   <div class="status-bar bot" id="status-bar">
     <div class="status-dot"></div>
-    <span id="status-text">AI Assistant Ready</span>
+    <span id="status-text">Chat Assistant Ready</span>
   </div>
 
   <!-- Pre-chat Form -->
   <div id="pre-chat">
     <div class="pre-chat-title">Hello! 👋<br>How can we help?</div>
-    <div class="pre-chat-sub">Start a chat below — our AI assistant is ready instantly, or request a live agent anytime.</div>
+    <div class="pre-chat-sub">Start a chat below — our chat assistant answers right away, or request a live agent anytime.</div>
     <div class="input-group">
       <label>Your Name</label>
       <input id="visitor-name" type="text" placeholder="Enter your name" />
@@ -773,7 +773,7 @@ function hideTyping() { $typing.classList.remove('visible'); }
 function updateStatus(status, agentName) {
   $status.className = 'status-bar ' + status;
   const labels = {
-    bot:    '🤖 AI Assistant',
+    bot:    'Chat Assistant',
     queued: '⏳ Connecting to agent...',
     active: `👤 ${agentName || 'Agent'} is with you`,
   };
@@ -826,7 +826,7 @@ const SERVER_URL =
     : 'http://localhost:3000');
 
 const DEFAULT_TOPIC = 'General Inquiry';
-const DEFAULT_HEADER_SUB = 'AI-powered. Available now.';
+const DEFAULT_HEADER_SUB = 'Instant support. Available now.';
 const DEFAULT_NAME_HELP = 'Used so the assistant can greet you properly.';
 const DEFAULT_EMAIL_HELP = 'Leave this blank unless you want a follow-up.';
 const DEFAULT_TOPIC_HELP = 'Choose the closest match. You can still explain the details in chat.';
@@ -905,10 +905,10 @@ function renderWidgetChrome() {
         <div class="pre-chat-hero">
           <div class="pre-chat-kicker-row">
             <div class="pre-chat-kicker-dot"></div>
-            <div class="pre-chat-kicker">AI assistant ready</div>
+            <div class="pre-chat-kicker">Instant chat support</div>
           </div>
           <div class="pre-chat-title">Hello.<span>How can we help?</span></div>
-          <div class="pre-chat-sub">Start a chat below. Our AI assistant is ready instantly, and you can request a live agent at any point.</div>
+          <div class="pre-chat-sub">Start a chat below. Our chat assistant answers right away, and you can request a live agent at any point.</div>
           <div class="pre-chat-benefits">
             <div class="pre-chat-benefit">Fast answers</div>
             <div class="pre-chat-benefit">Live handoff</div>
@@ -947,7 +947,7 @@ function renderWidgetChrome() {
         </div>
       </div>
       <div class="pre-chat-footer">
-        <div class="pre-chat-note">Once the chat starts, the AI assistant will answer first and can bring in a human when needed.</div>
+        <div class="pre-chat-note">Once the chat starts, the chat assistant answers first and can bring in a human when needed.</div>
         <button class="start-btn" onclick="startChat()">
           <span>Start Chat</span>
           <span class="btn-arrow" aria-hidden="true">-&gt;</span>
@@ -1019,7 +1019,7 @@ function notifyParentFrameState() {
 }
 
 function getBotHeaderSubtitle() {
-  return chatStarted ? `${activeTopic} | AI-powered` : DEFAULT_HEADER_SUB;
+  return chatStarted ? `${activeTopic} | Instant support` : DEFAULT_HEADER_SUB;
 }
 
 function focusPrimaryField() {
@@ -1243,7 +1243,7 @@ function hideTyping() {
 function updateStatus(status, agentName) {
   $status.className = 'status-bar ' + status;
   const labels = {
-    bot: 'AI Assistant Ready',
+    bot: 'Chat Assistant Ready',
     queued: 'Connecting you to a live agent',
     active: `${agentName || 'Agent'} joined the chat`,
   };

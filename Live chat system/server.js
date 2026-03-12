@@ -15,6 +15,11 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const xss = require("xss");
 const Anthropic = require("@anthropic-ai/sdk");
+const {
+  BRAND_CATALOG,
+  HISTORY_TIMELINE,
+  WEBSITE_PROFILE,
+} = require("./knowledge-base");
 
 // ─────────────────────────────────────────────
 // CONFIG
@@ -23,6 +28,39 @@ const PORT        = process.env.PORT        || 3000;
 const HOST        = process.env.HOST        || '0.0.0.0';
 const JWT_SECRET  = process.env.JWT_SECRET  || "change-me-in-production-secret";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost,http://127.0.0.1").split(",");
+const BUSINESS_NAME = (
+  process.env.BUSINESS_NAME ||
+  WEBSITE_PROFILE.businessName ||
+  "HHC Franchise Hub"
+).trim();
+const BUSINESS_CONTEXT = (
+  process.env.BUSINESS_CONTEXT ||
+  `${WEBSITE_PROFILE.description} ${WEBSITE_PROFILE.mission}`
+).trim();
+const SUPPORT_EMAIL = (
+  process.env.SUPPORT_EMAIL ||
+  WEBSITE_PROFILE.emails?.[0] ||
+  ""
+).trim();
+const SUPPORT_PHONE = (
+  process.env.SUPPORT_PHONE ||
+  WEBSITE_PROFILE.phones?.[0] ||
+  ""
+).trim();
+const BUSINESS_HOURS = (
+  process.env.BUSINESS_HOURS ||
+  WEBSITE_PROFILE.hours ||
+  ""
+).trim();
+const ANTHROPIC_API_KEY = (process.env.ANTHROPIC_API_KEY || "").trim();
+const configuredBotMode = resolveBotMode(process.env.BOT_MODE);
+const BOT_MODE = configuredBotMode || (ANTHROPIC_API_KEY ? "hybrid" : "keyword");
+
+function resolveBotMode(value = "") {
+  const mode = String(value || "").trim().toLowerCase();
+  if (["keyword", "hybrid", "anthropic"].includes(mode)) return mode;
+  return "";
+}
 
 function isLocalDevOrigin(origin = "") {
   return (
@@ -52,7 +90,9 @@ const AGENTS = [
 ];
 
 // Anthropic client
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY || "" });
+const anthropic = ANTHROPIC_API_KEY && BOT_MODE !== "keyword"
+  ? new Anthropic({ apiKey: ANTHROPIC_API_KEY })
+  : null;
 
 // ─────────────────────────────────────────────
 // IN-MEMORY STATE  (swap for Redis in prod)
@@ -94,26 +134,648 @@ function pushMessage(session, role, content) {
 // ─────────────────────────────────────────────
 // AI BOT
 // ─────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are a helpful, friendly customer support assistant for a website.
+const HANDOFF_TO_AGENT = "HANDOFF_TO_AGENT";
+const BOT_CAPABILITIES =
+  "website FAQs, brand details, franchise packages, contact details, history, and live-agent handoff";
+const KEYWORD_FALLBACK_TOKEN = "__KEYWORD_FALLBACK__";
+const SYSTEM_PROMPT = `You are a helpful, friendly customer support assistant for ${BUSINESS_NAME}.
 Your role:
 - Answer visitor inquiries warmly and accurately.
-- If a visitor explicitly asks to speak to a human / live agent, respond with exactly: HANDOFF_TO_AGENT
-- If the inquiry is too complex or sensitive (complaints, legal, billing disputes), respond with exactly: HANDOFF_TO_AGENT
+- If a visitor explicitly asks to speak to a human / live agent, respond with exactly: ${HANDOFF_TO_AGENT}
+- If the inquiry is too complex or sensitive (complaints, legal, billing disputes), respond with exactly: ${HANDOFF_TO_AGENT}
 - Keep answers concise (2-4 sentences max) unless detail is truly needed.
 - Be professional but approachable.
 - Do NOT reveal that you are built on any specific AI platform.
 
-Business context: ${process.env.BUSINESS_CONTEXT || "We are a company providing quality products and services. Feel free to ask about our offerings, pricing, or support."}`;
+Business context: ${BUSINESS_CONTEXT}`;
 
-async function getBotReply(session) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return "Hi! I'm the AI assistant. (Configure ANTHROPIC_API_KEY to enable full AI responses.) How can I help you today?";
+function escapeRegExp(value = "") {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeText(value = "") {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function containsAny(text, terms = []) {
+  return terms.some((term) => {
+    const normalizedTerm = normalizeText(term);
+    if (!normalizedTerm) return false;
+
+    if (normalizedTerm.includes(" ")) {
+      return text.includes(normalizedTerm);
+    }
+
+    return new RegExp(`\\b${escapeRegExp(normalizedTerm)}\\b`, "i").test(text);
+  });
+}
+
+function formatList(items = []) {
+  const filtered = items.filter(Boolean);
+  if (filtered.length === 0) return "";
+  if (filtered.length === 1) return filtered[0];
+  if (filtered.length === 2) return `${filtered[0]} and ${filtered[1]}`;
+  return `${filtered.slice(0, -1).join(", ")}, and ${filtered.at(-1)}`;
+}
+
+function formatBrandGroups() {
+  return Object.entries(WEBSITE_PROFILE.brandsByCategory || {})
+    .map(([category, brands]) => `${category}: ${brands.join(", ")}`)
+    .join(" | ");
+}
+
+function detectBrandId(text) {
+  return (
+    Object.entries(BRAND_CATALOG).find(([, brand]) => containsAny(text, brand.aliases || []))?.[0] ||
+    ""
+  );
+}
+
+function detectBrandIntent(text) {
+  if (
+    containsAny(text, [
+      "franchise fee",
+      "fee",
+      "royalty",
+      "capital",
+      "investment",
+      "cost",
+      "price",
+      "pricing",
+      "total package",
+      "total capital",
+    ])
+  ) {
+    return "investment";
   }
 
-  // Build message history (last 20 only to keep context window reasonable)
-  const history = session.messages.slice(-20).map(m => ({
-    role:    m.role === "agent" ? "assistant" : m.role,
-    content: m.content,
+  if (
+    containsAny(text, [
+      "package",
+      "packages",
+      "format",
+      "option",
+      "options",
+      "food cart",
+      "bike cart",
+      "kiosk",
+      "reseller",
+    ])
+  ) {
+    return "packages";
+  }
+
+  if (
+    containsAny(text, [
+      "support",
+      "training",
+      "launch",
+      "marketing",
+      "setup",
+      "assistance",
+      "manual",
+      "operations guide",
+    ])
+  ) {
+    return "support";
+  }
+
+  if (
+    containsAny(text, [
+      "pos",
+      "point of sale",
+      "inventory",
+      "sales report",
+      "pharmacist",
+      "fda",
+      "license",
+      "licensed",
+      "compliance",
+      "experience needed",
+      "prior business experience",
+      "experience required",
+    ])
+  ) {
+    return "operations";
+  }
+
+  if (
+    containsAny(text, [
+      "branch",
+      "branches",
+      "store locations",
+      "locations",
+      "territory",
+      "coverage",
+      "where",
+    ])
+  ) {
+    return "branches";
+  }
+
+  if (
+    containsAny(text, [
+      "apply",
+      "application",
+      "become partner",
+      "partner",
+      "contact",
+      "call",
+      "inquiry",
+    ])
+  ) {
+    return "apply";
+  }
+
+  return "overview";
+}
+
+function detectWebsiteIntent(text) {
+  if (
+    containsAny(text, [
+      "brand",
+      "brands",
+      "franchise list",
+      "what franchises",
+      "what brands",
+      "available franchises",
+      "available brands",
+    ])
+  ) {
+    return "brands";
+  }
+
+  if (containsAny(text, ["history", "started", "founded", "timeline", "journey", "milestone"])) {
+    return "history";
+  }
+
+  if (containsAny(text, ["award", "awards", "recognition", "legacy icon"])) {
+    return "awards";
+  }
+
+  if (containsAny(text, ["hours", "open time", "business hours", "office hours"])) {
+    return "hours";
+  }
+
+  if (containsAny(text, ["office", "address", "located", "where are you"])) {
+    return "office";
+  }
+
+  if (
+    containsAny(text, [
+      "contact",
+      "email",
+      "phone",
+      "call",
+      "viber",
+      "whatsapp",
+      "reach",
+    ])
+  ) {
+    return "contact";
+  }
+
+  if (
+    containsAny(text, [
+      "service",
+      "services",
+      "training",
+      "marketing support",
+      "location assistance",
+      "launch support",
+    ])
+  ) {
+    return "services";
+  }
+
+  if (containsAny(text, ["faq", "faqs", "frequently asked questions"])) {
+    return "faqs";
+  }
+
+  if (containsAny(text, ["branch", "branches", "store locations"])) {
+    return "branches";
+  }
+
+  if (
+    containsAny(text, [
+      "apply",
+      "application",
+      "how to apply",
+      "franchise now",
+      "how to start",
+      "next step",
+      "next steps",
+    ])
+  ) {
+    return "apply";
+  }
+
+  if (containsAny(text, ["about", "hhc", "franchise hub", "who are you", "what is hhc"])) {
+    return "about";
+  }
+
+  return "";
+}
+
+function buildBrandInvestmentReply(brand) {
+  const details = brand.investment || {};
+  const parts = [];
+  if (details.franchiseFee) parts.push(`franchise fee: ${details.franchiseFee}`);
+  if (details.totalCapital) parts.push(`total capital: ${details.totalCapital}`);
+  if (details.totalPackage) parts.push(`total package: ${details.totalPackage}`);
+  if (details.royalty) parts.push(`royalty: ${details.royalty}`);
+  if (details.contract) parts.push(`contract: ${details.contract}`);
+  if (details.floorArea) parts.push(`floor area: ${details.floorArea}`);
+
+  if (parts.length === 0) {
+    return `${brand.name} investment details are available on the website, and our team can confirm the latest package numbers for your target location.`;
+  }
+
+  const notes = details.notes ? ` ${details.notes}` : "";
+  return `${brand.name} investment details: ${parts.join("; ")}.${notes}`;
+}
+
+function buildBrandSupportReply(brand) {
+  const support = brand.support || [];
+  if (support.length === 0) {
+    return `${brand.name} includes setup, training, and ongoing operational support.`;
+  }
+
+  return `${brand.name} support includes ${support.join(", ")}.`;
+}
+
+function buildBrandOperationsReply(brand) {
+  const operations = brand.operations || [];
+  if (operations.length === 0) {
+    return `${brand.name} has structured operating guidance, and our team can walk you through the day-to-day setup.`;
+  }
+
+  return `${brand.name} operations info: ${operations.join(", ")}.`;
+}
+
+function buildBrandPackageReply(brand) {
+  if (brand.packageOptions?.length) {
+    return `${brand.name} package options on the website include ${brand.packageOptions.join(", ")}.`;
+  }
+
+  return buildBrandInvestmentReply(brand);
+}
+
+function buildBrandBranchesReply(brand) {
+  if (brand.branches?.length) {
+    return `${brand.name} branch rollout shown on the website includes ${brand.branches.join(", ")}.`;
+  }
+
+  if (brand.investment?.floorArea) {
+    return `${brand.name} location fit depends on your area and traffic. Current website guidance includes ${brand.investment.floorArea}.`;
+  }
+
+  return `${brand.name} location planning depends on your target area, foot traffic, and rollout goals.`;
+}
+
+function buildBrandApplyReply(brand) {
+  if (brand.applicationPhone) {
+    return `To apply for ${brand.name}, contact ${brand.applicationPhone}. You can also send your target location, budget, and timeline here so we can guide you to the next step.`;
+  }
+
+  return `To apply for ${brand.name}, send your preferred location, budget, and timeline, and our team will guide you through the next step.`;
+}
+
+function buildBrandReply(brandId, intent) {
+  const brand = BRAND_CATALOG[brandId];
+  if (!brand) return "";
+
+  switch (intent) {
+    case "investment":
+      return buildBrandInvestmentReply(brand);
+    case "packages":
+      return buildBrandPackageReply(brand);
+    case "support":
+      return buildBrandSupportReply(brand);
+    case "operations":
+      return buildBrandOperationsReply(brand);
+    case "branches":
+      return buildBrandBranchesReply(brand);
+    case "apply":
+      return buildBrandApplyReply(brand);
+    default:
+      return `${brand.overview} ${buildBrandInvestmentReply(brand)}`;
+  }
+}
+
+function buildWebsiteReply(intent) {
+  switch (intent) {
+    case "about":
+      return `${WEBSITE_PROFILE.businessName} is ${WEBSITE_PROFILE.description} ${WEBSITE_PROFILE.mission}`;
+    case "brands":
+      return `HHC Franchise Hub brands are ${formatBrandGroups()}.`;
+    case "history":
+      return `HHC Franchise Hub timeline: ${HISTORY_TIMELINE.join("; ")}.`;
+    case "awards":
+      return `${WEBSITE_PROFILE.businessName} received the ${WEBSITE_PROFILE.award}. ${WEBSITE_PROFILE.awardReason}`;
+    case "services":
+      return `${WEBSITE_PROFILE.businessName} offers ${WEBSITE_PROFILE.services.join(", ")}.`;
+    case "contact":
+      return `You can contact ${WEBSITE_PROFILE.businessName} via ${WEBSITE_PROFILE.emails.join(", ")} or call ${WEBSITE_PROFILE.phones.join(", ")}. Office: ${WEBSITE_PROFILE.office}.`;
+    case "hours":
+      return `${WEBSITE_PROFILE.businessName} office hours are ${WEBSITE_PROFILE.hours}.`;
+    case "office":
+      return `${WEBSITE_PROFILE.businessName} is located at ${WEBSITE_PROFILE.office}.`;
+    case "branches":
+      return `The website has a dedicated store locations page, and the current BigStop rollout shown on the site includes Banlic, Bataan, Crossing, Paciano, and Tuguegarao.`;
+    case "apply":
+      return `To start, share your target location, budget range, and timeline. You can contact the team at ${WEBSITE_PROFILE.phones[0]} or use the website inquiry form.`;
+    case "faqs":
+      return `The FAQ page currently covers BigStop topics such as franchise fee, royalty, total capital, renovation costs, POS, pharmacist and FDA requirements, franchisee support, no prior experience, and how to apply.`;
+    default:
+      return "";
+  }
+}
+
+function buildWebsiteKnowledgeReply(session, text) {
+  let brandId = detectBrandId(text);
+
+  if (!brandId && containsAny(text, ["pharmacist", "fda", "pos", "point of sale"])) {
+    brandId = "bigstop";
+  }
+
+  if (!brandId && containsAny(text, ["prior business experience", "experience required", "experience needed"])) {
+    return {
+      type: "reply",
+      intent: "experience",
+      value:
+        "For BigStop, no prior business experience is required. The website says the team provides training and operational support from day one.",
+    };
+  }
+
+  if (brandId) {
+    const value = buildBrandReply(brandId, detectBrandIntent(text));
+    if (value) {
+      return { type: "reply", intent: `brand:${brandId}`, value };
+    }
+  }
+
+  const websiteIntent = detectWebsiteIntent(text);
+  if (!websiteIntent) return null;
+
+  const value = buildWebsiteReply(websiteIntent);
+  if (!value) return null;
+
+  return { type: "reply", intent: `site:${websiteIntent}`, value };
+}
+
+function buildSupportLine() {
+  const contactOptions = [];
+  if (SUPPORT_EMAIL) contactOptions.push(`email us at ${SUPPORT_EMAIL}`);
+  if (SUPPORT_PHONE) contactOptions.push(`call us at ${SUPPORT_PHONE}`);
+  if (BUSINESS_HOURS) contactOptions.push(`reach us during ${BUSINESS_HOURS}`);
+
+  if (contactOptions.length === 0) {
+    return "You can also request a live agent here anytime.";
+  }
+
+  return `You can also ${formatList(contactOptions)}.`;
+}
+
+function buildWelcomeMessage(session) {
+  const topicLabel =
+    session.topic && session.topic !== "General Inquiry"
+      ? ` about ${session.topic.toLowerCase()}`
+      : "";
+
+  return `Welcome, ${session.visitorName}! I'm the chat assistant for ${BUSINESS_NAME}. I can help${topicLabel} with ${BOT_CAPABILITIES}. What would you like to know?`;
+}
+
+function buildKeywordFallbackReply() {
+  return `I can help with ${BOT_CAPABILITIES}. You can ask about brands like BigStop, Herrera Pharmacy, Boss Siomai, Boss Chickn, Boss Fries, Burger 2 Go, and Noodle King. ${buildSupportLine()}`.trim();
+}
+
+function buildKeywordBotReply(session) {
+  const latestUserMessage = [...session.messages]
+    .reverse()
+    .find((message) => message.role === "user")?.content;
+  const text = normalizeText(latestUserMessage);
+
+  if (!text) {
+    return {
+      type: "reply",
+      value: buildKeywordFallbackReply(),
+      intent: KEYWORD_FALLBACK_TOKEN,
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "agent",
+      "human",
+      "representative",
+      "live support",
+      "live agent",
+      "real person",
+      "customer service",
+      "talk to someone",
+      "speak to someone",
+      "call me",
+    ])
+  ) {
+    return { type: "handoff", value: HANDOFF_TO_AGENT, intent: "handoff" };
+  }
+
+  if (
+    containsAny(text, [
+      "complaint",
+      "complain",
+      "refund",
+      "chargeback",
+      "billing dispute",
+      "legal",
+      "lawyer",
+      "attorney",
+      "scam",
+      "fraud",
+      "cancel order",
+      "cancel subscription",
+    ])
+  ) {
+    return { type: "handoff", value: HANDOFF_TO_AGENT, intent: "handoff" };
+  }
+
+  const websiteReply = buildWebsiteKnowledgeReply(session, text);
+  if (websiteReply) {
+    return websiteReply;
+  }
+
+  if (
+    containsAny(text, [
+      "packages",
+      "package",
+      "option",
+      "options",
+      "franchise package",
+      "available packages",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "packages",
+      value:
+        "We can help you compare available franchise packages. Share your preferred location and budget range, and I can narrow the best option or connect you to a live agent for exact package details.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "price",
+      "pricing",
+      "cost",
+      "how much",
+      "budget",
+      "capital",
+      "investment",
+      "fee",
+      "franchise fee",
+      "franchise cost",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "pricing",
+      value:
+        "Franchise costs usually depend on the package, setup scope, and location. Share your preferred city and budget range, and I can point you to the best next step or connect you to a live agent for exact figures.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "requirement",
+      "requirements",
+      "qualifications",
+      "eligible",
+      "eligibility",
+      "document",
+      "documents",
+      "what do i need",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "requirements",
+      value:
+        "To get started, we usually need your preferred location, target budget, and contact details. If you already have those ready, send them here and I can guide you to the next step or connect you to a live agent.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "location",
+      "area",
+      "branch",
+      "site",
+      "city",
+      "territory",
+      "available area",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "location",
+      value:
+        "We can help review your target area. Send the city or exact location you have in mind, plus your budget range, and our team can advise on the next step.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "apply",
+      "application",
+      "process",
+      "start",
+      "how to start",
+      "next step",
+      "next steps",
+      "sign up",
+      "open",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "process",
+      value:
+        "The usual next steps are: choose the package, share your preferred location and budget, then our team reviews your details and follows up. If you want direct guidance now, I can connect you to a live agent.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "training",
+      "support",
+      "marketing",
+      "setup",
+      "opening",
+      "assistance",
+      "help after opening",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "support",
+      value:
+        "We can walk you through training, setup, opening support, and ongoing assistance. Tell me which part you want details on, or ask for a live agent if you want a direct consultation.",
+    };
+  }
+
+  if (
+    containsAny(text, [
+      "contact",
+      "email",
+      "phone",
+      "number",
+      "hours",
+      "schedule",
+      "office",
+    ])
+  ) {
+    return {
+      type: "reply",
+      intent: "contact",
+      value: `You can keep chatting here or request a live agent anytime. ${buildSupportLine()}`.trim(),
+    };
+  }
+
+  if (containsAny(text, ["thanks", "thank you", "salamat"])) {
+    return {
+      type: "reply",
+      intent: "thanks",
+      value:
+        "You're welcome. If you want package details, requirements, budget guidance, or a live agent, just send another message.",
+    };
+  }
+
+  if (containsAny(text, ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"])) {
+    return {
+      type: "reply",
+      intent: "greeting",
+      value: `Hi ${session.visitorName}! I can help with ${BOT_CAPABILITIES}. What would you like to know?`,
+    };
+  }
+
+  return {
+    type: "reply",
+    intent: KEYWORD_FALLBACK_TOKEN,
+    value: buildKeywordFallbackReply(),
+  };
+}
+
+async function getAnthropicReply(session) {
+  if (!anthropic) return null;
+
+  const history = session.messages.slice(-20).map((message) => ({
+    role: message.role === "agent" ? "assistant" : message.role,
+    content: message.content,
   }));
 
   try {
@@ -123,11 +785,31 @@ async function getBotReply(session) {
       system:     SYSTEM_PROMPT,
       messages:   history,
     });
-    return resp.content[0]?.text || "I'm sorry, I couldn't process that. Could you rephrase?";
+
+    return resp.content[0]?.text || null;
   } catch (err) {
     console.error("[Bot] Anthropic error:", err.message);
-    return "I'm having trouble connecting right now. Would you like to speak with a live agent instead?";
+    return null;
   }
+}
+
+async function getBotReply(session) {
+  const keywordReply = buildKeywordBotReply(session);
+
+  if (keywordReply.type === "handoff") {
+    return keywordReply.value;
+  }
+
+  if (BOT_MODE === "keyword") {
+    return keywordReply.value;
+  }
+
+  if (BOT_MODE === "hybrid" && keywordReply.intent !== KEYWORD_FALLBACK_TOKEN) {
+    return keywordReply.value;
+  }
+
+  const aiReply = await getAnthropicReply(session);
+  return aiReply || keywordReply.value;
 }
 
 // ─────────────────────────────────────────────
@@ -297,7 +979,7 @@ visitorNS.on("connection", socket => {
 
     socket.emit("chat:started", {
       sessionId: currentSession.id,
-      message:   `Welcome, ${currentSession.visitorName}! I'm your AI assistant. How can I help you with "${currentSession.topic}"?`,
+      message: buildWelcomeMessage(currentSession),
     });
 
     // Notify all agents of new session
@@ -463,7 +1145,7 @@ agentNS.on("connection", socket => {
     s.status       = "bot";
     s.assignedAgent = null;
     s.agentSocket   = null;
-    const msg = pushMessage(s, "system", "Session transferred back to AI assistant.");
+    const msg = pushMessage(s, "system", "Session transferred back to the chat assistant.");
     if (s.visitorSocket) {
       visitorNS.to(s.visitorSocket).emit("chat:message", msg);
       visitorNS.to(s.visitorSocket).emit("chat:status", { status: "bot" });
@@ -514,6 +1196,7 @@ function getSessionSummary(s) {
 // START
 // ─────────────────────────────────────────────
 server.listen(PORT, HOST, () => {
+  console.log(`   Bot mode   : ${BOT_MODE}`);
   console.log(`\n🚀 Live Chat Server running on port ${PORT}`);
   console.log(`   Visitor WS : ws://localhost:${PORT}/visitor`);
   console.log(`   Agent WS   : ws://localhost:${PORT}/agent`);

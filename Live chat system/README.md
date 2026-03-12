@@ -1,7 +1,8 @@
-# Live Chat System - AI Bot + Live Agent Backend
+# Live Chat System - Keyword Bot + Live Agent Backend
 
 ## Files
 - `server.js` - Node.js/Express/Socket.IO backend
+- `knowledge-base.js` - website facts, brand details, and FAQ answers used by the keyword bot
 - `widget.html` - Visitor-facing embeddable chat widget
 - `agent-dashboard.html` - Agent dashboard
 - `.env.example` - Environment variable template
@@ -11,15 +12,40 @@
 
 ```bash
 npm install
-cp .env.example .env
+copy .env.example .env
 node server.js
 ```
 
 Set these values in `.env` before production use:
 - `JWT_SECRET`
 - `ALLOWED_ORIGINS`
-- `ANTHROPIC_API_KEY` if you want AI replies
+- `BUSINESS_NAME`
 - `BUSINESS_CONTEXT`
+- `BOT_MODE`
+
+Optional values:
+- `SUPPORT_EMAIL`
+- `SUPPORT_PHONE`
+- `BUSINESS_HOURS`
+- `ANTHROPIC_API_KEY` if you want `hybrid` or `anthropic` mode
+
+## Bot Modes
+
+- `keyword` - free keyword-based replies only
+- `hybrid` - keyword replies first, Anthropic fallback for unmatched questions
+- `anthropic` - Anthropic replies only
+
+If `BOT_MODE` is not set, the server defaults to `keyword` when no `ANTHROPIC_API_KEY` exists and `hybrid` when one is present.
+
+The keyword bot in `server.js` is already wired for common franchise questions such as:
+- pricing and budget
+- requirements and documents
+- location and territory
+- process and next steps
+- training and support
+- live-agent handoff
+
+To update the bot with new website answers later, edit `knowledge-base.js`.
 
 ## Railway Deploy
 
@@ -70,5 +96,6 @@ Change these before production.
 - Change `JWT_SECRET`.
 - Replace the hardcoded agent credentials.
 - Set real `ALLOWED_ORIGINS` values.
+- Fill in `SUPPORT_EMAIL`, `SUPPORT_PHONE`, and `BUSINESS_HOURS` if you want the bot to mention them.
 - Add persistent storage if you need saved chat history.
 - Add Redis if you need multi-instance session state.

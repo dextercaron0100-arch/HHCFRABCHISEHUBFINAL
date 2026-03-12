@@ -1,7 +1,7 @@
 {
   "name": "livechat-ai-backend",
   "version": "2.0.0",
-  "description": "Live chat system with AI bot and agent dashboard",
+  "description": "Live chat system with keyword bot and agent dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
