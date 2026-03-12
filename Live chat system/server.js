@@ -46,6 +46,17 @@ function normalizeHost(value = "") {
   }
 }
 
+function normalizeOrigin(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+
+  try {
+    return new URL(raw).origin.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 const PORT        = process.env.PORT        || 3000;
 const HOST        = process.env.HOST        || '0.0.0.0';
 const JWT_SECRET  = process.env.JWT_SECRET  || "change-me-in-production-secret";
@@ -101,14 +112,30 @@ function isLocalDevOrigin(origin = "") {
   );
 }
 
-function isAllowedOrigin(origin) {
+function isAllowedOrigin(origin, requestHost = "") {
   if (!origin) return true;
   if (isLocalDevOrigin(origin)) return true;
+
   const originHost = normalizeHost(origin);
+  const normalizedRequestHost = normalizeHost(requestHost);
+
+  if (originHost && normalizedRequestHost && originHost === normalizedRequestHost) {
+    return true;
+  }
+
   if (originHost && ADMIN_DASHBOARD_HOSTS.includes(originHost)) return true;
+
   return ALLOWED_ORIGINS.some(o => {
     const allowed = String(o || "").trim();
-    return allowed && origin.startsWith(allowed);
+    if (!allowed) return false;
+
+    const allowedOrigin = normalizeOrigin(allowed);
+    if (allowedOrigin) return allowedOrigin === normalizeOrigin(origin);
+
+    const allowedHost = normalizeHost(allowed);
+    if (allowedHost) return allowedHost === originHost;
+
+    return origin.startsWith(allowed);
   });
 }
 
@@ -854,15 +881,23 @@ app.use(helmet({
   frameguard: false,
 }));
 
-app.use(cors({
-  origin: (origin, cb) => {
-    if (isAllowedOrigin(origin)) {
-      cb(null, true);
-    } else {
-      cb(new Error("CORS blocked: " + origin));
-    }
-  },
-  credentials: true,
+app.use(cors((req, cb) => {
+  const origin = req.get("origin") || "";
+  const requestHost =
+    req.get("x-forwarded-host") ||
+    req.get("host") ||
+    req.hostname ||
+    "";
+  const allowed = isAllowedOrigin(origin, requestHost);
+
+  if (!allowed) {
+    console.warn(`[CORS] Blocked HTTP origin: ${origin || "(none)"} for host ${requestHost || "(unknown)"}`);
+  }
+
+  cb(
+    allowed ? null : new Error("CORS blocked: " + origin),
+    { origin: allowed, credentials: true }
+  );
 }));
 
 app.use(express.json({ limit: "10kb" }));
@@ -987,11 +1022,22 @@ function requireAgentJWT(req, res, next) {
 // ─────────────────────────────────────────────
 const io = new Server(server, {
   cors: {
-    origin: (origin, cb) => {
-      if (isAllowedOrigin(origin)) cb(null, true);
-      else cb(new Error("CORS blocked"));
-    },
+    origin: true,
     credentials: true,
+  },
+  allowRequest: (req, callback) => {
+    const origin = req.headers.origin || "";
+    const requestHost =
+      req.headers["x-forwarded-host"] ||
+      req.headers.host ||
+      "";
+    const allowed = isAllowedOrigin(origin, requestHost);
+
+    if (!allowed) {
+      console.warn(`[CORS] Blocked socket origin: ${origin || "(none)"} for host ${requestHost || "(unknown)"}`);
+    }
+
+    callback(null, allowed);
   },
   pingTimeout: 30000,
   pingInterval: 10000,
