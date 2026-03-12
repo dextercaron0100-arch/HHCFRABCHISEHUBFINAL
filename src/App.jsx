@@ -195,9 +195,42 @@ function App() {
       franchiseRootRef.current.render(<DeferredFranchiseSection />)
     }
 
+    const normalizeHomeUrl = () => {
+      const nextUrl = window.location.pathname + window.location.search
+      if (window.location.hash) {
+        window.history.replaceState(null, '', nextUrl)
+      }
+      return nextUrl
+    }
+
+    const handleHomeLinkClick = (event) => {
+      const homeLink = event.target.closest('[data-home-link="true"]')
+      if (!homeLink) return
+
+      const targetUrl = new URL(homeLink.href, window.location.origin)
+      const isSameHomepage =
+        targetUrl.origin === window.location.origin &&
+        targetUrl.pathname === window.location.pathname &&
+        (!targetUrl.hash || targetUrl.hash === '#hero')
+
+      if (!isSameHomepage) return
+
+      event.preventDefault()
+      normalizeHomeUrl()
+      document.getElementById('navLinks')?.classList.remove('open')
+      document.getElementById('navToggle')?.classList.remove('open')
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+    }
+
     const scrollToHashTarget = () => {
       const hash = window.location.hash
       if (!hash || hash === '#') return
+
+      if (hash === '#hero') {
+        normalizeHomeUrl()
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+        return
+      }
 
       const targetId = decodeURIComponent(hash.slice(1))
       if (!targetId) return
@@ -228,6 +261,7 @@ function App() {
     }
 
     window.addEventListener('hashchange', onHashChange)
+    document.addEventListener('click', handleHomeLinkClick)
     scrollToHashTarget()
 
     try {
@@ -242,6 +276,7 @@ function App() {
       cancelLegacyScriptLoad()
       cancelToastLoad()
       window.removeEventListener('hashchange', onHashChange)
+      document.removeEventListener('click', handleHomeLinkClick)
 
       if (franchiseRootRef.current) {
         franchiseRootRef.current.unmount()
