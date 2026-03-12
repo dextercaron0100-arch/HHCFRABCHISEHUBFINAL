@@ -180,12 +180,15 @@
     frame.src = embeddedSrc.toString();
     frame.loading = 'lazy';
     frame.allow = 'clipboard-write';
+    frame.scrolling = 'no';
+    frame.setAttribute('scrolling', 'no');
     frame.setAttribute('aria-label', 'Live chat');
     frame.style.width = '100%';
     frame.style.height = '100%';
     frame.style.border = '0';
     frame.style.background = 'transparent';
     frame.style.display = 'block';
+    frame.style.overflow = 'hidden';
     panel.replaceChildren(frame);
     return frame;
   };
