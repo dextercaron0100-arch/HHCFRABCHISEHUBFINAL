@@ -12882,13 +12882,181 @@ body.scroll-tight .siomai-packages {
     font-size: 13px;
   }
 }
-
-
-
-
-
+@media (max-width: 860px) {
   body.home-page .nav {
-    width: calc(100vw - 0.6rem);
-    padding: 0 0.06rem;
+    width: calc(100vw - 1rem);
+    padding: 0 0.85rem;
   }
+
+  .container,
+  .container-wide {
+    width: min(100%, calc(100% - 1.4rem));
+  }
+
+  .section {
+    padding-block: 3.2rem;
+  }
+
+  .nav-links {
+    max-height: calc(100vh - var(--nav-height) - 2.4rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav-links li,
+  .nav-link,
+  .dropdown-link {
+    width: 100%;
+  }
+
+  .hero-actions,
+  .page-hero-actions,
+  .kit-hero-actions,
+  .contact-v2-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions > *,
+  .page-hero-actions > *,
+  .kit-hero-actions > *,
+  .contact-v2-actions > *,
+  .bigstop-growth-actions > *,
+  .bigstop-card-button,
+  .bigstop-hero-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .timer-bar {
+    text-align: center;
+    line-height: 1.5;
+    padding-inline: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding-top: calc(var(--nav-height) - 4px);
+  }
+
+  body.home-page .site-header,
+  .founder-cinematic .site-header,
+  body.branches-page .site-header {
+    top: 6px;
+  }
+
+  .container,
+  .container-wide {
+    width: min(100%, calc(100% - 1rem));
+  }
+
+  .section {
+    padding-block: 2.8rem;
+  }
+
+  .nav {
+    width: calc(100vw - 0.8rem);
+    padding: 0 0.75rem;
+  }
+
+  .nav-brand-text {
+    letter-spacing: 0.08em;
+  }
+
+  .nav-brand-text span:last-child {
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .nav-links {
+    top: calc(var(--nav-height) + 0.45rem);
+    inset-inline: 0.5rem;
+    padding: 0.9rem 0.95rem 1rem;
+  }
+
+  .section-header {
+    margin-bottom: 1.8rem;
+  }
+
+  .section-title,
+  .page-hero-title,
+  .history-page .page-hero-title {
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+    line-height: 1.08;
+  }
+
+  .section-subtitle,
+  .page-hero-subtitle,
+  .history-page .page-hero-subtitle {
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .page-hero,
+  .franchise-hero,
+  .history-page .page-hero,
+  .awards-hero,
+  .kit-hero {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .bigstop-proof-grid,
+  .kit-hero-grid,
+  .page-hero-grid,
+  .partners-grid,
+  .contact-v2-grid,
+  .contact-v2-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .brand-grid,
+  .seal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bigstop-growth-card,
+  .bigstop-hero-card,
+  .bigstop-proof-side,
+  .contact-v2-info,
+  .contact-v2-form {
+    border-radius: 18px;
+  }
+
+  .timer-bar {
+    font-size: 0.78rem;
+    gap: 0.3rem;
+  }
+
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-grid,
+  .seal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-actions,
+  .page-hero-actions,
+  .kit-hero-actions {
+    gap: 0.75rem;
+  }
+
+  .page-hero,
+  .franchise-hero,
+  .history-page .page-hero,
+  .awards-hero,
+  .kit-hero {
+    border-radius: 18px;
+  }
+
+  .timer-bar {
+    font-size: 0.74rem;
+  }
+}
 

@@ -235,6 +235,96 @@
   .success-icon img { display: block; width: 100%; height: auto; }
   .success-title { font-size: 22px; font-weight: 900; color: var(--bs-blue); margin-bottom: 10px; }
   .success-msg { font-size: 14px; color: #465372; line-height: 1.6; }
+
+  @media (max-width: 640px) {
+    body {
+      align-items: stretch;
+      padding: 12px;
+      background-attachment: scroll;
+    }
+
+    .card {
+      max-width: 100%;
+      border-radius: 18px;
+    }
+
+    .card-body,
+    .success-screen {
+      padding: 24px 20px 18px;
+    }
+
+    .intro-title,
+    .q-title,
+    .success-title {
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .intro-desc,
+    .membership-desc,
+    .q-subtitle,
+    .success-msg {
+      font-size: 13px;
+    }
+
+    .card-cta {
+      flex-wrap: wrap;
+    }
+
+    .cta-spacer {
+      display: none;
+    }
+
+    .cta-prev,
+    .cta-next,
+    .cta-submit {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 18px;
+    }
+
+    .ycbm-header,
+    .cb-header,
+    .ycbm-cal,
+    .ycbm-slots,
+    .ycbm-book-bar,
+    .ycbm-tz,
+    .cb-body {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .ycbm-cal-nav {
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ycbm-month-label {
+      font-size: 15px;
+    }
+
+    .day-cell {
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+    }
+
+    .slots-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 420px) {
+    .slots-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .text-input,
+    .cb-input {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
 </style>
 </head>
 <body>

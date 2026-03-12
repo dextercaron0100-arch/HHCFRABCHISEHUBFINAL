@@ -1583,6 +1583,76 @@
       }
     }
 
+    @media (max-width: 480px) {
+      section,
+      #hero,
+      .royalty-banner,
+      footer {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .container {
+        width: min(100%, calc(100% - 24px));
+      }
+
+      .site-header .nav {
+        gap: 10px;
+      }
+
+      .nav-links {
+        left: 12px;
+        right: 12px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .hero-actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .hero-stats > * {
+        min-width: 0;
+      }
+
+      .fries-container {
+        width: min(280px, 88vw);
+        height: 300px;
+      }
+
+      .glow-ring {
+        width: min(250px, 78vw);
+        height: min(250px, 78vw);
+      }
+
+      .fries-box {
+        transform: translate(-50%, -42%) scale(0.78) rotate(-4deg);
+      }
+
+      .why-card,
+      .package-card,
+      .training-card,
+      .flavor-card,
+      .contact-form {
+        padding: 20px;
+      }
+
+      .faq-q {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+    }
+
     @media (pointer: fine) {
       body { cursor: none; }
       a, button, .why-card, .package-card, .flavor-card { cursor: none; }

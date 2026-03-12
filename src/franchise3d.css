@@ -1416,3 +1416,56 @@ body.modal-open {
     padding-bottom: 0.18rem;
   }
 }
+
+@media (max-width: 520px) {
+  .fr3d-section {
+    padding-block: 3.2rem;
+  }
+
+  .fr3d-wrap {
+    width: min(100%, calc(100% - 1rem));
+  }
+
+  .fr3d-title {
+    font-size: clamp(1.8rem, 9vw, 2.2rem);
+  }
+
+  .fr3d-copy,
+  .fr3d-tab-description {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .fr3d-tabs {
+    width: 100%;
+  }
+
+  .fr3d-tab {
+    flex: 1 1 calc(50% - 0.4rem);
+    text-align: center;
+  }
+
+  .fr3d-card {
+    min-height: auto;
+    padding: 1.25rem 1rem 1.2rem;
+  }
+
+  .fr3d-food-card {
+    min-height: auto;
+    padding-bottom: 1rem;
+  }
+
+  .fr3d-food-logo {
+    width: min(72%, 210px);
+    height: 108px;
+  }
+
+  .fr3d-food-logo.fr3d-food-logo-tall {
+    width: min(58%, 170px);
+    height: 120px;
+  }
+
+  .fr3d-food-link {
+    width: 100%;
+  }
+}
