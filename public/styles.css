@@ -6867,13 +6867,19 @@ body.modal-open {
   padding: 0;
 }
 
-.bigstop-page .hero-video-frame video {
+.bigstop-page .hero-video-frame video,
+.bigstop-page .hero-video-frame iframe {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 0;
+  border: 0;
+}
+
+.bigstop-page .hero-video-frame iframe {
+  min-height: 100%;
 }
 
 .bigstop-page .hero-video-label {
