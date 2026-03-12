@@ -351,6 +351,14 @@
     background: linear-gradient(180deg, rgba(7,7,7,0), rgba(5,5,5,.92) 18%, rgba(5,5,5,.99) 100%);
   }
   .pre-chat-note { font-size: 12px; line-height: 1.55; color: var(--muted); padding: 0 2px; }
+  .pre-chat-status {
+    min-height: 18px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--muted);
+    padding: 0 2px;
+  }
+  .pre-chat-status.error { color: var(--danger); }
   .start-btn {
     min-height: 52px;
     width: 100%;
@@ -370,6 +378,12 @@
   .start-btn:hover { opacity: .94; transform: translateY(-1px); box-shadow: 0 20px 38px rgba(207,173,84,.32); }
   .start-btn .btn-arrow { transition: transform .15s ease; }
   .start-btn:hover .btn-arrow { transform: translateX(2px); }
+  .start-btn:disabled {
+    opacity: .74;
+    cursor: wait;
+    transform: none;
+    box-shadow: 0 12px 24px rgba(207,173,84,.18);
+  }
 
   /* ── MESSAGES ── */
   #messages-wrap { display: none; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
@@ -827,9 +841,11 @@ const SERVER_URL =
 
 const DEFAULT_TOPIC = 'General Inquiry';
 const DEFAULT_HEADER_SUB = 'Instant support. Available now.';
-const DEFAULT_NAME_HELP = 'Used so the assistant can greet you properly.';
+const DEFAULT_VISITOR_NAME = 'Visitor';
+const DEFAULT_NAME_HELP = 'Optional. Add your name if you want a personalized greeting.';
 const DEFAULT_EMAIL_HELP = 'Leave this blank unless you want a follow-up.';
 const DEFAULT_TOPIC_HELP = 'Choose the closest match. You can still explain the details in chat.';
+const DEFAULT_PRE_CHAT_STATUS = 'The chat assistant replies first, then a live agent can join if needed.';
 const TYPING_MARKUP = `
   <div id="typing-indicator">
     <div class="typing-dot"></div>
@@ -867,6 +883,10 @@ let $nameHelp;
 let $emailHelp;
 let $topicHelp;
 let $topicPills;
+let $startButton;
+let $preChatStatus;
+let isStartingChat = false;
+let startAttemptTimer = null;
 
 function renderWidgetChrome() {
   const launcher = document.getElementById('chat-launcher');
@@ -916,7 +936,7 @@ function renderWidgetChrome() {
           </div>
         </div>
         <div class="input-group">
-          <label>Your Name</label>
+          <label>Your Name (optional)</label>
           <input id="visitor-name" type="text" placeholder="Enter your name" />
           <div class="field-help" id="name-help">${DEFAULT_NAME_HELP}</div>
         </div>
@@ -948,7 +968,8 @@ function renderWidgetChrome() {
       </div>
       <div class="pre-chat-footer">
         <div class="pre-chat-note">Once the chat starts, the chat assistant answers first and can bring in a human when needed.</div>
-        <button class="start-btn" onclick="startChat()">
+        <div class="pre-chat-status" id="pre-chat-status" aria-live="polite">${DEFAULT_PRE_CHAT_STATUS}</div>
+        <button class="start-btn" id="start-chat-btn" onclick="startChat()">
           <span>Start Chat</span>
           <span class="btn-arrow" aria-hidden="true">-&gt;</span>
         </button>
@@ -1001,6 +1022,8 @@ function cacheElements() {
   $emailHelp = document.getElementById('email-help');
   $topicHelp = document.getElementById('topic-help');
   $topicPills = document.getElementById('topic-pills');
+  $startButton = document.getElementById('start-chat-btn');
+  $preChatStatus = document.getElementById('pre-chat-status');
 }
 
 function notifyParentFrameState() {
@@ -1033,6 +1056,38 @@ function setFieldState(field, helpEl, message, isError) {
   field.classList.toggle('invalid', Boolean(isError));
   helpEl.classList.toggle('error', Boolean(isError));
   helpEl.textContent = message;
+}
+
+function setPreChatStatus(message = DEFAULT_PRE_CHAT_STATUS, isError = false) {
+  if (!$preChatStatus) return;
+  $preChatStatus.textContent = message;
+  $preChatStatus.classList.toggle('error', Boolean(isError));
+}
+
+function setStartButtonState(isLoading) {
+  if (!$startButton) return;
+  $startButton.disabled = Boolean(isLoading);
+  $startButton.innerHTML = isLoading
+    ? '<span>Starting chat...</span>'
+    : '<span>Start Chat</span><span class="btn-arrow" aria-hidden="true">-&gt;</span>';
+}
+
+function clearStartAttemptTimer() {
+  if (!startAttemptTimer) return;
+  window.clearTimeout(startAttemptTimer);
+  startAttemptTimer = null;
+}
+
+function resetStartAttempt(message = DEFAULT_PRE_CHAT_STATUS, isError = false) {
+  clearStartAttemptTimer();
+  isStartingChat = false;
+  chatStarted = false;
+  setStartButtonState(false);
+  setPreChatStatus(message, isError);
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 }
 
 function isValidEmail(value) {
@@ -1068,7 +1123,12 @@ function initializeTopicControls() {
 
   $nameInput.addEventListener('input', () => {
     const hasName = $nameInput.value.trim().length > 0;
-    setFieldState($nameInput, $nameHelp, hasName ? DEFAULT_NAME_HELP : 'Please enter your name before starting the chat.', !hasName);
+    setFieldState(
+      $nameInput,
+      $nameHelp,
+      hasName ? DEFAULT_NAME_HELP : `Optional. If you skip this, we'll call you ${DEFAULT_VISITOR_NAME}.`,
+      false
+    );
   });
 
   $emailInput.addEventListener('input', () => {
@@ -1086,10 +1146,14 @@ function connectSocket() {
   socket = io(SERVER_URL + '/visitor', { transports: ['websocket', 'polling'] });
 
   socket.on('chat:started', ({ sessionId: sid, message }) => {
+    clearStartAttemptTimer();
+    isStartingChat = false;
     sessionId = sid;
     $preChatDiv.style.display = 'none';
     $closedDiv.classList.remove('visible');
     $msgWrap.classList.add('visible');
+    setStartButtonState(false);
+    setPreChatStatus(DEFAULT_PRE_CHAT_STATUS, false);
     updateStatus('bot');
     if (message) addMessage('assistant', message);
     focusPrimaryField();
@@ -1122,10 +1186,24 @@ function connectSocket() {
 
   socket.on('error', payload => {
     const message = payload && payload.message ? payload.message : 'Something went wrong.';
+    if (!sessionId) {
+      resetStartAttempt(`Unable to start chat: ${message}`, true);
+      return;
+    }
     addSystemMessage(`Error: ${message}`);
   });
 
+  socket.on('connect_error', () => {
+    if (!sessionId) {
+      resetStartAttempt('Unable to connect to chat right now. Please try again in a moment.', true);
+    }
+  });
+
   socket.on('disconnect', () => {
+    if (!sessionId && isStartingChat) {
+      resetStartAttempt('The chat connection was interrupted before the conversation started. Please try again.', true);
+      return;
+    }
     socket = null;
   });
 }
@@ -1158,24 +1236,37 @@ function minimizeChat() {
 }
 
 function startChat() {
-  const name = $nameInput.value.trim();
+  if (isStartingChat || sessionId) return;
+
+  const name = $nameInput.value.trim() || DEFAULT_VISITOR_NAME;
   const email = $emailInput.value.trim();
   const topic = $topicInput.value || DEFAULT_TOPIC;
 
-  const hasName = Boolean(name);
   const emailValid = !email || isValidEmail(email);
 
-  setFieldState($nameInput, $nameHelp, hasName ? DEFAULT_NAME_HELP : 'Please enter your name before starting the chat.', !hasName);
+  setFieldState($nameInput, $nameHelp, DEFAULT_NAME_HELP, false);
   setFieldState($emailInput, $emailHelp, emailValid ? DEFAULT_EMAIL_HELP : 'Enter a valid email address or leave this blank.', !emailValid);
   setFieldState($topicInput, $topicHelp, DEFAULT_TOPIC_HELP, false);
 
-  if (!hasName || !emailValid) return;
+  if (!emailValid) {
+    setPreChatStatus('Please correct the email address or leave it blank.', true);
+    return;
+  }
 
   activeTopic = topic;
   if (!chatStarted) {
     chatStarted = true;
     connectSocket();
   }
+  isStartingChat = true;
+  setStartButtonState(true);
+  setPreChatStatus('Connecting you to the chat assistant...', false);
+  clearStartAttemptTimer();
+  startAttemptTimer = window.setTimeout(() => {
+    if (!sessionId && isStartingChat) {
+      resetStartAttempt('Chat is taking too long to connect. Please try again.', true);
+    }
+  }, 8000);
   $headerSub.textContent = getBotHeaderSubtitle();
   socket.emit('chat:start', { name, email, topic: activeTopic });
 }
@@ -1301,6 +1392,10 @@ function restartChat() {
   setFieldState($nameInput, $nameHelp, DEFAULT_NAME_HELP, false);
   setFieldState($emailInput, $emailHelp, DEFAULT_EMAIL_HELP, false);
   setFieldState($topicInput, $topicHelp, DEFAULT_TOPIC_HELP, false);
+  clearStartAttemptTimer();
+  isStartingChat = false;
+  setStartButtonState(false);
+  setPreChatStatus(DEFAULT_PRE_CHAT_STATUS, false);
   syncTopicChips();
   updateStatus('bot');
   focusPrimaryField();
@@ -1326,6 +1421,8 @@ function escapeHtml(s) {
 renderWidgetChrome();
 cacheElements();
 initializeTopicControls();
+setStartButtonState(false);
+setPreChatStatus(DEFAULT_PRE_CHAT_STATUS, false);
 updateStatus('bot');
 
 if (EMBEDDED_PANEL) {
