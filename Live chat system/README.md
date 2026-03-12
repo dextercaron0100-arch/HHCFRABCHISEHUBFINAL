@@ -24,6 +24,7 @@ Set these values in `.env` before production use:
 - `BOT_MODE`
 
 Optional values:
+- `ADMIN_DASHBOARD_HOSTS`
 - `SUPPORT_EMAIL`
 - `SUPPORT_PHONE`
 - `BUSINESS_HOURS`
@@ -68,6 +69,12 @@ The included `railway.toml` sets:
 
 For production, include both your website domain and your Railway chat domain in `ALLOWED_ORIGINS`.
 
+If you want a dedicated dashboard subdomain such as `admin.yourdomain.com`, add:
+
+- `ADMIN_DASHBOARD_HOSTS=admin.yourdomain.com`
+
+Then connect that custom domain to the Railway service. Requests to `/` on that host will redirect to `/agent-dashboard`.
+
 ## Website Connection
 
 After Railway gives you a public URL, set this in your Vercel project:
@@ -83,6 +90,12 @@ Default credentials in `server.js`:
 - `agent1 / agent123`
 
 Change these before production.
+
+Example setup for a dedicated admin URL:
+
+- `admin.hhcfranchisehub.com.ph` -> Railway chat service custom domain
+- `ADMIN_DASHBOARD_HOSTS=admin.hhcfranchisehub.com.ph`
+- Dashboard URL: `https://admin.hhcfranchisehub.com.ph`
 
 ## REST API
 - `GET /health`

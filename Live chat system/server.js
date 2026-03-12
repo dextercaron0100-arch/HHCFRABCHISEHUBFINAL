@@ -24,10 +24,37 @@ const {
 // ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
+function parseList(value = "") {
+  return String(value || "")
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeHost(value = "") {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+
+  try {
+    const input = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
+    return new URL(input).hostname;
+  } catch {
+    return raw
+      .replace(/^[a-z][a-z0-9+.-]*:\/\//i, "")
+      .replace(/\/.*$/, "")
+      .replace(/:\d+$/, "");
+  }
+}
+
 const PORT        = process.env.PORT        || 3000;
 const HOST        = process.env.HOST        || '0.0.0.0';
 const JWT_SECRET  = process.env.JWT_SECRET  || "change-me-in-production-secret";
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost,http://127.0.0.1").split(",");
+const ALLOWED_ORIGINS = parseList(
+  process.env.ALLOWED_ORIGINS || "http://localhost,http://127.0.0.1"
+);
+const ADMIN_DASHBOARD_HOSTS = parseList(process.env.ADMIN_DASHBOARD_HOSTS)
+  .map(normalizeHost)
+  .filter(Boolean);
 const BUSINESS_NAME = (
   process.env.BUSINESS_NAME ||
   WEBSITE_PROFILE.businessName ||
@@ -77,6 +104,8 @@ function isLocalDevOrigin(origin = "") {
 function isAllowedOrigin(origin) {
   if (!origin) return true;
   if (isLocalDevOrigin(origin)) return true;
+  const originHost = normalizeHost(origin);
+  if (originHost && ADMIN_DASHBOARD_HOSTS.includes(originHost)) return true;
   return ALLOWED_ORIGINS.some(o => {
     const allowed = String(o || "").trim();
     return allowed && origin.startsWith(allowed);
@@ -837,6 +866,26 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: "10kb" }));
+
+app.get("/", (req, res) => {
+  const requestHost = normalizeHost(
+    req.get("x-forwarded-host") || req.get("host") || req.hostname || ""
+  );
+
+  if (requestHost && ADMIN_DASHBOARD_HOSTS.includes(requestHost)) {
+    return res.redirect("/agent-dashboard");
+  }
+
+  return res.json({
+    status: "ok",
+    service: "live-chat",
+    routes: {
+      health: "/health",
+      widget: "/widget",
+      dashboard: "/agent-dashboard",
+    },
+  });
+});
 
 app.get("/widget", (_req, res) => {
   res.sendFile(path.join(__dirname, "widget.html"));
