@@ -8,9 +8,14 @@ const heroSlider = {
   slideInterval: null,
   slideDuration: 4000,
   isAnimating: false,
+  isInitialized: false,
+  eventsBound: false,
   hoverEnabled: false,
 
   init() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     // Query elements fresh
     this.slides = document.querySelectorAll('.hero-slide');
     this.dots = document.querySelectorAll('.slider-dot');
@@ -111,6 +116,9 @@ const heroSlider = {
   },
 
   bindEvents() {
+    if (this.eventsBound) return;
+    this.eventsBound = true;
+
     this.dots.forEach((dot, index) => {
       dot.addEventListener('click', () => {
         this.goToSlide(index);
@@ -170,7 +178,7 @@ const heroSlider = {
 // Initialize slider as soon as possible
 (function initSlider() {
   function doInit() {
-    if (!heroSlider.slideInterval) {
+    if (!heroSlider.isInitialized) {
       heroSlider.init();
     }
   }
@@ -207,7 +215,9 @@ if (navToggle && navLinks) {
 
 // Direction-aware reveal + parallax scroll effects
 (function initScrollEffects() {
+  const isHomePage = document.body?.classList.contains('home-page');
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const enableHomeHeroScroll = isHomePage && !reducedMotionQuery.matches;
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveDataEnabled = Boolean(connection && connection.saveData);
   const lowPowerDevice =
@@ -215,7 +225,8 @@ if (navToggle && navLinks) {
     (Number.isFinite(navigator.deviceMemory) && navigator.deviceMemory <= 4);
   const parallaxSelector =
     '[data-scroll-parallax], .hero-slider-wrapper, .founder-hero-overlay, .hero-banner-img, .fr3d-ambient';
-  const enableParallax = !reducedMotionQuery.matches && !saveDataEnabled && !lowPowerDevice;
+  const enableParallax = !isHomePage && !reducedMotionQuery.matches && !saveDataEnabled && !lowPowerDevice;
+  const enableDynamicTracking = !isHomePage;
   const observedReveals = new Set();
   const parallaxTargets = new Set();
   const activeParallaxTargets = new Set();
@@ -225,11 +236,13 @@ if (navToggle && navLinks) {
   let scrollDirection = 'down';
   let lastScrollY = window.scrollY;
   let lastParallaxScrollY = window.scrollY;
+  let lastHomeHeroProgress = -1;
   let scrollRaf = 0;
   const pendingRevealFrames = new Map();
   let revealObserver = null;
   let parallaxObserver = null;
   let mutationObserver = null;
+  const homeHero = enableHomeHeroScroll ? document.querySelector('.hero') : null;
 
   const addParallaxTarget = (el) => {
     if (!el || parallaxTargets.has(el)) return;
@@ -347,7 +360,7 @@ if (navToggle && navLinks) {
 
   collectTargets(document.body || document.documentElement);
 
-  if (document.body && (revealObserver || enableParallax)) {
+  if (enableDynamicTracking && document.body && (revealObserver || enableParallax)) {
     mutationObserver = new MutationObserver((records) => {
       records.forEach((record) => {
         record.addedNodes.forEach((addedNode) => collectTargets(addedNode));
@@ -376,6 +389,25 @@ if (navToggle && navLinks) {
     });
   };
 
+  const updateHomeHeroScroll = (scrollY) => {
+    if (!enableHomeHeroScroll || !homeHero) return;
+
+    const scrollRange = Math.max(window.innerHeight * 0.72, 1);
+    const progress = Math.max(0, Math.min(scrollY / scrollRange, 1));
+    const roundedProgress = Math.round(progress * 1000) / 1000;
+    if (roundedProgress === lastHomeHeroProgress) return;
+
+    lastHomeHeroProgress = roundedProgress;
+    const rootStyle = document.documentElement.style;
+    rootStyle.setProperty('--home-scroll-progress', roundedProgress.toFixed(3));
+    rootStyle.setProperty('--home-hero-bg-shift', `${(roundedProgress * 34).toFixed(2)}px`);
+    rootStyle.setProperty('--home-hero-bg-scale', `${(1 + roundedProgress * 0.04).toFixed(4)}`);
+    rootStyle.setProperty('--home-hero-content-shift', `${(roundedProgress * -56).toFixed(2)}px`);
+    rootStyle.setProperty('--home-hero-content-opacity', `${(1 - roundedProgress * 0.32).toFixed(3)}`);
+    rootStyle.setProperty('--home-hero-content-scale', `${(1 - roundedProgress * 0.035).toFixed(4)}`);
+    rootStyle.setProperty('--home-hero-image-shift', `${(roundedProgress * -24).toFixed(2)}px`);
+  };
+
   const processScroll = () => {
     scrollRaf = 0;
 
@@ -388,6 +420,7 @@ if (navToggle && navLinks) {
     lastScrollY = y;
 
     applyParallax(y);
+    updateHomeHeroScroll(y);
   };
 
   const onScroll = () => {
@@ -398,6 +431,11 @@ if (navToggle && navLinks) {
   if (revealObserver || enableParallax) {
     window.addEventListener('scroll', onScroll, { passive: true });
     processScroll();
+  }
+
+  if (enableHomeHeroScroll) {
+    window.addEventListener('resize', processScroll);
+    updateHomeHeroScroll(window.scrollY);
   }
 })();
 
@@ -1095,7 +1133,7 @@ function initTiltCards() {
 }
 
 function initParallaxLayers() {
-  if (prefersReducedMotion.matches || parallaxLayersInitialized) return;
+  if (document.body?.classList.contains('home-page') || prefersReducedMotion.matches || parallaxLayersInitialized) return;
   const layers = Array.from(document.querySelectorAll('[data-parallax]'));
   if (!layers.length) return;
   parallaxLayersInitialized = true;
