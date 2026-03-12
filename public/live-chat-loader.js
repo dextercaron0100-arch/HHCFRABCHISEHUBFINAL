@@ -92,10 +92,23 @@
 
   let frame = null;
   let isOpen = false;
-  const getViewportWidth = () =>
-    Math.floor(window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth || 0);
-  const getViewportHeight = () =>
-    Math.floor(window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight || 0);
+  const getViewportMetric = (axis) => {
+    const docElement = document.documentElement;
+    const body = document.body;
+    const candidates = [
+      window.visualViewport?.[axis],
+      axis === 'width' ? window.innerWidth : window.innerHeight,
+      axis === 'width' ? docElement?.clientWidth : docElement?.clientHeight,
+      axis === 'width' ? body?.clientWidth : body?.clientHeight,
+    ]
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value) && value > 0);
+
+    return candidates.length ? Math.floor(Math.min(...candidates)) : 0;
+  };
+
+  const getViewportWidth = () => getViewportMetric('width');
+  const getViewportHeight = () => getViewportMetric('height');
 
   const getBottomOffset = (mobile, panelWidth) => {
     const baseBottom = mobile ? 8 : 12;
@@ -131,9 +144,10 @@
       : Math.max(0, Math.min(viewportWidth - 24, 410));
     const launcherSize = 64;
     const panelBottom = getBottomOffset(mobile, openWidth);
-    const topInset = mobile ? 8 : 12;
+    const topInset = mobile ? 16 : 24;
     const availableHeight = Math.max(0, viewportHeight - panelBottom - topInset);
-    const openHeight = Math.min(688, availableHeight);
+    const maxPanelHeight = mobile ? 660 : 688;
+    const openHeight = Math.min(maxPanelHeight, availableHeight);
     return { mobile, openWidth, openHeight, launcherSize, panelBottom };
   };
 

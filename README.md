@@ -15,6 +15,21 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
+## Local Development
+
+Start both the Vite frontend and the backend together from the repo root:
+
+```bash
+npm run dev:all
+```
+
+Available dev commands:
+
+- `npm run dev:frontend`
+- `npm run dev:backend`
+- `npm run dev:livechat`
+- `npm run dev:all`
+
 ## Inquiry Form Deploy Notes (Vercel + Railway)
 
 This project includes a Vercel serverless endpoint at `/api/inquiry` (`api/inquiry.js`) that proxies form submissions to your backend.

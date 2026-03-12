@@ -24,6 +24,27 @@ const HOST        = process.env.HOST        || '0.0.0.0';
 const JWT_SECRET  = process.env.JWT_SECRET  || "change-me-in-production-secret";
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost,http://127.0.0.1").split(",");
 
+function isLocalDevOrigin(origin = "") {
+  return (
+    /^https?:\/\/localhost(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/\[::1\](?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/.+\.local(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/10(?:\.\d{1,3}){3}(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/192\.168(?:\.\d{1,3}){2}(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/172\.(1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2}(?::\d+)?$/i.test(origin)
+  );
+}
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (isLocalDevOrigin(origin)) return true;
+  return ALLOWED_ORIGINS.some(o => {
+    const allowed = String(o || "").trim();
+    return allowed && origin.startsWith(allowed);
+  });
+}
+
 // Agent credentials — replace / move to DB in production
 const AGENTS = [
   { id: "agent_1", username: "admin",  password: "admin123",  name: "Admin Agent"  },
@@ -124,7 +145,7 @@ app.use(helmet({
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.some(o => origin.startsWith(o.trim()))) {
+    if (isAllowedOrigin(origin)) {
       cb(null, true);
     } else {
       cb(new Error("CORS blocked: " + origin));
@@ -236,7 +257,7 @@ function requireAgentJWT(req, res, next) {
 const io = new Server(server, {
   cors: {
     origin: (origin, cb) => {
-      if (!origin || ALLOWED_ORIGINS.some(o => origin.startsWith(o.trim()))) cb(null, true);
+      if (isAllowedOrigin(origin)) cb(null, true);
       else cb(new Error("CORS blocked"));
     },
     credentials: true,
