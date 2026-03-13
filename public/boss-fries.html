@@ -496,6 +496,31 @@
       min-height: 520px;
     }
 
+    .hero-poster {
+      position: relative;
+      width: min(100%, 620px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 214, 0, 0.2);
+      box-shadow: 0 28px 64px rgba(0, 0, 0, 0.42);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .hero-poster::before {
+      content: "";
+      position: absolute;
+      inset: -12%;
+      z-index: -1;
+      background: radial-gradient(circle, rgba(255, 214, 0, 0.24) 0%, rgba(232, 0, 43, 0.12) 42%, transparent 72%);
+      filter: blur(22px);
+    }
+
+    .hero-poster img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
     .glow-ring {
       position: absolute;
       width: 360px;
@@ -1512,6 +1537,10 @@
         margin-top: 22px;
       }
 
+      .hero-poster {
+        width: min(100%, 560px);
+      }
+
       .hero-bg-text {
         left: 50%;
         top: 53%;
@@ -1752,27 +1781,8 @@
       </div>
     </div>
     <div class="hero-visual">
-      <div class="glow-ring"></div>
-      <div class="fries-container">
-        <div class="float-chip" style="--r:30deg"></div>
-        <div class="float-chip" style="--r:-20deg"></div>
-        <div class="float-chip" style="--r:15deg"></div>
-        <div class="float-chip" style="--r:-35deg"></div>
-        <div class="fries-box">
-          <div class="fs1 fries-stick"></div>
-          <div class="fs2 fries-stick"></div>
-          <div class="fs3 fries-stick"></div>
-          <div class="fs4 fries-stick"></div>
-          <div class="fs5 fries-stick"></div>
-          <div class="fs6 fries-stick"></div>
-          <div class="fs7 fries-stick"></div>
-          <div class="fs8 fries-stick"></div>
-          <div class="box-top"></div>
-          <div class="box-body"><span class="box-logo-text">BOSS FRIES</span></div>
-        </div>
-        <span class="flavor-tag">Cheese</span>
-        <span class="flavor-tag">Crispy</span>
-        <span class="flavor-tag">BBQ</span>
+      <div class="hero-poster reveal">
+        <img src="BOSS%20FRIES/BOSS%20FRIES%20LANDSCAPE.jpg" alt="Boss Fries hero banner" loading="eager">
       </div>
     </div>
   </section>

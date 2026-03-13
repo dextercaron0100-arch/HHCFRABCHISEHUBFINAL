@@ -519,9 +519,9 @@
         <div class="cb-summary">
           <button class="cb-summary-edit" onclick="goTo(9)" title="Edit">??</button>
           <div class="cb-summary-date" id="cb-date-label">Monday, March 9th, 2026</div>
-          <div class="cb-summary-time" id="cb-time-label">11:00 AM – 12:00 PM</div>
+          <div class="cb-summary-time" id="cb-time-label">9:00 AM – 9:30 AM</div>
           <div class="cb-summary-tz">?? Asia / Manila</div>
-          <div class="cb-summary-dur">? 1 hour</div>
+          <div class="cb-summary-dur">? 30 minutes</div>
         </div>
 
         <div class="cb-field"><label class="cb-label">First name <span>(Required)</span></label><input type="text" class="cb-input" id="cb-fname"></div>
@@ -627,20 +627,58 @@
   }
 
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const AVAILABLE = {
-    '2026-3': [7, 8, 9, 14, 15, 16, 21, 22, 23],
-    '2026-4': [4, 5, 6, 11, 12, 13, 18, 19, 20],
-  };
-  const TIMES = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','2:00 PM','2:30 PM','3:00 PM'];
+  const SLOT_DURATION_MINUTES = 30;
+  const BUSINESS_DAY_START_MINUTES = 9 * 60;
+  const BUSINESS_DAY_END_MINUTES = 18 * 60;
   const inquiryEndpoint = window.HHF_INQUIRY_API_URL || '/api/inquiry';
 
   const today = new Date();
-  let viewYear = 2026;
-  let viewMonth = 3;
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth() + 1;
   let selectedDay = null;
   let selectedTime = null;
 
-  function calKey() { return `${viewYear}-${viewMonth}`; }
+  function startOfDay(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  function formatTimeLabel(totalMinutes) {
+    const hours24 = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const suffix = hours24 >= 12 ? 'PM' : 'AM';
+    const hours12 = hours24 % 12 || 12;
+    return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
+  }
+
+  function parseTimeLabel(label) {
+    const match = label.match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/);
+    if (!match) return 0;
+
+    let hours = Number(match[1]) % 12;
+    const minutes = Number(match[2]);
+    if (match[3] === 'PM') hours += 12;
+    return (hours * 60) + minutes;
+  }
+
+  function buildTimeSlots() {
+    const slots = [];
+    for (let minutes = BUSINESS_DAY_START_MINUTES; minutes < BUSINESS_DAY_END_MINUTES; minutes += SLOT_DURATION_MINUTES) {
+      slots.push(formatTimeLabel(minutes));
+    }
+    return slots;
+  }
+
+  function isDateAvailable(day) {
+    const candidate = new Date(viewYear, viewMonth - 1, day);
+    return startOfDay(candidate) >= startOfDay(today);
+  }
+
+  function getSelectedEndTime() {
+    if (!selectedTime) return '';
+    return formatTimeLabel(parseTimeLabel(selectedTime) + SLOT_DURATION_MINUTES);
+  }
+
+  const TIMES = buildTimeSlots();
 
   function calGoToday() {
     viewYear = today.getFullYear();
@@ -651,6 +689,10 @@
   }
 
   function calPrev() {
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    if (viewYear === currentYear && viewMonth === currentMonth) return;
+
     viewMonth--;
     if (viewMonth < 1) { viewMonth = 12; viewYear--; }
     selectedDay = null;
@@ -669,7 +711,6 @@
   function renderCal() {
     document.getElementById('cal-month-label').textContent = `${MONTHS[viewMonth - 1]} ${viewYear}`;
 
-    const available = AVAILABLE[calKey()] || [];
     const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
     const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
 
@@ -682,7 +723,7 @@
         if (day < 1 || day > daysInMonth) {
           html += '<td><div class="day-cell"></div></td>';
         } else {
-          const isAvail = available.includes(day);
+          const isAvail = isDateAvailable(day);
           const isSel = selectedDay === day;
           let cls = 'day-cell';
           if (isAvail) cls += ' available';
@@ -743,7 +784,7 @@
                    : (selectedDay === 2 || selectedDay === 22) ? 'nd'
                    : (selectedDay === 3 || selectedDay === 23) ? 'rd' : 'th';
       document.getElementById('cb-date-label').textContent = `${dayName}, ${MONTHS[viewMonth - 1]} ${selectedDay}${suffix}, ${viewYear}`;
-      document.getElementById('cb-time-label').textContent = `${selectedTime} – 12:00 PM`;
+      document.getElementById('cb-time-label').textContent = `${selectedTime} – ${getSelectedEndTime()}`;
     }
     goTo(10);
   }
@@ -785,7 +826,7 @@
     const fbLink = document.getElementById('cb-fb')?.value.trim() || '';
 
     const scheduleText = selectedDay && selectedTime
-      ? `${MONTHS[viewMonth - 1]} ${selectedDay}, ${viewYear} at ${selectedTime}`
+      ? `${MONTHS[viewMonth - 1]} ${selectedDay}, ${viewYear} at ${selectedTime} – ${getSelectedEndTime()}`
       : 'No schedule selected';
 
     return [

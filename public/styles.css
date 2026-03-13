@@ -4486,6 +4486,22 @@ body.modal-open {
   transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms);
 }
 
+body.home-page .reveal,
+body.home-page .reveal.show,
+body.home-page .reveal.revealed {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+#about.aw-home-section .reveal,
+.mp-section .reveal,
+.contact-v2-section .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 .reveal.delay-1 {
   --reveal-delay: 100ms;
 }
@@ -6709,6 +6725,10 @@ body.modal-open {
   isolation: isolate;
 }
 
+.bigstop-page .bigstop-layout {
+  margin-top: calc(-1 * var(--nav-height));
+}
+
 .bigstop-layout::before {
   content: "";
   position: absolute;
@@ -6780,8 +6800,12 @@ body.modal-open {
 
 .bigstop-page .bigstop-hero-banner {
   position: relative;
-  min-height: calc(100vh - var(--nav-height));
-  height: calc(100vh - var(--nav-height));
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   display: flex;
   align-items: stretch;
   overflow: visible;
@@ -6803,12 +6827,17 @@ body.modal-open {
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  min-height: calc(100vh - var(--nav-height));
-  height: calc(100vh - var(--nav-height));
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   padding: clamp(1.2rem, 2.4vw, 2.6rem);
+  padding-top: calc(var(--nav-height) + clamp(1.2rem, 2.4vw, 2.6rem));
   background: linear-gradient(110deg, rgba(5, 13, 29, 0.82) 0%, rgba(5, 13, 29, 0.74) 34%, rgba(5, 13, 29, 0.4) 54%, rgba(5, 13, 29, 0.0) 76%);
 }
 
@@ -6845,7 +6874,7 @@ body.modal-open {
   position: absolute;
   left: 50%;
   top: auto;
-  bottom: clamp(-8rem, -11vh, -5.8rem);
+  bottom: clamp(-10.5rem, -15vh, -7.8rem);
   transform: translateX(-50%);
   z-index: 34;
   width: clamp(360px, 38vw, 580px);
@@ -6911,7 +6940,7 @@ body.modal-open {
 }
 
 .bigstop-page .bigstop-why {
-  padding-top: clamp(5.8rem, 10vh, 7.4rem);
+  padding-top: clamp(12rem, 22vh, 15rem);
 }
 
 .bigstop-page .bigstop-hero-overlay::before {
@@ -12426,6 +12455,10 @@ body.modal-open {
 }
 
 .bigstop-page .timer-bar {
+  position: fixed;
+  top: var(--nav-height);
+  inset-inline: 0;
+  z-index: 12;
   background: transparent;
   border: none;
   color: rgba(231, 239, 255, 0.92);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import homeContent from './home-content.html?raw'
 import './cookie-consent.css'
@@ -155,10 +155,28 @@ function DeferredFranchiseSection() {
   )
 }
 
+const HomeShell = memo(function HomeShell() {
+  return <div dangerouslySetInnerHTML={{ __html: homeContent }} />
+})
+
 function App() {
   const franchiseRootRef = useRef(null)
+  const franchiseHostRef = useRef(null)
   const [showCookieConsent, setShowCookieConsent] = useState(false)
   const [LivePurchaseToastComponent, setLivePurchaseToastComponent] = useState(null)
+
+  useLayoutEffect(() => {
+    const franchiseHost = document.getElementById('franchise3d-host')
+    if (!franchiseHost) return
+
+    if (!franchiseRootRef.current || franchiseHostRef.current !== franchiseHost) {
+      franchiseRootRef.current?.unmount()
+      franchiseRootRef.current = createRoot(franchiseHost)
+      franchiseHostRef.current = franchiseHost
+    }
+
+    franchiseRootRef.current.render(<DeferredFranchiseSection />)
+  }, [])
 
   useEffect(() => {
     document.body.classList.add('home-page')
@@ -188,12 +206,6 @@ function App() {
         })
         .catch(() => {})
     }, TOAST_IDLE_TIMEOUT_MS)
-
-    const franchiseHost = document.getElementById('franchise3d-host')
-    if (franchiseHost && !franchiseRootRef.current) {
-      franchiseRootRef.current = createRoot(franchiseHost)
-      franchiseRootRef.current.render(<DeferredFranchiseSection />)
-    }
 
     const normalizeHomeUrl = () => {
       const nextUrl = window.location.pathname + window.location.search
@@ -277,11 +289,9 @@ function App() {
       cancelToastLoad()
       window.removeEventListener('hashchange', onHashChange)
       document.removeEventListener('click', handleHomeLinkClick)
-
-      if (franchiseRootRef.current) {
-        franchiseRootRef.current.unmount()
-        franchiseRootRef.current = null
-      }
+      franchiseRootRef.current?.unmount()
+      franchiseRootRef.current = null
+      franchiseHostRef.current = null
       document.body.classList.remove('home-page')
     }
   }, [])
@@ -297,7 +307,7 @@ function App() {
 
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: homeContent }} />
+      <HomeShell />
       {LivePurchaseToastComponent ? <LivePurchaseToastComponent position="bottom-left" mobileFullWidth /> : null}
 
       {showCookieConsent ? (
