@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 const cleanUrlHtmlRoutes = {
   '/history': '/history.html',
+  '/website-presentation': '/presentation.html',
   '/boss-siomai': '/boss-siomai.html',
   '/awards': '/awards.html',
   '/bigstop-franchise-kit': '/bigstop-franchise-kit.html',
@@ -72,6 +73,7 @@ export default defineConfig({
         main: fileURLToPath(new URL('./index.html', import.meta.url)),
         bossSiomai: fileURLToPath(new URL('./boss-siomai.html', import.meta.url)),
         history: fileURLToPath(new URL('./history.html', import.meta.url)),
+        presentation: fileURLToPath(new URL('./presentation.html', import.meta.url)),
       },
     },
   },
