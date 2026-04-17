@@ -195,9 +195,11 @@ h1, h2, h3, h4 {
   top: 0;
   inset-inline: 0;
   z-index: 30;
-  background: transparent;
-  border-bottom: none;
-  box-shadow: none;
+  background: rgba(6, 12, 24, 0.72);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+  box-shadow: 0 8px 22px rgba(2, 6, 23, 0.28);
 }
 
 .nav {
@@ -209,6 +211,11 @@ h1, h2, h3, h4 {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+.nav-links,
+.nav-cta {
+  min-width: 0;
 }
 
 .nav-brand {
@@ -6310,6 +6317,7 @@ body.home-page .reveal.revealed {
   .nav {
     padding: 0 14px;
     gap: 0.7rem;
+    justify-content: space-between;
   }
 
   .nav-logo {
@@ -6318,14 +6326,7 @@ body.home-page .reveal.revealed {
   }
 
   .nav-cta {
-    margin-left: auto;
-    gap: 0.55rem;
-  }
-
-  .nav-cta .btn-primary {
-    padding: 0.5rem 0.95rem;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
+    display: none;
   }
 
   .nav-links {
@@ -6344,6 +6345,7 @@ body.home-page .reveal.revealed {
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--transition-med), transform var(--transition-med);
+    z-index: 40;
   }
 
   .nav-links.open {
@@ -6382,6 +6384,10 @@ body.home-page .reveal.revealed {
 
   .nav-toggle {
     display: inline-flex;
+  }
+
+  body.nav-open {
+    overflow: hidden;
   }
 
   .stats-strip {
