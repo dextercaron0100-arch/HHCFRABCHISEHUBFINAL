@@ -51,6 +51,30 @@
     return;
   }
 
+  const canReachWidget = async () => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 3500);
+
+    try {
+      const response = await fetch(widgetSrc.toString(), {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      return response.ok;
+    } catch {
+      return false;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  };
+
+  if (!(await canReachWidget())) {
+    console.warn('Live chat disabled: widget endpoint is unavailable.');
+    return;
+  }
+
   const launcher = document.createElement('button');
   launcher.id = 'hhf-live-chat-launcher';
   launcher.type = 'button';
